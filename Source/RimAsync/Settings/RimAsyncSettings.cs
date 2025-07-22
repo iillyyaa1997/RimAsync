@@ -1,0 +1,122 @@
+using RimWorld;
+using UnityEngine;
+using Verse;
+
+namespace RimAsync.Core
+{
+    /// <summary>
+    /// Settings for RimAsync mod
+    /// Controls performance optimizations and behavior
+    /// </summary>
+    public class RimAsyncSettings : ModSettings
+    {
+        // Performance Settings
+        public bool enableAsyncPathfinding = true;
+        public bool enableBackgroundJobs = true;
+        public bool enableSmartCaching = true;
+        public bool enableMemoryOptimization = true;
+
+        // Safety Settings
+        public bool enableFallbackMechanisms = true;
+        public bool enablePerformanceMonitoring = true;
+
+        // Advanced Settings
+        public int maxAsyncThreads = 2;
+        public float asyncTimeoutSeconds = 5.0f;
+        public bool enableDebugLogging = false;
+
+        // Multiplayer Compatibility
+        public bool respectAsyncTimeSetting = true;
+        public bool enableMultiplayerOptimizations = true;
+
+        public override void ExposeData()
+        {
+            // Performance Settings
+            Scribe_Values.Look(ref enableAsyncPathfinding, "enableAsyncPathfinding", true);
+            Scribe_Values.Look(ref enableBackgroundJobs, "enableBackgroundJobs", true);
+            Scribe_Values.Look(ref enableSmartCaching, "enableSmartCaching", true);
+            Scribe_Values.Look(ref enableMemoryOptimization, "enableMemoryOptimization", true);
+
+            // Safety Settings
+            Scribe_Values.Look(ref enableFallbackMechanisms, "enableFallbackMechanisms", true);
+            Scribe_Values.Look(ref enablePerformanceMonitoring, "enablePerformanceMonitoring", true);
+
+            // Advanced Settings
+            Scribe_Values.Look(ref maxAsyncThreads, "maxAsyncThreads", 2);
+            Scribe_Values.Look(ref asyncTimeoutSeconds, "asyncTimeoutSeconds", 5.0f);
+            Scribe_Values.Look(ref enableDebugLogging, "enableDebugLogging", false);
+
+            // Multiplayer Compatibility
+            Scribe_Values.Look(ref respectAsyncTimeSetting, "respectAsyncTimeSetting", true);
+            Scribe_Values.Look(ref enableMultiplayerOptimizations, "enableMultiplayerOptimizations", true);
+
+            base.ExposeData();
+        }
+
+        public void DoWindowContents(Rect inRect)
+        {
+            var listing = new Listing_Standard();
+            listing.Begin(inRect);
+
+            // Header
+            listing.Label("RimAsync Settings");
+            listing.Gap();
+
+            // Performance Section
+            listing.Label("Performance Optimizations:");
+            listing.CheckboxLabeled("Enable Async Pathfinding", ref enableAsyncPathfinding, 
+                "Allows pawns to find paths in background without blocking gameplay");
+            listing.CheckboxLabeled("Enable Background Jobs", ref enableBackgroundJobs,
+                "Processes work tasks in background for smoother performance");
+            listing.CheckboxLabeled("Enable Smart Caching", ref enableSmartCaching,
+                "Intelligently caches frequent calculations");
+            listing.CheckboxLabeled("Enable Memory Optimization", ref enableMemoryOptimization,
+                "Reduces memory usage for better performance");
+
+            listing.Gap();
+
+            // Safety Section
+            listing.Label("Safety & Reliability:");
+            listing.CheckboxLabeled("Enable Fallback Mechanisms", ref enableFallbackMechanisms,
+                "Automatically falls back to original code if issues occur");
+            listing.CheckboxLabeled("Enable Performance Monitoring", ref enablePerformanceMonitoring,
+                "Monitors performance and adjusts optimizations automatically");
+
+            listing.Gap();
+
+            // Multiplayer Section
+            listing.Label("Multiplayer Compatibility:");
+            listing.CheckboxLabeled("Respect AsyncTime Setting", ref respectAsyncTimeSetting,
+                "Follows RimWorld Multiplayer AsyncTime setting for safety");
+            listing.CheckboxLabeled("Enable Multiplayer Optimizations", ref enableMultiplayerOptimizations,
+                "Additional optimizations safe for multiplayer use");
+
+            listing.Gap();
+
+            // Advanced Section
+            listing.Label("Advanced Settings:");
+            
+            listing.Label($"Max Async Threads: {maxAsyncThreads}");
+            maxAsyncThreads = (int)listing.Slider(maxAsyncThreads, 1, 8);
+            
+            listing.Label($"Async Timeout: {asyncTimeoutSeconds:F1}s");
+            asyncTimeoutSeconds = listing.Slider(asyncTimeoutSeconds, 1.0f, 30.0f);
+            
+            listing.CheckboxLabeled("Enable Debug Logging", ref enableDebugLogging,
+                "Enables detailed logging for troubleshooting (may impact performance)");
+
+            listing.Gap();
+
+            // Status Information
+            var core = RimAsync.Core.RimAsyncCore.GetExecutionMode();
+            listing.Label($"Current Mode: {core}");
+            
+            if (RimAsync.Core.RimAsyncCore.IsMultiplayerActive)
+            {
+                listing.Label($"AsyncTime Enabled: {RimAsync.Core.RimAsyncCore.AsyncTimeEnabled}");
+            }
+
+            listing.End();
+        }
+    }
+} 
