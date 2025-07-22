@@ -111,3 +111,6 @@ TestResults/
 !stylecop.json
 !Directory.Build.props
 !.vscode/settings.json
+
+# Private planning documents (not committed to repository)
+Planning/
