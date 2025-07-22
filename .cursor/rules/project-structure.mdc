@@ -1,0 +1,32 @@
+# RimAsync Project Structure Rules
+
+## Directory Structure
+
+```
+RimAsync/
+├── About/                    # RimWorld mod metadata
+│   └── About.xml
+├── Source/RimAsync/         # Main source code
+│   ├── Core/               # Core systems
+│   ├── Threading/          # Async operations
+│   ├── Patches/           # Harmony patches
+│   ├── Components/        # Game components
+│   ├── Settings/          # Configuration
+│   └── Utils/             # Utilities
+├── .cursor/rules/         # Development standards
+└── Documentation/         # Project docs
+```
+
+## Key Principles
+
+- **Multiplayer-First**: Every feature must work with RimWorld Multiplayer
+- **AsyncTime Integration**: Use AsyncTime for safe background operations
+- **Performance Focused**: Optimize TPS for large colonies
+- **Mod Compatibility**: Work well with other popular mods
+
+## File Organization
+
+- All C# files use English comments
+- Russian documentation for internal use only
+- Harmony patches organized by system (RW_Patches/, Multiplayer_Patches/, etc.)
+- Core systems separated from patches for clarity

@@ -1,0 +1,212 @@
+# Testing Guidelines for RimAsync
+
+## Test Categories
+
+### 1. Unit Tests
+- Test individual components in isolation
+- Mock dependencies where necessary
+- Focus on algorithm correctness
+
+### 2. Integration Tests
+- Test interaction between components
+- Verify Harmony patches work correctly
+- Test with real RimWorld environment
+
+### 3. Performance Tests
+- Measure TPS improvements
+- Memory usage profiling
+- Long-running stability tests
+
+### 4. Multiplayer Compatibility Tests
+- Determinism verification
+- State synchronization testing
+- Desync detection
+
+## Required Test Patterns
+
+### Multiplayer Determinism Test
+```csharp
+[Test]
+public void TestMultiplayerDeterminism()
+{
+    // Setup identical initial state
+    var state1 = CreateTestGameState(seed: 12345);
+    var state2 = CreateTestGameState(seed: 12345);
+    
+    // Run identical operations
+    ProcessGameTick(state1);
+    ProcessGameTick(state2);
+    
+    // Verify identical results
+    Assert.AreEqual(state1.GetChecksum(), state2.GetChecksum());
+}
+```
+
+### Performance Benchmark Test
+```csharp
+[Test]
+public void BenchmarkPathfinding()
+{
+    var stopwatch = Stopwatch.StartNew();
+    
+    // Run pathfinding operation
+    var path = PathfindingCache.FindPath(start, end);
+    
+    stopwatch.Stop();
+    
+    // Assert performance improvement
+    Assert.Less(stopwatch.ElapsedMilliseconds, expectedMaxTime);
+}
+```
+
+### Thread Safety Test
+```csharp
+[Test]
+public void TestThreadSafety()
+{
+    var tasks = new List<Task>();
+    var results = new ConcurrentBag<int>();
+    
+    // Run multiple concurrent operations
+    for (int i = 0; i < 10; i++)
+    {
+        tasks.Add(Task.Run(() => 
+        {
+            var result = ThreadSafeOperation();
+            results.Add(result);
+        }));
+    }
+    
+    Task.WaitAll(tasks.ToArray());
+    
+    // Verify no race conditions
+    Assert.AreEqual(10, results.Count);
+    Assert.IsTrue(results.All(r => r > 0));
+}
+```
+
+## Test Environment Setup
+
+### Mock RimWorld Environment
+```csharp
+[SetUp]
+public void SetupRimWorldMocks()
+{
+    // Mock essential RimWorld systems
+    mockMap = new Mock<Map>();
+    mockPawn = new Mock<Pawn>();
+    
+    // Setup common scenarios
+    SetupMockPathfinding();
+    SetupMockJobSystem();
+}
+```
+
+### Multiplayer Test Environment
+```csharp
+[SetUp]
+public void SetupMultiplayerTest()
+{
+    // Force multiplayer mode for testing
+    MultiplayerTestHelper.EnableMultiplayerMode();
+    
+    // Ensure deterministic seed
+    Rand.PushState(12345);
+}
+
+[TearDown]
+public void CleanupMultiplayerTest()
+{
+    Rand.PopState();
+    MultiplayerTestHelper.DisableMultiplayerMode();
+}
+```
+
+## Performance Testing Requirements
+
+### Memory Usage Tests
+```csharp
+[Test]
+public void TestMemoryUsage()
+{
+    GC.Collect();
+    var initialMemory = GC.GetTotalMemory(false);
+    
+    // Run operations
+    for (int i = 0; i < 1000; i++)
+    {
+        ProcessOperation();
+    }
+    
+    GC.Collect();
+    var finalMemory = GC.GetTotalMemory(false);
+    
+    // Verify no significant memory increase
+    var memoryIncrease = finalMemory - initialMemory;
+    Assert.Less(memoryIncrease, maxAllowedIncrease);
+}
+```
+
+### Long-Running Stability Test
+```csharp
+[Test]
+[Timeout(300000)] // 5 minutes
+public void TestLongRunningStability()
+{
+    // Simulate long game session
+    for (int tick = 0; tick < 10000; tick++)
+    {
+        ProcessGameTick();
+        
+        // Check for issues every 100 ticks
+        if (tick % 100 == 0)
+        {
+            VerifySystemStability();
+        }
+    }
+}
+```
+
+## Testing Checklist
+
+### Before Each Commit
+- [ ] All unit tests pass
+- [ ] Performance benchmarks meet targets
+- [ ] Memory usage is acceptable
+- [ ] Multiplayer determinism verified
+
+### Before Each Release
+- [ ] Full integration test suite passes
+- [ ] Long-running stability test passes
+- [ ] Tested with popular mod combinations
+- [ ] Multiplayer desync testing completed
+- [ ] Performance regression testing done
+
+## Mock Helpers
+```csharp
+public static class TestHelpers
+{
+    public static Map CreateTestMap(int size = 50)
+    {
+        // Create minimal functional map for testing
+    }
+    
+    public static Pawn CreateTestPawn()
+    {
+        // Create test pawn with essential components
+    }
+    
+    public static void SimulateTicks(int count)
+    {
+        // Simulate game ticks for testing
+    }
+}
+```
+
+## Test Data Management
+- Use deterministic test data
+- Create reusable test scenarios
+- Maintain test save files for regression testing
+- Document test case coverage
+
+Remember: **Every feature must have corresponding tests, especially multiplayer compatibility!**

@@ -1,0 +1,212 @@
+# Code Quality and Linting Rules
+
+## 🎨 MANDATORY Code Quality Standards
+
+RimAsync uses comprehensive code quality tools including **EditorConfig**, **StyleCop.Analyzers**, **Microsoft.CodeAnalysis.NetAnalyzers**, and **SonarAnalyzer.CSharp**. **ALWAYS follow these standards when writing code.**
+
+### 🚨 CRITICAL Rules for AI Code Generation
+
+#### 1. **Format Code Before Submission**
+```bash
+✅ REQUIRED:   make format-fix     # Auto-fix style issues
+✅ REQUIRED:   make format-check   # Verify formatting
+❌ NEVER:      Submit unformatted code
+```
+
+#### 2. **Run Linting Before Completion**
+```bash
+✅ REQUIRED:   make lint           # Basic code analysis  
+✅ REQUIRED:   make lint-report    # Detailed analysis
+✅ REQUIRED:   make security-lint  # Security scan
+❌ NEVER:      Ignore linter warnings or errors
+```
+
+#### 3. **Zero Tolerance Policy**
+- **NO failing tests allowed** 
+- **NO linter errors allowed**
+- **NO security vulnerabilities allowed**
+- **NO unformatted code allowed**
+
+## 📋 Available Code Quality Commands
+
+### 🎨 Formatting Commands:
+- `make format` - Standard code formatting
+- `make format-fix` - Auto-fix style issues (use for AI-generated code)
+- `make format-check` - Verify formatting without changes
+
+### 🔍 Linting Commands:
+- `make lint` - Basic code analysis with warnings/errors
+- `make lint-report` - Detailed analysis report (saves to CodeAnalysis.log)
+- `make security-lint` - Security vulnerability scanning
+
+### 🔄 Quality Workflow:
+- `make cycle` - Full workflow: clean → build → test (includes linting)
+- `make quick-cycle` - Fast workflow: build → test (includes linting)
+
+## 🎯 AI Code Generation Guidelines
+
+### **When Writing New Code:**
+1. **Follow .editorconfig rules** automatically
+2. **Use proper C# naming conventions** (PascalCase, camelCase, _camelCase)
+3. **Include proper using statements** (System usings first)
+4. **Apply RimWorld-specific patterns** when relevant
+
+### **When Modifying Existing Code:**
+1. **Run `make format-fix`** after code changes
+2. **Run `make lint`** to check for new issues
+3. **Fix ALL warnings and errors** before completion
+4. **Follow existing code patterns** in the file
+
+### **Before Task Completion:**
+1. **Run `make format-check`** to verify formatting
+2. **Run `make lint-report`** for comprehensive analysis
+3. **Address ALL issues** found by linters
+4. **Run `make test`** to ensure no regressions
+
+## 🏗️ Code Style Standards
+
+### **C# Formatting (from .editorconfig):**
+```csharp
+// ✅ CORRECT: PascalCase for public members
+public class AsyncManager
+{
+    // ✅ CORRECT: _camelCase for private fields
+    private readonly CancellationTokenSource _cancellationTokenSource;
+    
+    // ✅ CORRECT: camelCase for parameters and locals
+    public void ProcessAsync(CancellationToken cancellationToken)
+    {
+        var processingTask = Task.Run(() => {
+            // Implementation
+        }, cancellationToken);
+    }
+}
+
+// ❌ WRONG: Inconsistent naming
+public class asyncmanager  // Should be PascalCase
+{
+    private CancellationTokenSource cancellationTokenSource;  // Should be _camelCase
+}
+```
+
+### **Using Statements:**
+```csharp
+// ✅ CORRECT: System usings first, separated by blank line
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+using HarmonyLib;
+using RimWorld;
+using Verse;
+
+using RimAsync.Core;
+```
+
+### **RimWorld Specific Patterns:**
+```csharp
+// ✅ CORRECT: Harmony patch structure
+[HarmonyPatch(typeof(TickManager), "DoSingleTick")]
+public static class TickManager_DoSingleTick_Patch
+{
+    public static bool Prefix(TickManager __instance)
+    {
+        // Patch implementation
+        return true;
+    }
+}
+```
+
+## 🔧 Analyzer Configuration
+
+### **Enabled Analyzers:**
+- **StyleCop.Analyzers** - Code style and consistency
+- **Microsoft.CodeAnalysis.NetAnalyzers** - Code quality and performance
+- **SonarAnalyzer.CSharp** - Security and maintainability
+
+### **RimWorld-Specific Suppressions:**
+- `CA1051` - Public instance fields (mod compatibility)
+- `CA1062` - Null checks (RimWorld handles nulls differently)
+- `CA1822` - Static members (Harmony patches cannot be static)
+- `CS1591` - Documentation (mod development)
+
+### **Severity Levels:**
+- **Errors**: Security, reliability issues
+- **Warnings**: Style, maintainability issues  
+- **Suggestions**: Performance improvements
+- **Silent**: RimWorld compatibility exceptions
+
+## 🚀 Integration with Cursor Commands
+
+### **@execute-task Integration:**
+```bash
+# After implementing features:
+make format-fix        # Auto-fix any style issues
+make lint              # Check for problems
+make test              # Verify functionality
+```
+
+### **@run-tests Integration:**
+```bash
+# Before running tests:
+make format-check      # Ensure code is formatted
+make lint              # Check for issues
+make test              # Run tests with clean code
+```
+
+### **@analyze-logs Integration:**
+```bash
+# When debugging:
+make lint-report       # Generate detailed analysis
+make security-lint     # Check for vulnerabilities
+make logs              # View runtime logs
+```
+
+## 💡 Best Practices for AI Development
+
+### **Proactive Quality:**
+1. **Write clean code first** - follow standards from the start
+2. **Use meaningful names** - self-documenting code
+3. **Include relevant comments** - explain complex logic
+4. **Handle edge cases** - anticipate potential issues
+
+### **Reactive Quality:**
+1. **Fix linter issues immediately** - don't accumulate technical debt
+2. **Address security warnings** - security is critical
+3. **Optimize performance** - RimWorld performance matters
+4. **Test thoroughly** - ensure robust functionality
+
+### **Continuous Quality:**
+1. **Run formatters regularly** during development
+2. **Check linting frequently** to catch issues early
+3. **Review analysis reports** for improvement opportunities
+4. **Monitor security status** for new vulnerabilities
+
+## 🎉 Quality Gates
+
+### **Required for Code Completion:**
+- ✅ `make format-check` - passes without changes needed
+- ✅ `make lint` - no errors, minimal warnings
+- ✅ `make security-lint` - no high/critical vulnerabilities
+- ✅ `make test` - all tests passing
+
+### **Required for Task Completion:**
+- ✅ `make lint-report` - comprehensive analysis reviewed
+- ✅ `make cycle` - full development cycle successful
+- ✅ All files follow .editorconfig standards
+- ✅ No technical debt introduced
+
+## 📊 Monitoring and Reporting
+
+### **Analysis Reports:**
+- **CodeAnalysis.log** - detailed build analysis
+- **TestResults/** - test coverage and results
+- **Security scans** - vulnerability assessments
+
+### **Continuous Improvement:**
+- Review linter feedback for learning opportunities
+- Update rules when patterns emerge
+- Share quality insights with team
+- Maintain high standards consistently
+
+**🌟 Remember: Quality is not optional - it's a requirement for RimAsync development!**

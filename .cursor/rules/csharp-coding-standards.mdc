@@ -1,0 +1,91 @@
+# C# Coding Standards for RimAsync
+
+## Language and Comments
+- **ALL comments must be in English** (required by project rules)
+- Use meaningful variable and method names
+- Add XML documentation for public APIs
+
+## Thread Safety Requirements
+```csharp
+// Always check multiplayer mode for deterministic execution
+if (MultiplayerAPI.IsInMultiplayer)
+{
+    // Use synchronous, deterministic approach
+    ProcessSync();
+}
+else
+{
+    // Use async approach for performance
+    await ProcessAsync();
+}
+```
+
+## Required Patterns
+
+### 1. ThreadStatic for Temporary Variables
+```csharp
+[ThreadStatic] 
+private static List<Thing> tmpThings = new List<Thing>();
+```
+
+### 2. Thread-Safe Collections
+```csharp
+// Use ConcurrentDictionary instead of Dictionary for shared data
+private static readonly ConcurrentDictionary<Pawn, JobData> jobCache = new();
+
+// Or use locks for regular collections
+private static readonly object lockObject = new object();
+lock (lockObject)
+{
+    // Access shared collection
+}
+```
+
+### 3. Null Safety (Critical for Multiplayer)
+```csharp
+if (target?.Thing?.def == null) return;
+// Always check entire chain before accessing
+```
+
+### 4. Unity Main Thread Restrictions
+```csharp
+// Graphics/Sound must be on main thread
+if (UnityEngine.Application.isPlaying)
+{
+    // Queue for main thread execution
+    MainThreadDispatcher.Enqueue(() => PlaySound(soundDef));
+}
+```
+
+## RimWorld Specific Patterns
+
+### Harmony Patches
+```csharp
+[HarmonyPatch(typeof(TargetClass), nameof(TargetClass.MethodName))]
+public static class TargetClass_MethodName_Patch
+{
+    public static bool Prefix(/* parameters */)
+    {
+        // Prefix logic
+        return true; // true = continue to original
+    }
+}
+```
+
+### Async Job Processing
+```csharp
+public static async Task<JobResult> ProcessJobAsync(Job job, CancellationToken cancellationToken)
+{
+    // Ensure cancellation support
+    cancellationToken.ThrowIfCancellationRequested();
+    
+    // Background processing
+    await Task.Run(() => ProcessJobLogic(job), cancellationToken);
+}
+```
+
+## Performance Guidelines
+- Use `ConfigureAwait(false)` for non-UI async calls
+- Cache frequently accessed data in static dictionaries
+- Minimize allocations in hot paths
+- Use object pooling for temporary objects

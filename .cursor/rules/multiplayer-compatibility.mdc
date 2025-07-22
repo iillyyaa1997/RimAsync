@@ -1,0 +1,222 @@
+# Multiplayer Compatibility Rules
+
+## Critical Requirements
+**EVERY OPERATION must be deterministic when `MultiplayerAPI.IsInMultiplayer` is true**
+
+## Core Principles
+
+### 1. AsyncTime Integration
+```csharp
+// CRITICAL: Check AsyncTime setting for enhanced multiplayer compatibility
+if (MultiplayerAPI.IsInMultiplayer)
+{
+    if (MultiplayerSettings.AsyncTime)
+    {
+        // AsyncTime mode - limited async operations allowed
+        await ProcessAsyncTimeCompatibleAsync();
+    }
+    else
+    {
+        // Full deterministic mode
+        ProcessDeterministically();
+    }
+}
+else
+{
+    // Full async for single player
+    await ProcessAsync();
+}
+```
+
+### 2. Command Pool Integration
+```csharp
+// Integrate with Multiplayer's Command Pool system
+public static void QueueMultiplayerSafeOperation(Action operation)
+{
+    if (MultiplayerAPI.IsInMultiplayer)
+    {
+        MP.WatchBegin();
+        operation();
+        MP.WatchEnd();
+    }
+    else
+    {
+        operation();
+    }
+}
+```
+
+### 2. Synchronized Random Operations
+```csharp
+// NEVER use Rand.Value or Random in multiplayer
+if (MultiplayerAPI.IsInMultiplayer)
+{
+    // Use synchronized random
+    var value = MultiplayerAPI.SyncedRandom.Next();
+}
+else
+{
+    // Regular random is OK
+    var value = Rand.Range(0, 100);
+}
+```
+
+### 3. Fixed Execution Order
+```csharp
+// Process collections in deterministic order
+foreach (var item in collection.OrderBy(x => x.GetUniqueLoadID()))
+{
+    // Process item deterministically
+}
+```
+
+## Forbidden Operations in Multiplayer
+
+### ❌ Non-Deterministic Operations
+- `System.Random` without synchronized seed
+- `DateTime.Now` or `Environment.TickCount`
+- `GetHashCode()` on objects (varies between runs)
+- Parallel processing without synchronization
+- Background threads that modify game state
+
+### ❌ Async Operations That Modify Game State
+```csharp
+// FORBIDDEN in multiplayer
+Task.Run(() => {
+    pawn.health.AddHediff(hediffDef); // Modifies game state
+});
+
+// ALLOWED - read-only background operations
+Task.Run(() => {
+    var result = ExpensiveCalculation();
+    // Store result for later synchronous application
+});
+```
+
+## Required Patterns
+
+### 1. Mode Detection
+```csharp
+public static bool IsMultiplayerMode => MultiplayerAPI.IsInMultiplayer;
+
+public static void ProcessGame()
+{
+    if (IsMultiplayerMode)
+    {
+        ProcessGameSync();
+    }
+    else
+    {
+        ProcessGameAsync().GetAwaiter().GetResult();
+    }
+}
+```
+
+### 2. State Synchronization
+```csharp
+// Queue state changes for synchronous application
+private static readonly Queue<StateChange> pendingChanges = new();
+
+public static void QueueStateChange(StateChange change)
+{
+    if (IsMultiplayerMode)
+    {
+        // Apply immediately in deterministic order
+        ApplyStateChange(change);
+    }
+    else
+    {
+        // Queue for batch processing
+        pendingChanges.Enqueue(change);
+    }
+}
+```
+
+### 3. Deterministic Collections
+```csharp
+// Use ordered collections for deterministic iteration
+private static readonly SortedDictionary<int, GameData> gameData = new();
+
+// Or explicitly sort before processing
+foreach (var item in items.OrderBy(x => x.thingID))
+{
+    ProcessItem(item);
+}
+```
+
+## Testing for Multiplayer Compatibility
+
+### 1. Determinism Tests
+```csharp
+// Test that operations produce same result across multiple runs
+[Test]
+public void TestDeterministicBehavior()
+{
+    var result1 = ProcessWithSeed(12345);
+    var result2 = ProcessWithSeed(12345);
+    Assert.AreEqual(result1, result2);
+}
+```
+
+### 2. State Synchronization Tests
+- Run identical operations on multiple clients
+- Verify game state remains synchronized
+- Test with network latency simulation
+
+## Performance in Multiplayer Mode
+
+### Allowed Optimizations
+```csharp
+if (!IsMultiplayerMode)
+{
+    // Background processing for single-player only
+    _ = Task.Run(() => PrecomputePaths());
+}
+
+// Caching is always allowed (but ensure deterministic keys)
+private static readonly ConcurrentDictionary<DeterministicKey, CachedValue> cache = new();
+```
+
+### Deterministic Caching
+```csharp
+// Cache key must be deterministic
+public struct PathCacheKey
+{
+    public int startTileID;
+    public int endTileID;
+    public int pathfindingFlags;
+    
+    // Use deterministic GetHashCode
+    public override int GetHashCode() => 
+        HashCode.Combine(startTileID, endTileID, pathfindingFlags);
+}
+```
+
+## Common Pitfalls
+
+1. **Using object.GetHashCode()** - varies between runs
+2. **Dictionary iteration order** - not guaranteed deterministic
+3. **Floating-point precision** - can vary across systems
+4. **Thread timing dependencies** - inherently non-deterministic
+5. **System time dependencies** - varies between clients
+
+## Integration with RimWorld Multiplayer
+
+### Load Order
+```xml
+<loadAfter>
+    <li>rwmt.Multiplayer</li>
+</loadAfter>
+```
+
+### API Usage
+```csharp
+// Check if multiplayer mod is loaded
+if (ModsConfig.IsActive("rwmt.Multiplayer"))
+{
+    // Initialize multiplayer compatibility
+    InitializeMultiplayerMode();
+}
+```
+
+Remember: **Multiplayer compatibility is not optional** - it's a core requirement for RimAsync!

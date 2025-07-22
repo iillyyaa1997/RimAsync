@@ -1,0 +1,147 @@
+# English Comments Requirement
+
+## MANDATORY: All Comments Must Be in English
+
+Based on project rules, **ALL comments in code must be written in English**. This includes:
+
+- Inline comments
+- Method documentation
+- Class documentation
+- XML documentation comments
+- TODO comments
+- Git commit messages
+
+## Examples
+
+### ✅ Correct (English)
+```csharp
+/// <summary>
+/// Processes async pathfinding for the specified pawn in multiplayer-safe manner
+/// </summary>
+/// <param name="pawn">The pawn to find path for</param>
+/// <returns>Calculated path or null if no path found</returns>
+public static async Task<PawnPath> FindPathAsync(Pawn pawn)
+{
+    // Check if multiplayer mode is active to ensure deterministic execution
+    if (MultiplayerAPI.IsInMultiplayer)
+    {
+        // Use synchronous pathfinding for multiplayer compatibility
+        return FindPathSync(pawn);
+    }
+    
+    // TODO: Implement caching for frequently requested paths
+    return await CalculatePathAsync(pawn);
+}
+```
+
+### ❌ Incorrect (Russian)
+```csharp
+/// <summary>
+/// Обрабатывает асинхронный поиск пути
+/// </summary>
+public static async Task<PawnPath> FindPathAsync(Pawn pawn)
+{
+    // Проверяем режим мультиплеера
+    if (MultiplayerAPI.IsInMultiplayer)
+    {
+        // Используем синхронный поиск пути
+        return FindPathSync(pawn);
+    }
+}
+```
+
+## Documentation Standards
+
+### XML Documentation
+```csharp
+/// <summary>
+/// Manages thread-safe caching for pathfinding operations
+/// </summary>
+/// <remarks>
+/// This cache uses deterministic keys to ensure multiplayer compatibility.
+/// Cache invalidation occurs when map structure changes.
+/// </remarks>
+public class PathfindingCache
+{
+    /// <summary>
+    /// Gets cached path if available, otherwise calculates new path
+    /// </summary>
+    /// <param name="start">Starting position</param>
+    /// <param name="end">Target position</param>
+    /// <param name="pathEndMode">How to handle path ending</param>
+    /// <returns>Calculated or cached path</returns>
+    public PawnPath GetPath(IntVec3 start, IntVec3 end, PathEndMode pathEndMode)
+    {
+        // Implementation
+    }
+}
+```
+
+### Harmony Patch Documentation
+```csharp
+/// <summary>
+/// Patches PathFinder.FindPath to add async processing support
+/// </summary>
+/// <remarks>
+/// This patch intercepts vanilla pathfinding and redirects to our async system
+/// when not in multiplayer mode. Multiplayer mode uses original pathfinding
+/// to maintain deterministic behavior.
+/// </remarks>
+[HarmonyPatch(typeof(PathFinder), nameof(PathFinder.FindPath))]
+public static class PathFinder_FindPath_Patch
+{
+    /// <summary>
+    /// Prefix that redirects to async pathfinding in single-player mode
+    /// </summary>
+    public static bool Prefix(/* parameters */)
+    {
+        // Check multiplayer status before proceeding with async logic
+        if (!MultiplayerAPI.IsInMultiplayer)
+        {
+            // Safe to use async pathfinding
+            return ProcessAsync();
+        }
+        
+        return true; // Continue with vanilla logic for multiplayer
+    }
+}
+```
+
+## Comment Quality Guidelines
+
+### Good Comments Explain WHY
+```csharp
+// Cache pathfinding results to avoid recalculation when pawns 
+// request the same path multiple times in a single tick
+private static readonly Dictionary<PathKey, PawnPath> pathCache = new();
+
+// Use ThreadStatic to prevent race conditions when multiple
+// threads access temporary collections simultaneously  
+[ThreadStatic]
+private static List<IntVec3> tempPath = new();
+```
+
+### Avoid Obvious Comments
+```csharp
+// ❌ Bad - states the obvious
+count++; // Increment count by 1
+
+// ✅ Good - explains business logic
+count++; // Track processed pawns for performance metrics
+```
+
+## Commit Message Standards
+All commit messages must be in English:
+
+```
+✅ Good:
+- "Add multiplayer compatibility for pathfinding system"
+- "Fix thread safety issue in job cache"
+- "Optimize memory usage in long-running games"
+
+❌ Bad:
+- "Добавить совместимость с мультиплеером"
+- "Исправить проблему с потоками"
+```
+
+This requirement ensures code maintainability and collaboration with the international RimWorld modding community.

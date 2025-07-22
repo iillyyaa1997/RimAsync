@@ -1,0 +1,128 @@
+# Harmony Patch Guidelines for RimAsync
+
+## Patch Organization
+- **RW_Patches/**: Vanilla RimWorld patches for core functionality
+- **Mod_Patches/**: Compatibility patches for other mods
+- **Performance_Patches/**: Performance optimization patches
+- **Multiplayer_Patches/**: Patches specifically for multiplayer compatibility
+
+## Naming Convention
+```csharp
+[HarmonyPatch(typeof(TargetClass), nameof(TargetClass.MethodName))]
+public static class TargetClass_MethodName_Patch
+{
+    // Implementation
+}
+```
+
+## Critical Patterns for Multiplayer Compatibility
+
+### 1. Deterministic Random Operations
+```csharp
+[HarmonyPrefix]
+public static bool Prefix_DeterministicRandom(ref int __result)
+{
+    if (MultiplayerAPI.IsInMultiplayer)
+    {
+        // Use synced random with fixed seed
+        __result = MultiplayerAPI.SyncedRandom.Next();
+        return false; // Skip original
+    }
+    return true; // Allow original
+}
+```
+
+### 2. Thread-Safe State Access
+```csharp
+[HarmonyTranspiler]
+public static IEnumerable<CodeInstruction> Transpiler_ThreadSafe(IEnumerable<CodeInstruction> instructions)
+{
+    // Replace field access with thread-safe getter
+    foreach (var instruction in instructions)
+    {
+        if (instruction.LoadsField(AccessTools.Field(typeof(SomeClass), "unsafeField")))
+        {
+            yield return new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ThreadSafeHelper), "GetSafeField"));
+        }
+        else
+        {
+            yield return instruction;
+        }
+    }
+}
+```
+
+### 3. Async-Safe Postfix
+```csharp
+[HarmonyPostfix]
+public static void Postfix_AsyncProcessing(SomeClass __instance)
+{
+    if (!MultiplayerAPI.IsInMultiplayer)
+    {
+        // Only run async processing in single-player
+        _ = ProcessAsync(__instance);
+    }
+}
+```
+
+## Performance Patch Patterns
+
+### 1. Caching Expensive Operations
+```csharp
+private static readonly ConcurrentDictionary<CacheKey, CacheValue> cache = new();
+
+[HarmonyPrefix]
+public static bool Prefix_WithCaching(SomeClass __instance, ref ReturnType __result)
+{
+    var key = new CacheKey(__instance.param1, __instance.param2);
+    if (cache.TryGetValue(key, out var cachedResult))
+    {
+        __result = cachedResult.Value;
+        return false; // Skip expensive original method
+    }
+    return true; // Continue to original
+}
+```
+
+### 2. Background Processing
+```csharp
+[HarmonyPostfix]
+public static void Postfix_BackgroundProcessing(SomeClass __instance)
+{
+    if (!MultiplayerAPI.IsInMultiplayer)
+    {
+        // Queue for background processing
+        AsyncCore.QueueBackgroundTask(() => ProcessInBackground(__instance));
+    }
+}
+```
+
+## Error Handling in Patches
+```csharp
+[HarmonyPrefix]
+public static bool Prefix_SafeOperation(SomeClass __instance)
+{
+    try
+    {
+        // Patch logic
+        return true;
+    }
+    catch (Exception ex)
+    {
+        Log.Error($"[RimAsync] Error in {nameof(Prefix_SafeOperation)}: {ex}");
+        return true; // Always allow original to continue
+    }
+}
+```
+
+## Documentation Requirements
+- Document why each patch is needed
+- Explain multiplayer compatibility considerations
+- Note any performance implications
+- Include version compatibility information
+
+## Testing Guidelines
+- Test both single-player and multiplayer modes
+- Verify deterministic behavior with multiple clients
+- Check for memory leaks in long-running games
+- Test with high colony populations

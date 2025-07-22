@@ -1,0 +1,87 @@
+# AsyncTime Integration for RimWorld Multiplayer
+
+## What is AsyncTime?
+
+AsyncTime is a **setting in RimWorld Multiplayer** that allows certain asynchronous operations to run safely without causing desync issues. When enabled, it provides a middle ground between full deterministic execution and full async performance.
+
+## Critical Implementation Pattern
+
+```csharp
+// ALWAYS check AsyncTime setting when in multiplayer
+public static class AsyncTimeManager
+{
+    public static bool CanUseAsync => 
+        !MultiplayerAPI.IsInMultiplayer || 
+        (MultiplayerAPI.IsInMultiplayer && MultiplayerSettings.AsyncTime);
+        
+    public static async Task ExecuteOperation(Func<Task> asyncOperation, Action syncOperation)
+    {
+        if (MultiplayerAPI.IsInMultiplayer)
+        {
+            if (MultiplayerSettings.AsyncTime)
+            {
+                // Limited async allowed in AsyncTime mode
+                await asyncOperation();
+            }
+            else
+            {
+                // Full sync required
+                syncOperation();
+            }
+        }
+        else
+        {
+            // Full async in single player
+            await asyncOperation();
+        }
+    }
+}
+```
+
+## AsyncTime-Safe Operations
+
+**Operations that CAN run async with AsyncTime enabled:**
+- Background pathfinding calculations
+- Performance monitoring and statistics
+- Cache warming and precomputation
+- Non-game-state UI updates
+- Resource loading and preparation
+
+**Operations that MUST remain sync even with AsyncTime:**
+- Game state modifications
+- RNG operations affecting gameplay
+- Player input processing
+- Save/load operations
+- Network synchronization
+
+## Implementation Example
+
+```csharp
+// Good AsyncTime pattern
+public static async Task ProcessPathfindingAsync(Pawn pawn)
+{
+    if (AsyncTimeManager.CanUseAsync)
+    {
+        // Background pathfinding calculation
+        var path = await CalculatePathAsync(pawn);
+        
+        // Apply result synchronously to ensure determinism
+        pawn.pather.SetPath(path);
+    }
+    else
+    {
+        // Fallback to sync processing
+        var path = CalculatePathSync(pawn);
+        pawn.pather.SetPath(path);
+    }
+}
+```
+
+## Testing Requirements
+
+- **Always test with AsyncTime ON and OFF**
+- **Verify no desyncs occur in both modes**
+- **Performance must improve in AsyncTime mode**
+- **Fallback to sync mode must work perfectly**
+
+Remember: AsyncTime is our **key advantage** - we can provide performance improvements while maintaining full multiplayer compatibility!

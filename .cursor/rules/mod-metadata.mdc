@@ -1,0 +1,193 @@
+# Mod Metadata Guidelines
+
+## About.xml Structure
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+    <name>RimAsync</name>
+    <author>Ilya Volkov</author>
+    <packageId>rimasync.mod</packageId>
+    <supportedVersions>
+        <li>1.5</li>
+    </supportedVersions>
+    <description>
+        RimAsync provides asynchronous performance improvements for RimWorld while maintaining full compatibility with multiplayer.
+        
+        The first performance mod that works in multiplayer environments!
+        
+        Features:
+        - Asynchronous pathfinding and job processing
+        - Full RimWorld Multiplayer compatibility
+        - Significant TPS improvements on large colonies
+        - Intelligent caching systems
+        - Automatic performance scaling
+        
+        LOAD ORDER: Place after RimWorld Multiplayer if using multiplayer.
+        
+        Compatible with most mods. Report issues on GitHub.
+    </description>
+    <modDependencies>
+        <li>
+            <packageId>brrainz.harmony</packageId>
+            <displayName>Harmony</displayName>
+            <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+            <downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+        </li>
+    </modDependencies>
+    <loadAfter>
+        <li>rwmt.Multiplayer</li>
+    </loadAfter>
+    <incompatibleWith>
+        <li>majorhoff.rimthreaded</li>
+    </incompatibleWith>
+</ModMetaData>
+```
+
+## LoadFolders.xml for Multi-Version Support
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<loadFolders>
+    <v1.5>
+        <li>Common</li>
+        <li>1.5</li>
+        <li IfModActive="rwmt.Multiplayer">MultiplayerSpecific</li>
+    </v1.5>
+    <v1.6>
+        <li>Common</li>
+        <li>1.6</li>
+        <li IfModActive="rwmt.Multiplayer">MultiplayerSpecific</li>
+    </v1.6>
+</loadFolders>
+```
+
+## Version Management Strategy
+
+### Supported Versions
+- **Primary Target**: RimWorld 1.5
+- **Future Target**: RimWorld 1.6 (prepare for release)
+- **Backwards Compatibility**: Not supported (focus on latest)
+
+### Version-Specific Folders
+```
+1.5/
+├── Assemblies/
+│   ├── RimAsync.dll
+│   └── replacements_1.5.json
+└── LoadFolders.xml
+
+1.6/
+├── Assemblies/
+│   ├── RimAsync.dll  
+│   └── replacements_1.6.json
+└── LoadFolders.xml
+
+Common/
+├── Defs/
+├── Patches/
+└── Languages/
+```
+
+## Critical Compatibility Requirements
+
+### Required Load Order
+1. **Harmony** (dependency)
+2. **RimWorld Multiplayer** (if present)
+3. **RimAsync** (this mod)
+4. **Other mods**
+
+### Incompatible Mods
+- **Other threading mods** - Fundamental conflicts with threading approach
+- **Other performance mods** that modify core game loop
+- **Mods that patch the same methods** without compatibility
+
+### Conditional Loading
+```xml
+<!-- Load multiplayer-specific patches only if multiplayer is present -->
+<li IfModActive="rwmt.Multiplayer">MultiplayerPatches</li>
+
+<!-- Load performance optimizations only for single-player -->
+<li IfModNotActive="rwmt.Multiplayer">SinglePlayerOptimizations</li>
+```
+
+## Description Guidelines
+
+### Key Points to Highlight
+1. **Multiplayer compatibility** (unique selling point)
+2. **Performance improvements** (quantifiable if possible)
+3. **Load order requirements**
+4. **Compatibility status** with other mods
+5. **Support and bug reporting** information
+
+### Description Template
+```
+RimAsync - Asynchronous Performance for RimWorld
+
+The first performance mod fully compatible with RimWorld Multiplayer!
+
+FEATURES:
+- [Feature list]
+
+REQUIREMENTS:
+- RimWorld 1.5+
+- Harmony (auto-downloaded)
+
+COMPATIBILITY:
+- ✅ RimWorld Multiplayer
+- ✅ Most content mods
+- ❌ Threading/performance mods (use one or the other)
+
+PERFORMANCE:
+- Typical improvement: 50-200% TPS increase
+- Memory usage: <20% increase
+- Works best on colonies with 15+ pawns
+
+SUPPORT:
+GitHub: [repository link]
+Discord: [community link]
+```
+
+## Steam Workshop Metadata
+
+### Tags to Use
+- Performance
+- Multiplayer
+- Utility
+- Framework
+- Quality of Life
+
+### Preview Image Requirements
+- Highlight multiplayer compatibility
+- Show performance improvements
+- Use recognizable RimWorld aesthetics
+- Include mod name clearly
+
+## Release Notes Format
+```
+Version X.Y.Z - Release Name
+
+NEW FEATURES:
+- Feature descriptions
+
+IMPROVEMENTS:
+- Performance improvements
+- Compatibility updates
+
+BUG FIXES:
+- Fixed issues
+
+MULTIPLAYER:
+- Multiplayer-specific changes
+
+COMPATIBILITY:
+- New mod compatibility
+- Breaking changes (if any)
+```
+
+## Metadata Validation Checklist
+- [ ] packageId follows convention: `author.modname`
+- [ ] All dependency package IDs are correct
+- [ ] Load order is properly specified
+- [ ] Version support is accurate
+- [ ] Description mentions multiplayer compatibility
+- [ ] Incompatible mods are listed
+- [ ] Steam Workshop tags are appropriate

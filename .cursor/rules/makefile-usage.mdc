@@ -1,0 +1,188 @@
+# Makefile Usage Rules
+
+## 📋 Makefile Commands Available
+
+RimAsync has a comprehensive Makefile with convenient commands for all development tasks. **ALWAYS use Makefile commands instead of raw Docker commands** for consistency and better UX.
+
+### 🏗️ Build Commands
+- `make build` - Full build in Docker container (replaces: docker-compose up build)
+- `make quick-build` - Quick incremental build  
+- `make release` - Production release build
+
+### 🧪 Test Commands  
+- `make test` - Run all tests in Docker (replaces: docker-compose up test)
+- `make test-unit` - Run unit tests only
+- `make test-integration` - Run integration tests only  
+- `make test-performance` - Run performance tests only
+- `make test-coverage` - Run tests with coverage report
+- `make test-report` - Generate HTML test report
+
+### 🚀 Development Commands
+- `make dev` - Start development environment
+- `make shell` - Enter Docker container shell for debugging  
+- `make logs` - Show Docker container logs
+- `make watch` - Development mode with file watching
+- `make format` - Format code using dotnet format
+- `make lint` - Run code analysis
+
+### 🧹 Maintenance Commands
+- `make clean` - Clean Docker images and containers
+- `make clean-all` - Deep clean (removes ALL Docker data - use with caution)
+- `make setup` - Initial project setup
+- `make docker-info` - Show Docker environment info
+
+### 📦 Distribution Commands
+- `make package` - Create distribution package  
+- `make deploy-local` - Deploy to local RimWorld mods directory (macOS)
+- `make security-scan` - Run security vulnerability scan
+
+### 🔄 Workflow Shortcuts
+- `make cycle` - Full development cycle: clean → build → test
+- `make quick-cycle` - Quick cycle: build → test
+- `make status` - Git status + Docker build info
+- `make help` - Show all available commands
+
+## 🚨 MANDATORY Makefile Usage Rules
+
+### 1. **Always Prefer Makefile Commands**
+```bash
+✅ CORRECT:   make build
+❌ WRONG:     docker-compose up build
+
+✅ CORRECT:   make test  
+❌ WRONG:     docker-compose up test
+
+✅ CORRECT:   make clean
+❌ WRONG:     docker-compose down
+```
+
+### 2. **When to Use Raw Docker Commands**  
+- Only when debugging Makefile issues
+- When Makefile command doesn't exist for specific need
+- When instructed explicitly by user
+
+### 3. **Command Suggestions**
+When user asks for:
+- **"build"** → suggest `make build`
+- **"test"** → suggest `make test` 
+- **"clean"** → suggest `make clean`
+- **"help"** → suggest `make help`
+- **"setup"** → suggest `make setup`
+
+### 4. **Makefile Integration with Cursor Commands**
+
+#### @execute-task Integration:
+```bash
+# Instead of docker-compose commands, use:
+make build          # For compilation
+make test           # For testing  
+make quick-cycle    # For build + test workflow
+```
+
+#### @run-tests Integration:
+```bash
+make test                 # All tests
+make test-unit           # Unit tests only
+make test-integration    # Integration tests  
+make test-performance    # Performance tests
+make test-coverage       # With coverage
+```
+
+#### @analyze-logs Integration:
+```bash
+make logs           # View container logs
+make status         # Git + Docker status
+make docker-info    # Docker environment info
+```
+
+## 🎯 Common Development Workflows
+
+### 🚀 Starting Development:
+```bash
+make setup          # Initial setup (first time)
+make docker-info    # Verify Docker environment  
+make build          # Build project
+make test           # Run tests
+```
+
+### 🔄 Daily Development:
+```bash
+make status         # Check current state
+make quick-cycle    # Build + test
+make dev            # Start dev environment
+```
+
+### 🧹 Maintenance:
+```bash
+make clean          # Clean Docker resources
+make format         # Format code
+make lint          # Run analysis
+```
+
+### 🚀 Release Preparation:
+```bash
+make cycle          # Full clean cycle
+make security-scan  # Security check
+make package        # Create package
+make deploy-local   # Test locally
+```
+
+## 💡 Makefile Benefits
+
+### ✅ Advantages of Using Makefile:
+- **Consistency**: Same commands work for everyone
+- **Simplicity**: `make build` vs `docker-compose up build --remove-orphans`
+- **Color Output**: Better visual feedback
+- **Error Handling**: Built-in error checking
+- **Documentation**: Self-documenting with `make help`
+- **Workflow Integration**: Combines multiple steps
+- **Cross-Platform**: Works on macOS, Linux, Windows (with WSL)
+
+### 🎨 Visual Feedback:
+- **Cyan**: Command descriptions  
+- **Green**: Success messages
+- **Yellow**: Warnings and info
+- **Red**: Errors and confirmations
+
+## 🔧 Makefile Maintenance
+
+### When to Update Makefile:
+- Adding new Docker services to docker-compose.yml
+- Creating new test categories
+- Adding deployment targets
+- Introducing new development workflows
+
+### How to Add New Commands:
+1. Add .PHONY target
+2. Add help description with ##
+3. Use color variables for consistent output
+4. Follow existing naming conventions
+5. Update this rules file
+
+## 📝 Example Usage in AI Responses
+
+When user asks to build:
+```
+🏗️ Building RimAsync using Makefile...
+
+make build
+
+This will:
+- Use Docker container for compilation
+- Show colored progress output  
+- Handle errors gracefully
+- Clean up automatically
+```
+
+When user asks for help:
+```
+📋 Available commands:
+
+make help          # Show all commands
+make build         # Build project
+make test          # Run tests
+make dev           # Start development  
+make clean         # Clean environment
+
+Use `make help` for complete list with descriptions.
+```
