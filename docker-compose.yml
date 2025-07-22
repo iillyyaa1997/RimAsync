@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  # Build and compile RimAsync
+  build:
+    build:
+      context: .
+      target: build
+      dockerfile: Dockerfile
+    container_name: rimasync-build
+    volumes:
+      - ./Build:/app/Build
+      - ./Source:/app/Source
+      - ./Tests:/app/Tests
+    environment:
+      - DOTNET_CLI_TELEMETRY_OPTOUT=1
+      - DOTNET_NOLOGO=1
+    command: >
+      sh -c "
+        cd /app/Source/RimAsync &&
+        dotnet restore &&
+        dotnet build --configuration Release --output /app/Build/Assemblies &&
+        cp -r /app/About/* /app/Build/About/ &&
+        echo 'Build completed successfully!'
+      "
+
+  # Run tests
+  test:
+    build:
+      context: .
+      target: test
+      dockerfile: Dockerfile
+    container_name: rimasync-test
+    volumes:
+      - ./TestResults:/app/TestResults
+      - ./Source:/app/Source
+      - ./Tests:/app/Tests
+    environment:
+      - DOTNET_CLI_TELEMETRY_OPTOUT=1
+      - DOTNET_NOLOGO=1
+    command: >
+      sh -c "
+        cd /app &&
+        dotnet test Tests/ --configuration Release --logger 'trx;LogFileName=TestResults.trx' --results-directory /app/TestResults &&
+        echo 'Tests completed!'
+      "
+
+  # Development environment with file watching
+  dev:
+    build:
+      context: .
+      target: build
+      dockerfile: Dockerfile
+    container_name: rimasync-dev
+    volumes:
+      - .:/app
+      - ./Build:/app/Build
+    environment:
+      - DOTNET_CLI_TELEMETRY_OPTOUT=1
+      - DOTNET_NOLOGO=1
+    working_dir: /app
+    command: >
+      sh -c "
+        echo 'RimAsync Development Environment Ready!' &&
+        echo 'Available commands:' &&
+        echo '  dotnet build --project Source/RimAsync' &&
+        echo '  dotnet test Tests/' &&
+        echo '  dotnet watch --project Source/RimAsync' &&
+        tail -f /dev/null
+      "
+    tty: true
+    stdin_open: true
+
+  # Quick compile for development
+  quick-build:
+    build:
+      context: .
+      target: build
+      dockerfile: Dockerfile
+    container_name: rimasync-quick
+    volumes:
+      - ./Source:/app/Source
+      - ./Build:/app/Build
+    environment:
+      - DOTNET_CLI_TELEMETRY_OPTOUT=1
+      - DOTNET_NOLOGO=1
+    command: >
+      sh -c "
+        cd /app/Source/RimAsync &&
+        dotnet build --configuration Debug --output /app/Build/Debug &&
+        echo 'Quick build completed!'
+      "
+
+  # Production build with optimization
+  release:
+    build:
+      context: .
+      target: runtime
+      dockerfile: Dockerfile
+    container_name: rimasync-release
+    volumes:
+      - ./Release:/mod/output
+    environment:
+      - DOTNET_CLI_TELEMETRY_OPTOUT=1
+    command: >
+      sh -c "
+        cp -r /mod/* /mod/output/ &&
+        echo 'Release build copied to ./Release directory' &&
+        echo 'Ready for Steam Workshop upload!'
+      "
+
+volumes:
+  dotnet-packages:
+    driver: local
+
+networks:
+  default:
+    name: rimasync-network 
