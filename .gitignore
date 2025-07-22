@@ -1,0 +1,113 @@
+# RimAsync .gitignore
+
+## Build artifacts and assemblies
+*.dll
+*.pdb
+*.cache
+*.exe
+obj/
+bin/
+Assemblies/
+
+## Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.csproj.user
+*.sln.docstates
+
+## RimWorld mod specific
+About/PublishedFileId.txt
+About/Preview.png
+LoadFolders.xml
+Backup/
+
+## Development and debugging
+*.log
+debug/
+logs/
+TestResults/
+coverage/
+
+## Docker artifacts and outputs
+Build/
+Release/
+.docker/
+docker-volumes/
+*.dockerignore
+.env.docker
+
+## Package managers
+packages/
+.nuget/
+node_modules/
+
+## Temporary files
+*.tmp
+*.temp
+*~
+*.swp
+*.swo
+
+## OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+## Steam Workshop
+steam_workshop_upload/
+workshop_upload/
+
+## External libraries and references
+# External/ - external dependencies if any
+
+## Personal development files
+personal_notes.md
+todo_personal.md
+STATUS.md
+scratch/
+temp/
+
+## Source control
+.git/
+*.orig
+
+## Documentation builds
+docs/_build/
+docs/build/
+
+## IDE configurations that should be ignored
+*.code-workspace
+
+## RimWorld specific generated files
+ModsConfig.xml
+
+# Makefile is important - ensure it's tracked
+!Makefile
+
+# Code analysis and reports
+CodeAnalysis.log
+*.sarif
+.sonarqube/
+.scannerwork/
+
+# Code quality tools
+coverage/
+TestResults/
+**/coverage.xml
+**/coverage.json
+**/coverage.info
+**/lcov.info
+
+# EditorConfig and linting configs should be tracked
+!.editorconfig
+!stylecop.json
+!Directory.Build.props
+!.vscode/settings.json
