@@ -9,10 +9,31 @@ RimAsync provides flexible testing commands through the Makefile for different t
 ### ⚡ Super Quick Commands (Recommended)
 ```bash
 make t                       # Fastest - unit tests only (minimal output)
+make t-coverage             # Fastest - unit tests with coverage (one command!)
 make test-quick             # Interactive menu (4 most common options)
+make test-quick-coverage    # Interactive menu with coverage options
 make test-run               # Universal interactive runner
-make coverage-quick         # Quick code coverage (unit tests only)
+make test-run-coverage      # Universal runner with built-in coverage
 ```
+
+### 📊 Built-in Coverage Commands (NEW!)
+
+**One command = Tests + Coverage automatically!**
+
+```bash
+make test-unit-coverage              # Unit tests with coverage
+make test-integration-coverage       # Integration tests with coverage
+make test-performance-coverage       # Performance tests with coverage
+make test-run-coverage TARGET="..."  # Universal runner with coverage
+make test-find-coverage NAME="..."   # Smart search with coverage
+make t-coverage                      # Super quick with coverage
+```
+
+**Benefits:**
+- 🚀 **One command** instead of chaining with `&&`
+- 📊 **Automatic coverage** - no need to remember separate commands
+- 🎯 **Organized results** - coverage reports go to specific folders
+- ⚡ **Same speed** - built-in integration, no overhead
 
 ### 🔍 Smart Search Commands
 ```bash
@@ -240,13 +261,17 @@ make test-run TARGET="Category=HighPriority|Category=CriticalPriority"
 ### For Daily Development
 ```bash
 # 1. Quick check during coding
-make t
+make t                               # Just tests
+# OR
+make t-coverage                      # Tests + coverage in one command
 
-# 2. Test specific functionality
-make test-find NAME="Multiplayer"
+# 2. Test specific functionality with coverage
+make test-find-coverage NAME="Multiplayer"   # Smart search + coverage
+# OR
+make test-run-coverage TARGET="AsyncManager" # Specific target + coverage
 
-# 3. Interactive selection
-make test-quick
+# 3. Interactive selection with coverage
+make test-quick-coverage             # Menu with coverage options
 ```
 
 ### For Debugging
@@ -263,10 +288,15 @@ make test-run TARGET="ProblematicClass" OPTS="--logger html;LogFileName=debug.ht
 | Command | Purpose | Example | Speed |
 |---------|---------|---------|--------|
 | `make t` | Super quick unit tests | `make t` | ⚡⚡⚡ |
+| `make t-coverage` | Super quick + coverage | `make t-coverage` | ⚡⚡⚡ |
 | `make test-quick` | Interactive menu | `make test-quick` | ⚡⚡ |
+| `make test-quick-coverage` | Interactive menu + coverage | `make test-quick-coverage` | ⚡⚡ |
 | `make test-find` | Smart search | `make test-find NAME="Multiplayer"` | ⚡⚡ |
+| `make test-find-coverage` | Smart search + coverage | `make test-find-coverage NAME="Settings"` | ⚡⚡ |
 | `make test-run` | Universal runner | `make test-run TARGET="Category=Unit"` | ⚡⚡ |
-| `make coverage-quick` | Quick coverage | `make coverage-quick` | ⚡⚡ |
-| `make coverage` | Full coverage | `make coverage` | ⚡ |
-| `make coverage-html` | HTML coverage | `make coverage-html` | 🐌 |
+| `make test-run-coverage` | Universal runner + coverage | `make test-run-coverage TARGET="AsyncManager"` | ⚡⚡ |
+| `make test-unit-coverage` | Unit tests + coverage | `make test-unit-coverage` | ⚡⚡ |
+| `make coverage-quick` | Quick coverage analysis | `make coverage-quick` | ⚡⚡ |
+| `make coverage` | Full coverage analysis | `make coverage` | ⚡ |
+| `make coverage-html` | HTML coverage report | `make coverage-html` | 🐌 |
 | `make test` | All tests | `make test` | ⚡ |

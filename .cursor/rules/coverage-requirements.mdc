@@ -25,8 +25,8 @@
 ### Smart Coverage Usage
 
 ```bash
-# 🚨 REQUIRED for new features:
-make test-run TARGET="NewFeatureTests" && make coverage-quick
+# 🚨 REQUIRED for new features (NOW EASIER!):
+make test-run-coverage TARGET="NewFeatureTests"   # One command!
 
 # ⚡ OPTIONAL for quick debug:
 make t                    # Just checking if tests pass
@@ -34,8 +34,28 @@ make t                    # Just checking if tests pass
 # 🔄 OPTIONAL during TDD cycles:
 make test-run TARGET="WorkInProgress"  # Red-green iterations
 
-# 🚨 REQUIRED before commit:
-make coverage            # Full analysis before push
+# 🚨 REQUIRED before commit (NOW EASIER!):
+make test-unit-coverage              # Unit tests + coverage in one command
+# OR
+make coverage                        # Full analysis before push
+```
+
+### Built-in Coverage Commands (NEW!)
+
+**One command = Tests + Coverage automatically!**
+
+```bash
+# Super quick development:
+make t-coverage                      # Fastest tests + coverage
+
+# Specific testing with coverage:
+make test-run-coverage TARGET="..."  # Universal runner + coverage
+make test-find-coverage NAME="..."   # Smart search + coverage  
+make test-unit-coverage              # Unit tests + coverage
+make test-integration-coverage       # Integration tests + coverage
+
+# Interactive with coverage:
+make test-quick-coverage             # Menu with coverage options
 ```
 
 ### Coverage Commands
