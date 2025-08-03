@@ -1,7 +1,7 @@
 # RimAsync Makefile
 # Convenient commands for Docker-based development
 
-.PHONY: help build test dev quick-build release clean logs shell format lint setup
+.PHONY: help build test test-filter test-method test-class test-advanced dev quick-build release clean logs shell format lint setup
 
 # Default target
 .DEFAULT_GOAL := help
@@ -28,6 +28,10 @@ help:
 	@echo "  $(YELLOW)make test-unit$(NC)    - Run unit tests only"
 	@echo "  $(YELLOW)make test-integration$(NC) - Run integration tests only"
 	@echo "  $(YELLOW)make test-performance$(NC) - Run performance tests only"
+	@echo "  $(YELLOW)make test-filter FILTER=\"ClassName\"$(NC) - Run tests with custom filter"
+	@echo "  $(YELLOW)make test-method METHOD=\"TestMethod\"$(NC) - Run specific test method"
+	@echo "  $(YELLOW)make test-class CLASS=\"TestClass\"$(NC) - Run specific test class"
+	@echo "  $(YELLOW)make test-advanced FILTER=\"...\" [OPTIONS]$(NC) - Advanced test runner"
 	@echo ""
 	@echo "$(GREEN)🚀 Development Commands:$(NC)"
 	@echo "  $(YELLOW)make dev$(NC)          - Start development environment"
@@ -81,7 +85,7 @@ test-unit:
 	docker-compose exec test dotnet test --filter Category=Unit
 	@echo "$(GREEN)✅ Unit tests completed!$(NC)"
 
-## 🔗 Run integration tests only  
+## 🔗 Run integration tests only
 test-integration:
 	@echo "$(CYAN)🔗 Running integration tests...$(NC)"
 	docker-compose exec test dotnet test --filter Category=Integration
@@ -92,6 +96,79 @@ test-performance:
 	@echo "$(CYAN)⚡ Running performance tests...$(NC)"
 	docker-compose exec test dotnet test --filter Category=Performance
 	@echo "$(GREEN)✅ Performance tests completed!$(NC)"
+
+## 🎯 Run tests with custom filter
+test-filter:
+	@if [ -z "$(FILTER)" ]; then \
+		echo "$(RED)❌ Error: FILTER parameter is required$(NC)"; \
+		echo "$(YELLOW)💡 Usage: make test-filter FILTER=\"YourFilter\"$(NC)"; \
+		echo "$(YELLOW)📋 Examples:$(NC)"; \
+		echo "  make test-filter FILTER=\"MultiplayerDetectionTests\""; \
+		echo "  make test-filter FILTER=\"Category=Unit\""; \
+		echo "  make test-filter FILTER=\"Name~AsyncManager\""; \
+		echo "  make test-filter FILTER=\"Name~Initialize\""; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)🎯 Running tests with filter: $(FILTER)$(NC)"
+	docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$(FILTER)\" --logger \"console;verbosity=normal\""
+	@echo "$(GREEN)✅ Filtered tests completed!$(NC)"
+
+## 🔍 Run specific test method
+test-method:
+	@if [ -z "$(METHOD)" ]; then \
+		echo "$(RED)❌ Error: METHOD parameter is required$(NC)"; \
+		echo "$(YELLOW)💡 Usage: make test-method METHOD=\"TestMethodName\"$(NC)"; \
+		echo "$(YELLOW)📋 Examples:$(NC)"; \
+		echo "  make test-method METHOD=\"IsInMultiplayer_WithoutMultiplayerMod_ReturnsFalse\""; \
+		echo "  make test-method METHOD=\"Initialize\""; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)🔍 Running test method: $(METHOD)$(NC)"
+	docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Name~$(METHOD)\" --logger \"console;verbosity=detailed\""
+	@echo "$(GREEN)✅ Test method completed!$(NC)"
+
+## 📋 Run specific test class
+test-class:
+	@if [ -z "$(CLASS)" ]; then \
+		echo "$(RED)❌ Error: CLASS parameter is required$(NC)"; \
+		echo "$(YELLOW)💡 Usage: make test-class CLASS=\"TestClassName\"$(NC)"; \
+		echo "$(YELLOW)📋 Examples:$(NC)"; \
+		echo "  make test-class CLASS=\"MultiplayerDetectionTests\""; \
+		echo "  make test-class CLASS=\"SettingsUITests\""; \
+		echo "  make test-class CLASS=\"AsyncManagerTests\""; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)📋 Running test class: $(CLASS)$(NC)"
+	docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$(CLASS)\" --logger \"console;verbosity=normal\""
+	@echo "$(GREEN)✅ Test class completed!$(NC)"
+
+## 🚀 Advanced test runner with verbose options
+test-advanced:
+	@echo "$(CYAN)🚀 Advanced test runner$(NC)"
+	@echo "$(YELLOW)Available options:$(NC)"
+	@echo "  FILTER     - Custom filter expression"
+	@echo "  VERBOSITY  - Logging verbosity (quiet, minimal, normal, detailed, diagnostic)"
+	@echo "  RESULTS    - Results directory (default: ./TestResults)"
+	@echo "  LOGGER     - Logger format (default: console;verbosity=normal)"
+	@echo ""
+	@echo "$(YELLOW)💡 Examples:$(NC)"
+	@echo "  make test-advanced FILTER=\"Category=Unit\" VERBOSITY=\"detailed\""
+	@echo "  make test-advanced FILTER=\"MultiplayerDetectionTests\" LOGGER=\"html;LogFileName=report.html\""
+	@echo ""
+	@if [ -z "$(FILTER)" ]; then \
+		echo "$(RED)❌ Error: FILTER parameter is required for advanced runner$(NC)"; \
+		exit 1; \
+	fi
+	@VERBOSITY_OPT=$${VERBOSITY:-normal}; \
+	RESULTS_OPT=$${RESULTS:-./TestResults}; \
+	LOGGER_OPT=$${LOGGER:-console;verbosity=$$VERBOSITY_OPT}; \
+	echo "$(CYAN)🎯 Running advanced tests...$(NC)"; \
+	echo "  Filter: $(FILTER)"; \
+	echo "  Verbosity: $$VERBOSITY_OPT"; \
+	echo "  Results: $$RESULTS_OPT"; \
+	echo "  Logger: $$LOGGER_OPT"; \
+	docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$(FILTER)\" --logger \"$$LOGGER_OPT\" --results-directory \"$$RESULTS_OPT\""
+	@echo "$(GREEN)✅ Advanced tests completed!$(NC)"
 
 ## 💻 Start development environment
 dev:
@@ -177,7 +254,7 @@ docker-info:
 	@echo "$(CYAN)🐳 Docker Environment Information:$(NC)"
 	@echo "$(YELLOW)Docker version:$(NC)"
 	@docker --version 2>/dev/null || echo "$(RED)❌ Docker not found$(NC)"
-	@echo "$(YELLOW)Docker Compose version:$(NC)"  
+	@echo "$(YELLOW)Docker Compose version:$(NC)"
 	@docker-compose --version 2>/dev/null || echo "$(RED)❌ Docker Compose not found$(NC)"
 	@echo "$(YELLOW)Docker status:$(NC)"
 	@docker info --format "{{.ServerVersion}}" 2>/dev/null && echo "$(GREEN)✅ Docker daemon running$(NC)" || echo "$(RED)❌ Docker daemon not running$(NC)"
@@ -229,7 +306,7 @@ deploy-local: package
 cycle: clean build test
 	@echo "$(GREEN)🎉 Full development cycle completed!$(NC)"
 
-## ⚡ Quick development cycle: build -> test  
+## ⚡ Quick development cycle: build -> test
 quick-cycle: quick-build test
 	@echo "$(GREEN)🎉 Quick development cycle completed!$(NC)"
 
@@ -249,4 +326,4 @@ status:
 	@echo "$(YELLOW)🏗️ Last build status:$(NC)"
 	@[ -f Build/Assemblies/RimAsync.dll ] && echo "$(GREEN)✅ Build exists$(NC)" || echo "$(RED)❌ No build found$(NC)"
 	@echo "$(YELLOW)🐳 Docker containers:$(NC)"
-	@docker-compose ps 
+	@docker-compose ps
