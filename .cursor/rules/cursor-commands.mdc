@@ -1,0 +1,179 @@
+# Cursor IDE Commands Language Requirements
+
+## MANDATORY: All Cursor Commands Must Be in English
+
+All commands created for Cursor IDE within this project **MUST be written in English**. This includes:
+
+- Command names and identifiers
+- Command descriptions and help text
+- Internal command documentation
+- Command examples and usage instructions
+- Error messages and output text
+- Command prompts and user interactions
+
+## Why English for Commands?
+
+1. **International Collaboration** - Enables global developers to understand and use project tools
+2. **Tool Integration** - Cursor IDE and most development tools expect English commands
+3. **Documentation Standards** - Aligns with industry-standard documentation practices
+4. **Future Maintenance** - Ensures long-term maintainability by diverse team members
+5. **Community Sharing** - Allows sharing commands with the broader RimWorld modding community
+
+## Examples
+
+### ✅ Correct (English Commands)
+
+#### Command File: `.cursor/commands/execute-task.md`
+
+```markdown
+# Execute Task Command
+
+**Command:** `@execute-task`
+**Description:** Execute the next priority task from RimAsync development plan
+
+## Usage
+In Cursor IDE chat, type:
+```
+
+@execute-task
+
+```
+
+## What the command does
+1. Creates new git branch from latest master
+2. Analyzes current project status
+3. Selects highest priority task
+4. MANDATORY breaks down task into 2-5 subtasks
+5. Creates TODO list with clear success criteria
+```
+
+#### Command File: `.cursor/commands/run-tests.md`
+
+```markdown
+# Run Tests Command
+
+**Command:** `@run-tests`
+**Description:** Execute comprehensive test suite in Docker environment
+
+## Usage Options
+- `@run-tests` - Run all tests
+- `@run-tests unit` - Run only unit tests
+- `@run-tests integration` - Run only integration tests
+```
+
+### ❌ Incorrect (Russian Commands)
+
+```markdown
+# Выполнить Задачу
+
+**Команда:** `@выполнить-задачу`
+**Описание:** Выполнить следующую приоритетную задачу
+
+## Использование
+В чате Cursor IDE напишите:
+```
+
+@выполнить-задачу
+
+```
+```
+
+## Command Structure Standards
+
+### Command File Naming
+
+- Use kebab-case for command files: `execute-task.md`, `run-tests.md`
+- Include `.md` extension for proper markdown rendering
+- Place in `.cursor/commands/` directory
+
+### Command Documentation Structure
+
+```markdown
+# [Command Name] Command
+
+**Command:** `@command-name`
+**Description:** Brief description in English
+
+## Usage
+Clear usage instructions with examples
+
+## What the command does
+Step-by-step breakdown of command functionality
+
+## Examples
+Practical examples showing command usage
+```
+
+### Command Naming Conventions
+
+- Use lowercase with hyphens: `@execute-task`, `@run-tests`, `@analyze-logs`
+- Start with action verb: `execute`, `run`, `analyze`, `create`, `fix`
+- Be descriptive but concise: avoid abbreviations when possible
+
+## Integration with Project Workflow
+
+All Cursor commands should align with project development workflow:
+
+### Core Commands (Required)
+
+- `@execute-task` - Execute next priority development task
+- `@run-tests` - Execute test suite in Docker
+- `@analyze-logs` - Analyze project and Docker logs
+- `@create-branch` - Create new feature branch
+- `@format-code` - Apply code formatting standards
+
+### Support Commands (Optional)
+
+- `@check-compatibility` - Verify RimWorld/Multiplayer compatibility
+- `@generate-docs` - Generate project documentation
+- `@review-pr` - Review pull request changes
+
+## Error Handling
+
+All command error messages must be in English:
+
+```markdown
+✅ Good:
+- "Error: Could not find development plan file"
+- "Warning: Docker container not running"
+- "Success: All tests passed"
+
+❌ Bad:
+- "Ошибка: Не найден файл плана разработки"
+- "Предупреждение: Docker контейнер не запущен"
+```
+
+## Command Output Format
+
+Standardize command output format in English:
+
+```markdown
+## Command Execution Pattern
+
+🎯 [Action] - Brief description
+📋 [Status] - Current status update  
+✅ [Success] - Completion confirmation
+❌ [Error] - Error description
+🔧 [Process] - Process step description
+📊 [Result] - Final results summary
+```
+
+## Enforcement
+
+This language requirement is enforced through:
+
+1. **Code Review** - All command PRs must use English
+2. **Documentation Standards** - English-only documentation policy
+3. **Team Guidelines** - Project contributor guidelines
+4. **Tool Integration** - Cursor IDE expects English commands
+
+## Migration Guidelines
+
+For existing Russian commands:
+
+1. **Create English version** alongside existing command
+2. **Update all references** to use English command names
+3. **Deprecate Russian version** with clear migration notice
+4. **Remove Russian commands** after migration period
+
+This ensures seamless transition while maintaining backward compatibility during migration period.
