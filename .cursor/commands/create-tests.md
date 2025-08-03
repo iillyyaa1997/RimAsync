@@ -511,6 +511,52 @@ namespace RimAsync.Tests.Performance.Threading
 - **Concurrency testing** for thread safety
 - **Scalability verification** under load
 
+## 🚨 MANDATORY Coverage Requirements
+
+### After Creating Tests
+**ALWAYS verify coverage for newly created tests:**
+
+```bash
+# After creating tests for a component:
+@create-tests AsyncManager
+
+# MANDATORY: Run tests with coverage
+make test-run TARGET="AsyncManagerTests" && make coverage-quick
+
+# For detailed analysis:
+make coverage-html
+```
+
+### Coverage Verification Workflow
+1. **Create tests** using this command
+2. **Run specific tests** with `make test-run TARGET="ComponentTests"`
+3. **ALWAYS add coverage check** with `make coverage-quick`
+4. **Analyze results** - ensure minimum 80% coverage
+5. **Add missing tests** for uncovered critical paths
+
+### Coverage Requirements for New Tests
+- **Unit Tests:** Minimum 80% line coverage
+- **Critical Components:** Minimum 90% coverage
+- **Error Handling:** Must be covered with exception tests
+- **Edge Cases:** Boundary conditions must be tested
+
+### Coverage Analysis Commands
+```bash
+# Quick coverage check (daily use):
+make coverage-quick
+
+# Full coverage analysis:
+make coverage
+
+# Visual HTML report for detailed analysis:
+make coverage-html
+```
+
+### Coverage Reports Location
+- **Quick reports:** `./TestResults/Coverage/Quick/`
+- **Full reports:** `./TestResults/Coverage/`
+- **HTML reports:** `./TestResults/Coverage/Html/index.html`
+
 ---
 
 **Note:** Generated tests serve as starting templates. Review and customize them based on specific component requirements and business logic.

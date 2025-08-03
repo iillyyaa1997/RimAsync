@@ -174,12 +174,16 @@ namespace RimAsync.Utils
         public static string GetMultiplayerStatus()
         {
             if (!_initialized) return "Not initialized";
-            if (!_multiplayerLoaded) return "Multiplayer not loaded";
 
-            var inMultiplayer = IsInMultiplayer;
-            var asyncTime = AsyncTimeEnabled;
+            // In test mode, always return status regardless of actual mod loading
+            if (_testMode || IsMultiplayerLoaded)
+            {
+                var inMultiplayer = IsInMultiplayer;
+                var asyncTime = AsyncTimeEnabled;
+                return $"In Multiplayer: {inMultiplayer}, AsyncTime: {asyncTime}";
+            }
 
-            return $"In Multiplayer: {inMultiplayer}, AsyncTime: {asyncTime}";
+            return "Multiplayer not loaded";
         }
     }
 }

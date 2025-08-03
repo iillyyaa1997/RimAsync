@@ -1,0 +1,188 @@
+# Code Coverage Requirements for RimAsync
+
+## 🚨 MANDATORY Coverage Rules
+
+### When Coverage is REQUIRED
+
+**ALWAYS use coverage when:**
+
+- **Testing new functionality** or changes
+- **Before committing** code changes
+- **Testing critical components** (AsyncManager, Core, Settings)
+- **Investigating test quality** issues
+- **Working on production code** that needs reliability
+
+### When Coverage is OPTIONAL
+
+**Coverage not required for:**
+
+- **Quick debugging** and temporary testing
+- **TDD red-green cycles** (during development iteration)
+- **Testing already well-covered** components (> 85% coverage)
+- **Experimental code** or proof-of-concepts
+- **Investigating existing test failures** (just checking if tests pass)
+
+### Smart Coverage Usage
+
+```bash
+# 🚨 REQUIRED for new features (NOW EASIER!):
+make test-run-coverage TARGET="NewFeatureTests"   # One command!
+
+# ⚡ OPTIONAL for quick debug:
+make t                    # Just checking if tests pass
+
+# 🔄 OPTIONAL during TDD cycles:
+make test-run TARGET="WorkInProgress"  # Red-green iterations
+
+# 🚨 REQUIRED before commit (NOW EASIER!):
+make test-unit-coverage              # Unit tests + coverage in one command
+# OR
+make coverage                        # Full analysis before push
+```
+
+### Built-in Coverage Commands (NEW!)
+
+**One command = Tests + Coverage automatically!**
+
+```bash
+# Super quick development:
+make t-coverage                      # Fastest tests + coverage
+
+# Specific testing with coverage:
+make test-run-coverage TARGET="..."  # Universal runner + coverage
+make test-find-coverage NAME="..."   # Smart search + coverage  
+make test-unit-coverage              # Unit tests + coverage
+make test-integration-coverage       # Integration tests + coverage
+
+# Interactive with coverage:
+make test-quick-coverage             # Menu with coverage options
+```
+
+### Coverage Commands
+
+#### Daily Development
+
+- `make coverage-quick` - Quick coverage for unit tests (fastest)
+- `make t && make coverage-quick` - Super quick workflow
+
+#### Before Commit
+
+- `make coverage` - Full coverage analysis for all tests
+- `make test && make coverage` - Complete verification
+
+#### Detailed Analysis
+
+- `make coverage-html` - HTML visual reports for deep analysis
+- Open `./TestResults/Coverage/Html/index.html` in browser
+
+### Coverage Requirements
+
+#### Minimum Coverage Levels
+
+- **Unit Tests:** 80% line coverage minimum
+- **Critical Components (AsyncManager, Core, Settings):** 90% minimum
+- **New Features:** 85% minimum before merge
+- **Bug Fixes:** Must include reproduction test
+
+#### Coverage Analysis Focus
+
+- **Critical Paths:** Error handling, async operations
+- **Edge Cases:** Boundary conditions, null checks
+- **Integration Points:** Component interactions
+- **Multiplayer Compatibility:** Deterministic behavior paths
+
+### Coverage Reports Location
+
+- **Quick Reports:** `./TestResults/Coverage/Quick/`
+- **Full Reports:** `./TestResults/Coverage/`
+- **HTML Reports:** `./TestResults/Coverage/Html/index.html`
+- **Coverage XML:** `./TestResults/Coverage/*/coverage.cobertura.xml`
+
+## 🎯 Coverage Workflow Integration
+
+### @execute-task Integration
+
+```bash
+# During task implementation:
+make test-run TARGET="YourTaskTests" && make coverage-quick
+
+# Before task completion:
+make coverage-html  # Analyze coverage gaps
+```
+
+### @create-tests Integration
+
+```bash
+# After creating tests:
+@create-tests ComponentName
+make test-run TARGET="ComponentNameTests" && make coverage-quick
+```
+
+### @run-tests Integration
+
+```bash
+# For specific test execution:
+@run-tests component-name
+make coverage-quick  # MANDATORY follow-up
+```
+
+## 🔍 Coverage Analysis Guidelines
+
+### HTML Report Analysis
+
+1. **Open HTML report** in browser
+2. **Focus on red/yellow lines** (uncovered/partially covered)
+3. **Prioritize critical paths** for additional tests
+4. **Verify async/threading scenarios** are covered
+
+### Coverage Gaps to Address
+
+- **Exception handling blocks**
+- **Async operation edge cases**
+- **Multiplayer-specific code paths**
+- **Performance optimization branches**
+- **Configuration validation logic**
+
+### When Coverage is Below Threshold
+
+1. **Identify missing test scenarios**
+2. **Add tests for uncovered lines**
+3. **Verify critical paths are tested**
+4. **Re-run coverage analysis**
+5. **Update tests until threshold is met**
+
+## 🚨 Enforcement Rules
+
+### AI Assistant Guidelines
+
+- **SUGGEST coverage** when user runs tests for new functionality
+- **RECOMMEND coverage** for critical components testing
+- **MENTION coverage** when test quality is important
+- **ALLOW quick testing** without coverage for debugging
+- **ENCOURAGE coverage-quick** for daily development when appropriate
+
+### Development Workflow
+
+- **Individual testing of NEW code REQUIRES coverage**
+- **Coverage is RECOMMENDED before commit**
+- **HTML reports USEFUL for complex analysis**
+- **Coverage gaps SHOULD be addressed for critical code**
+
+### Example AI Responses
+
+```
+✅ Testing new functionality - including coverage verification:
+make test-run TARGET="NewFeature" && make coverage-quick
+
+✅ Quick debug session:
+make t  # Just checking if tests pass
+
+✅ For comprehensive analysis of critical component:
+make test-run TARGET="AsyncManager" && make coverage-quick
+```
+
+**Remember: Coverage is not optional - it's a quality gate for individual testing!**
+description:
+globs:
+alwaysApply: false
+---

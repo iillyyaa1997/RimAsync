@@ -1,7 +1,7 @@
 # RimAsync Makefile
 # Convenient commands for Docker-based development
 
-.PHONY: help build test dev quick-build release clean logs shell format lint setup
+.PHONY: help build test test-unit test-integration test-performance test-run test-quick test-find t coverage coverage-html coverage-quick test-unit-coverage test-integration-coverage test-performance-coverage test-run-coverage test-quick-coverage test-find-coverage t-coverage dev quick-build release clean logs shell format lint setup
 
 # Default target
 .DEFAULT_GOAL := help
@@ -28,6 +28,25 @@ help:
 	@echo "  $(YELLOW)make test-unit$(NC)    - Run unit tests only"
 	@echo "  $(YELLOW)make test-integration$(NC) - Run integration tests only"
 	@echo "  $(YELLOW)make test-performance$(NC) - Run performance tests only"
+
+	@echo "  $(YELLOW)make test-run [TARGET=\"...\"] [OPTS=\"...\"]$(NC) - Universal test runner (interactive)"
+	@echo "  $(YELLOW)make test-quick$(NC) - Quick test menu (4 most common options)"
+	@echo "  $(YELLOW)make test-find NAME=\"SearchTerm\"$(NC) - Smart search for tests by name"
+	@echo "  $(YELLOW)make t$(NC) - Super quick test (unit tests only)"
+	@echo ""
+	@echo "$(GREEN)📊 Test Commands with Built-in Coverage:$(NC)"
+	@echo "  $(YELLOW)make test-unit-coverage$(NC) - Unit tests with coverage"
+	@echo "  $(YELLOW)make test-integration-coverage$(NC) - Integration tests with coverage"
+	@echo "  $(YELLOW)make test-performance-coverage$(NC) - Performance tests with coverage"
+	@echo "  $(YELLOW)make test-run-coverage [TARGET=\"...\"]$(NC) - Universal runner with coverage"
+	@echo "  $(YELLOW)make test-quick-coverage$(NC) - Quick menu with coverage options"
+	@echo "  $(YELLOW)make test-find-coverage NAME=\"SearchTerm\"$(NC) - Smart search with coverage"
+	@echo "  $(YELLOW)make t-coverage$(NC) - Super quick test with coverage"
+	@echo ""
+	@echo "$(GREEN)📈 Coverage Analysis Commands:$(NC)"
+	@echo "  $(YELLOW)make coverage$(NC) - Generate code coverage report"
+	@echo "  $(YELLOW)make coverage-html$(NC) - Generate HTML coverage report"
+	@echo "  $(YELLOW)make coverage-quick$(NC) - Quick coverage (unit tests only)"
 	@echo ""
 	@echo "$(GREEN)🚀 Development Commands:$(NC)"
 	@echo "  $(YELLOW)make dev$(NC)          - Start development environment"
@@ -81,7 +100,7 @@ test-unit:
 	docker-compose exec test dotnet test --filter Category=Unit
 	@echo "$(GREEN)✅ Unit tests completed!$(NC)"
 
-## 🔗 Run integration tests only  
+## 🔗 Run integration tests only
 test-integration:
 	@echo "$(CYAN)🔗 Running integration tests...$(NC)"
 	docker-compose exec test dotnet test --filter Category=Integration
@@ -92,6 +111,262 @@ test-performance:
 	@echo "$(CYAN)⚡ Running performance tests...$(NC)"
 	docker-compose exec test dotnet test --filter Category=Performance
 	@echo "$(GREEN)✅ Performance tests completed!$(NC)"
+
+
+
+
+
+
+
+
+
+## 🎯 Universal test runner - one command for everything
+test-run:
+	@if [ -n "$(TARGET)" ]; then \
+		echo "$(CYAN)🎯 Running tests with target: $(TARGET)$(NC)"; \
+		if [ -n "$(OPTS)" ]; then \
+			echo "$(YELLOW)📋 Using options: $(OPTS)$(NC)"; \
+			docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$(TARGET)\" $(OPTS)"; \
+		else \
+			docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$(TARGET)\" --logger \"console;verbosity=normal\""; \
+		fi; \
+		echo "$(GREEN)✅ Tests completed!$(NC)"; \
+	else \
+		echo "$(CYAN)🚀 Universal Test Runner$(NC)"; \
+		echo "$(YELLOW)Choose test target:$(NC)"; \
+		echo "  1) All tests"; \
+		echo "  2) Unit tests only"; \
+		echo "  3) Integration tests only"; \
+		echo "  4) Performance tests only"; \
+		echo "  5) Multiplayer tests"; \
+		echo "  6) Settings UI tests"; \
+		echo "  7) Specific test class"; \
+		echo "  8) Specific test method"; \
+		echo "  9) Custom filter"; \
+		echo ""; \
+		echo "$(YELLOW)💡 Quick examples:$(NC)"; \
+		echo "  make test-run TARGET=\"Category=Unit\""; \
+		echo "  make test-run TARGET=\"MultiplayerDetectionTests\""; \
+		echo "  make test-run TARGET=\"Name~Initialize\" OPTS=\"--logger html;LogFileName=report.html\""; \
+		echo ""; \
+		read -p "Enter choice (1-9) or press Enter for all tests: " choice; \
+		case "$$choice" in \
+			1|"") echo "$(CYAN)🧪 Running all tests...$(NC)"; \
+				docker-compose run test bash -c "cd /app/Tests && dotnet test --logger \"console;verbosity=normal\"";; \
+			2) echo "$(CYAN)🔬 Running unit tests...$(NC)"; \
+				docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Unit\" --logger \"console;verbosity=normal\"";; \
+			3) echo "$(CYAN)🔗 Running integration tests...$(NC)"; \
+				docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Integration\" --logger \"console;verbosity=normal\"";; \
+			4) echo "$(CYAN)⚡ Running performance tests...$(NC)"; \
+				docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Performance\" --logger \"console;verbosity=normal\"";; \
+			5) echo "$(CYAN)🌐 Running multiplayer tests...$(NC)"; \
+				docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"MultiplayerDetectionTests\" --logger \"console;verbosity=normal\"";; \
+			6) echo "$(CYAN)🎨 Running settings UI tests...$(NC)"; \
+				docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"SettingsUITests\" --logger \"console;verbosity=normal\"";; \
+			7) echo "$(CYAN)📋 Running specific test class...$(NC)"; \
+				read -p "Enter test class name: " classname; \
+				if [ -n "$$classname" ]; then \
+					docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$$classname\" --logger \"console;verbosity=normal\""; \
+				else \
+					echo "$(RED)❌ Class name required$(NC)"; \
+				fi;; \
+			8) echo "$(CYAN)🔍 Running specific test method...$(NC)"; \
+				read -p "Enter test method name (or part of it): " methodname; \
+				if [ -n "$$methodname" ]; then \
+					docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Name~$$methodname\" --logger \"console;verbosity=detailed\""; \
+				else \
+					echo "$(RED)❌ Method name required$(NC)"; \
+				fi;; \
+			9) echo "$(CYAN)🎛️ Custom filter...$(NC)"; \
+				read -p "Enter filter expression: " filter; \
+				if [ -n "$$filter" ]; then \
+					read -p "Enter verbosity (normal/detailed/diagnostic) [normal]: " verbosity; \
+					verbosity=$${verbosity:-normal}; \
+					docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$$filter\" --logger \"console;verbosity=$$verbosity\""; \
+				else \
+					echo "$(RED)❌ Filter expression required$(NC)"; \
+				fi;; \
+			*) echo "$(RED)❌ Invalid choice$(NC)";; \
+		esac; \
+		echo "$(GREEN)✅ Test run completed!$(NC)"; \
+	fi
+
+## 🚀 Quick test shortcuts - most common test scenarios
+test-quick:
+	@echo "$(CYAN)⚡ Quick Test Menu$(NC)"
+	@echo "$(YELLOW)What do you want to test?$(NC)"
+	@echo "  1) Unit tests (fast)"
+	@echo "  2) Multiplayer detection"
+	@echo "  3) Settings UI"
+	@echo "  4) Everything"
+	@echo ""
+	@read -p "Choice (1-4): " choice; \
+	case "$$choice" in \
+		1) make test-run TARGET="Category=Unit";; \
+		2) make test-run TARGET="MultiplayerDetectionTests";; \
+		3) make test-run TARGET="SettingsUITests";; \
+		4) make test-run;; \
+		*) echo "$(RED)❌ Invalid choice$(NC)";; \
+	esac
+
+## 📋 Test specific component by name (smart search)
+test-find:
+	@if [ -z "$(NAME)" ]; then \
+		echo "$(RED)❌ NAME parameter required$(NC)"; \
+		echo "$(YELLOW)💡 Usage: make test-find NAME=\"SearchTerm\"$(NC)"; \
+		echo "$(YELLOW)📋 Examples:$(NC)"; \
+		echo "  make test-find NAME=\"Multiplayer\"    # Find tests with 'Multiplayer'"; \
+		echo "  make test-find NAME=\"Settings\"      # Find tests with 'Settings'"; \
+		echo "  make test-find NAME=\"Initialize\"    # Find tests with 'Initialize'"; \
+	else \
+		echo "$(CYAN)🔍 Searching for tests containing: $(NAME)$(NC)"; \
+		docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Name~$(NAME)\" --logger \"console;verbosity=normal\""; \
+		echo "$(GREEN)✅ Search completed!$(NC)"; \
+	fi
+
+## ⚡ Super quick test - fastest option for development
+t:
+	@echo "$(CYAN)⚡ Running unit tests (fastest)...$(NC)"
+	@docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Unit\" --logger \"console;verbosity=minimal\""
+	@echo "$(GREEN)✅ Quick tests completed!$(NC)"
+
+## 📊 Test commands with built-in coverage
+
+## 🧪 Unit tests with quick coverage
+test-unit-coverage:
+	@echo "$(CYAN)🧪 Running unit tests with coverage...$(NC)"
+	@docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Unit\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Unit/ --logger \"console;verbosity=normal\""
+	@echo "$(GREEN)✅ Unit tests with coverage completed!$(NC)"
+	@echo "$(YELLOW)📊 Coverage report: ./TestResults/Coverage/Unit/$(NC)"
+
+## 🔗 Integration tests with coverage
+test-integration-coverage:
+	@echo "$(CYAN)🔗 Running integration tests with coverage...$(NC)"
+	@docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Integration\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Integration/ --logger \"console;verbosity=normal\""
+	@echo "$(GREEN)✅ Integration tests with coverage completed!$(NC)"
+	@echo "$(YELLOW)📊 Coverage report: ./TestResults/Coverage/Integration/$(NC)"
+
+## ⚡ Performance tests with coverage
+test-performance-coverage:
+	@echo "$(CYAN)⚡ Running performance tests with coverage...$(NC)"
+	@docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Performance\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Performance/ --logger \"console;verbosity=normal\""
+	@echo "$(GREEN)✅ Performance tests with coverage completed!$(NC)"
+	@echo "$(YELLOW)📊 Coverage report: ./TestResults/Coverage/Performance/$(NC)"
+
+## ⚡ Super quick test with coverage
+t-coverage:
+	@echo "$(CYAN)⚡ Running unit tests with coverage (fastest)...$(NC)"
+	@docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Unit\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Quick/ --logger \"console;verbosity=minimal\""
+	@echo "$(GREEN)✅ Quick tests with coverage completed!$(NC)"
+	@echo "$(YELLOW)📊 Coverage report: ./TestResults/Coverage/Quick/$(NC)"
+
+## 🎯 Universal test runner with coverage
+test-run-coverage:
+	@if [ -z "$(TARGET)" ]; then \
+		echo "$(CYAN)🎯 Universal Test Runner with Coverage$(NC)"; \
+		echo "$(YELLOW)Choose test category:$(NC)"; \
+		echo "  1) All tests"; \
+		echo "  2) Unit tests"; \
+		echo "  3) Integration tests"; \
+		echo "  4) Performance tests"; \
+		echo "  5) Multiplayer tests"; \
+		echo "  6) Settings UI tests"; \
+		echo "  7) Specific test class"; \
+		echo "  8) Specific test method"; \
+		echo "  9) Custom filter"; \
+		echo ""; \
+		read -p "Choice (1-9): " choice; \
+		case "$$choice" in \
+			1) docker-compose run test bash -c "cd /app/Tests && dotnet test --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/All/ --logger \"console;verbosity=normal\"";; \
+			2) docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Unit\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Unit/ --logger \"console;verbosity=normal\"";; \
+			3) docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Integration\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Integration/ --logger \"console;verbosity=normal\"";; \
+			4) docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Performance\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Performance/ --logger \"console;verbosity=normal\"";; \
+			5) docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"MultiplayerDetectionTests\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Multiplayer/ --logger \"console;verbosity=normal\"";; \
+			6) docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"SettingsUITests\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Settings/ --logger \"console;verbosity=normal\"";; \
+			7) read -p "Enter test class name: " class; \
+			   if [ -n "$$class" ]; then \
+				   docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$$class\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Class/ --logger \"console;verbosity=normal\""; \
+			   else \
+				   echo "$(RED)❌ Class name required$(NC)"; \
+			   fi;; \
+			8) read -p "Enter test method name: " method; \
+			   if [ -n "$$method" ]; then \
+				   docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Name~$$method\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Method/ --logger \"console;verbosity=normal\""; \
+			   else \
+				   echo "$(RED)❌ Method name required$(NC)"; \
+			   fi;; \
+			9) read -p "Enter filter expression: " filter; \
+			   if [ -n "$$filter" ]; then \
+				   docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$$filter\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Custom/ --logger \"console;verbosity=normal\""; \
+			   else \
+				   echo "$(RED)❌ Filter expression required$(NC)"; \
+			   fi;; \
+			*) echo "$(RED)❌ Invalid choice$(NC)";; \
+		esac; \
+		echo "$(GREEN)✅ Test run with coverage completed!$(NC)"; \
+		echo "$(YELLOW)📊 Coverage reports available in ./TestResults/Coverage/$(NC)"; \
+	else \
+		echo "$(CYAN)🎯 Running tests with coverage: $(TARGET)$(NC)"; \
+		docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$(TARGET)\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Target/ $(OPTS) --logger \"console;verbosity=normal\""; \
+		echo "$(GREEN)✅ Tests with coverage completed!$(NC)"; \
+		echo "$(YELLOW)📊 Coverage report: ./TestResults/Coverage/Target/$(NC)"; \
+	fi
+
+## 🔍 Smart search with coverage
+test-find-coverage:
+	@if [ -z "$(NAME)" ]; then \
+		echo "$(RED)❌ NAME parameter required$(NC)"; \
+		echo "$(YELLOW)💡 Usage: make test-find-coverage NAME=\"SearchTerm\"$(NC)"; \
+		echo "$(YELLOW)📋 Examples:$(NC)"; \
+		echo "  make test-find-coverage NAME=\"Multiplayer\"  # Find and test with coverage"; \
+		echo "  make test-find-coverage NAME=\"Settings\"    # Find and test with coverage"; \
+	else \
+		echo "$(CYAN)🔍 Searching and testing with coverage: $(NAME)$(NC)"; \
+		docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Name~$(NAME)\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Search/ --logger \"console;verbosity=normal\""; \
+		echo "$(GREEN)✅ Search with coverage completed!$(NC)"; \
+		echo "$(YELLOW)📊 Coverage report: ./TestResults/Coverage/Search/$(NC)"; \
+	fi
+
+## 🚀 Quick test menu with coverage options
+test-quick-coverage:
+	@echo "$(CYAN)⚡ Quick Test Menu with Coverage$(NC)"
+	@echo "$(YELLOW)What do you want to test?$(NC)"
+	@echo "  1) Unit tests with coverage (fast)"
+	@echo "  2) Multiplayer detection with coverage"
+	@echo "  3) Settings UI with coverage"
+	@echo "  4) Everything with coverage"
+	@echo ""
+	@read -p "Choice (1-4): " choice; \
+	case "$$choice" in \
+		1) make test-run-coverage TARGET="Category=Unit";; \
+		2) make test-run-coverage TARGET="MultiplayerDetectionTests";; \
+		3) make test-run-coverage TARGET="SettingsUITests";; \
+		4) make test-run-coverage;; \
+		*) echo "$(RED)❌ Invalid choice$(NC)";; \
+	esac
+
+## 📊 Generate code coverage report
+coverage:
+	@echo "$(CYAN)📊 Generating code coverage report...$(NC)"
+	@docker-compose run test bash -c "cd /app/Tests && dotnet test --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/ --logger \"console;verbosity=normal\""
+	@echo "$(GREEN)✅ Coverage report generated in ./TestResults/Coverage/$(NC)"
+	@echo "$(YELLOW)💡 Find coverage.cobertura.xml in ./TestResults/Coverage/$(NC)"
+	@echo "$(YELLOW)📋 Use 'make coverage-html' for human-readable HTML report$(NC)"
+
+## 🌐 Generate HTML coverage report
+coverage-html:
+	@echo "$(CYAN)🌐 Generating HTML coverage report...$(NC)"
+	@docker-compose run test bash -c "cd /app/Tests && dotnet test --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/ --logger \"console;verbosity=normal\" && if command -v reportgenerator >/dev/null 2>&1; then reportgenerator \"-reports:./TestResults/Coverage/*/coverage.cobertura.xml\" \"-targetdir:./TestResults/Coverage/Html\" \"-reporttypes:Html\"; else echo 'Installing ReportGenerator...'; dotnet tool install --global dotnet-reportgenerator-globaltool && reportgenerator \"-reports:./TestResults/Coverage/*/coverage.cobertura.xml\" \"-targetdir:./TestResults/Coverage/Html\" \"-reporttypes:Html\"; fi"
+	@echo "$(GREEN)✅ HTML coverage report generated!$(NC)"
+	@echo "$(YELLOW)💡 Open ./TestResults/Coverage/Html/index.html in browser$(NC)"
+	@echo "$(YELLOW)📋 If ReportGenerator fails, install it: dotnet tool install --global dotnet-reportgenerator-globaltool$(NC)"
+
+## 📈 Quick coverage check (unit tests only)
+coverage-quick:
+	@echo "$(CYAN)📈 Quick coverage check (unit tests)...$(NC)"
+	@docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Unit\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Quick/ --logger \"console;verbosity=minimal\""
+	@echo "$(GREEN)✅ Quick coverage completed!$(NC)"
+	@echo "$(YELLOW)💡 Check ./TestResults/Coverage/Quick/ for results$(NC)"
 
 ## 💻 Start development environment
 dev:
@@ -177,24 +452,14 @@ docker-info:
 	@echo "$(CYAN)🐳 Docker Environment Information:$(NC)"
 	@echo "$(YELLOW)Docker version:$(NC)"
 	@docker --version 2>/dev/null || echo "$(RED)❌ Docker not found$(NC)"
-	@echo "$(YELLOW)Docker Compose version:$(NC)"  
+	@echo "$(YELLOW)Docker Compose version:$(NC)"
 	@docker-compose --version 2>/dev/null || echo "$(RED)❌ Docker Compose not found$(NC)"
 	@echo "$(YELLOW)Docker status:$(NC)"
 	@docker info --format "{{.ServerVersion}}" 2>/dev/null && echo "$(GREEN)✅ Docker daemon running$(NC)" || echo "$(RED)❌ Docker daemon not running$(NC)"
 
 # Advanced targets for CI/CD and automation
 
-## 🚨 Run tests with coverage report
-test-coverage:
-	@echo "$(CYAN)🚨 Running tests with coverage...$(NC)"
-	docker-compose exec test dotnet test --collect:"XPlat Code Coverage" --results-directory ./TestResults/Coverage/
-	@echo "$(GREEN)✅ Coverage report generated in ./TestResults/Coverage/$(NC)"
 
-## 📊 Generate test report
-test-report:
-	@echo "$(CYAN)📊 Generating test report...$(NC)"
-	docker-compose exec test dotnet test --logger "html;LogFileName=TestReport.html" --results-directory ./TestResults/Reports/
-	@echo "$(GREEN)✅ Test report generated in ./TestResults/Reports/$(NC)"
 
 ## 🔒 Security scan
 security-scan:
@@ -229,7 +494,7 @@ deploy-local: package
 cycle: clean build test
 	@echo "$(GREEN)🎉 Full development cycle completed!$(NC)"
 
-## ⚡ Quick development cycle: build -> test  
+## ⚡ Quick development cycle: build -> test
 quick-cycle: quick-build test
 	@echo "$(GREEN)🎉 Quick development cycle completed!$(NC)"
 
@@ -249,4 +514,4 @@ status:
 	@echo "$(YELLOW)🏗️ Last build status:$(NC)"
 	@[ -f Build/Assemblies/RimAsync.dll ] && echo "$(GREEN)✅ Build exists$(NC)" || echo "$(RED)❌ No build found$(NC)"
 	@echo "$(YELLOW)🐳 Docker containers:$(NC)"
-	@docker-compose ps 
+	@docker-compose ps
