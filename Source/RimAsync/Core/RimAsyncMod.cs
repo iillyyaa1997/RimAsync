@@ -3,6 +3,7 @@ using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
+using RimAsync.Utils;
 
 namespace RimAsync.Core
 {
@@ -13,32 +14,37 @@ namespace RimAsync.Core
     {
         public static RimAsyncMod Instance { get; private set; }
         public static RimAsyncSettings Settings => Instance.GetSettings<RimAsyncSettings>();
-        
+
         private static Harmony _harmonyInstance;
         public static Harmony HarmonyInstance => _harmonyInstance;
 
         public RimAsyncMod(ModContentPack content) : base(content)
         {
             Instance = this;
-            
-            Log.Message("[RimAsync] Starting initialization...");
-            
+
+            // Configure logging system first
+            RimAsyncLogger.Configure(enableDebug: false, RimAsyncLogger.LogLevel.Info);
+            RimAsyncLogger.InitStep("RimAsyncMod", "Starting mod initialization");
+
             try
             {
                 // Initialize Harmony patching
+                RimAsyncLogger.Debug("Creating Harmony instance", "Mod");
                 _harmonyInstance = new Harmony("rimasync.mod");
-                
+
                 // Initialize core systems
+                RimAsyncLogger.Debug("Initializing core systems", "Mod");
                 RimAsyncCore.Initialize();
-                
+
                 // Apply patches
+                RimAsyncLogger.Debug("Applying Harmony patches", "Mod");
                 _harmonyInstance.PatchAll();
-                
-                Log.Message("[RimAsync] Successfully initialized with Harmony ID: rimasync.mod");
+
+                RimAsyncLogger.InitStep("RimAsyncMod", "Successfully initialized with Harmony ID: rimasync.mod", true);
             }
             catch (Exception ex)
             {
-                Log.Error($"[RimAsync] Critical error during initialization: {ex}");
+                RimAsyncLogger.Error("Critical error during initialization", ex, "Mod");
                 throw;
             }
         }
@@ -59,4 +65,4 @@ namespace RimAsync.Core
             RimAsyncCore.OnSettingsChanged();
         }
     }
-} 
+}

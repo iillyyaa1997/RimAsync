@@ -1,0 +1,209 @@
+# Structured Logging Requirements
+
+## 🎯 Mandatory Rule: ALL Logging Must Use RimAsyncLogger
+
+**CRITICAL:** All logging in the RimAsync project MUST use the centralized `RimAsyncLogger` system. Direct usage of `Log.Message()`, `Log.Warning()`, or `Log.Error()` is FORBIDDEN.
+
+## ✅ Required Usage Pattern
+
+### Import Statement
+
+```csharp
+using RimAsync.Utils; // For RimAsyncLogger
+```
+
+### Correct Logging Methods
+
+#### Debug Messages
+
+```csharp
+// For detailed debugging information
+RimAsyncLogger.Debug("Detailed debugging information", "ComponentName");
+RimAsyncLogger.Debug($"Processing {itemCount} items in cache");
+```
+
+#### Informational Messages  
+
+```csharp
+// For general information
+RimAsyncLogger.Info("System initialized successfully", "Initialization");
+RimAsyncLogger.Info($"Loaded {modCount} compatible mods");
+```
+
+#### Warnings
+
+```csharp
+// For non-critical issues
+RimAsyncLogger.Warning("Falling back to synchronous execution", "AsyncManager");
+RimAsyncLogger.Warning($"Performance below threshold: {tps:F1} TPS");
+```
+
+#### Errors
+
+```csharp
+// For errors without exceptions
+RimAsyncLogger.Error("Critical system failure detected", "Core");
+
+// For errors with exceptions  
+RimAsyncLogger.Error("Failed to initialize component", exception, "Initialization");
+```
+
+### Specialized Logging Methods
+
+#### Initialization Steps
+
+```csharp
+RimAsyncLogger.InitStep("AsyncManager", "Thread pool setup", true);
+RimAsyncLogger.InitStep("MultiplayerCompat", "API detection", false);
+```
+
+#### Performance Logging
+
+```csharp
+var stopwatch = Stopwatch.StartNew();
+// ... operation ...
+stopwatch.Stop();
+RimAsyncLogger.Performance("PathfindingOperation", stopwatch.ElapsedMilliseconds, "50 paths calculated");
+```
+
+#### Multiplayer Events
+
+```csharp
+RimAsyncLogger.Multiplayer("Switched to multiplayer mode");
+RimAsyncLogger.Multiplayer("AsyncTime enabled by user", isAsyncTime: true);
+```
+
+#### Async Operations
+
+```csharp
+RimAsyncLogger.AsyncOp("PathfindingTask", "Started", $"Pawn: {pawn.LabelShort}");
+RimAsyncLogger.AsyncOp("PathfindingTask", "Completed", $"Found path in {duration}ms");
+RimAsyncLogger.AsyncOp("PathfindingTask", "Failed", $"Timeout after {timeout}ms");
+```
+
+## ❌ Forbidden Patterns
+
+### Direct Log Usage (FORBIDDEN)
+
+```csharp
+❌ Log.Message("[RimAsync] System started");
+❌ Log.Warning("[RimAsync] Low performance detected");
+❌ Log.Error("[RimAsync] Critical error: " + ex.Message);
+❌ Verse.Log.Message("Any direct logging");
+```
+
+### Inconsistent Formatting (FORBIDDEN)
+
+```csharp
+❌ RimAsyncLogger.Info("[RimAsync] Manual prefix");  // Prefix added automatically
+❌ RimAsyncLogger.Info("message", null);             // Use context parameter
+❌ RimAsyncLogger.Error("Error: " + ex.ToString());  // Use Error(message, exception)
+```
+
+## 🔧 Configuration
+
+### Settings Integration
+
+The logging system is configured through `RimAsyncSettings`:
+
+```csharp
+// In initialization code
+var settings = RimAsyncMod.Settings;
+RimAsyncLogger.Configure(
+    enableDebug: settings.enableDebugLogging,
+    minimumLevel: (RimAsyncLogger.LogLevel)settings.logLevel
+);
+```
+
+### Log Levels
+
+- **Debug (0):** Detailed debugging information (only when enabled)
+- **Info (1):** General operational messages  
+- **Warning (2):** Non-critical issues and fallbacks
+- **Error (3):** Critical errors and exceptions
+
+## 🎯 Benefits of Structured Logging
+
+### Consistency
+
+- Uniform message formatting across entire project
+- Consistent timestamps and component identification
+- Standardized context categorization
+
+### Performance
+
+- Configurable log levels to reduce overhead
+- Optional debug logging to minimize release impact  
+- Efficient message formatting
+
+### Debugging
+
+- Easy filtering by component or operation type
+- Structured performance tracking
+- Clear initialization step tracking
+
+### Maintenance
+
+- Centralized logging configuration
+- Easy to modify formatting across entire project
+- Type-safe logging methods
+
+## 🔍 Code Review Checklist
+
+### For All Pull Requests
+
+- [ ] No direct `Log.*` usage outside of `RimAsyncLogger`
+- [ ] All logging uses appropriate log level
+- [ ] Context parameter provided where relevant
+- [ ] Performance-sensitive code uses Debug level
+- [ ] Error logging includes exception details where available
+- [ ] Initialization steps use `InitStep()` method
+- [ ] Async operations use `AsyncOp()` method
+
+### For New Components
+
+- [ ] Logging configured in component initialization  
+- [ ] Component name used consistently in context
+- [ ] Debug logging added for troubleshooting
+- [ ] Error handling includes structured logging
+
+## 📖 Examples by Component Type
+
+### Core Systems
+
+```csharp
+RimAsyncLogger.InitStep("RimAsyncCore", "Starting initialization");
+RimAsyncLogger.Info("All subsystems initialized", "Core");
+RimAsyncLogger.Error("Critical startup failure", exception, "Core");
+```
+
+### Async Operations
+
+```csharp
+RimAsyncLogger.AsyncOp("Pathfinding", "Started", $"Target: {target}");
+RimAsyncLogger.Debug($"Path calculation step {step} completed", "Pathfinding");
+RimAsyncLogger.AsyncOp("Pathfinding", "Completed", $"Duration: {ms}ms");
+```
+
+### Performance Monitoring
+
+```csharp
+RimAsyncLogger.Performance("TickProcessing", stopwatch.ElapsedMilliseconds, $"TPS: {tps}");
+RimAsyncLogger.Warning($"Performance degradation detected: {tps} TPS", "Performance");
+```
+
+### Multiplayer Integration
+
+```csharp
+RimAsyncLogger.Multiplayer("Detected RimWorld Multiplayer mod");
+RimAsyncLogger.Multiplayer("AsyncTime setting changed", isAsyncTime: true);
+RimAsyncLogger.Debug("Synchronizing with multiplayer state", "Multiplayer");
+```
+
+---
+
+**Remember:** Consistent, structured logging is essential for debugging, performance monitoring, and maintenance. Always use `RimAsyncLogger` for all logging needs in the RimAsync project.
+description:
+globs:
+alwaysApply: false
+---

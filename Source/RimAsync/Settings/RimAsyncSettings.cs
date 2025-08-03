@@ -25,6 +25,9 @@ namespace RimAsync.Core
         public float asyncTimeoutSeconds = 5.0f;
         public bool enableDebugLogging = false;
 
+        // Logging Settings
+        public int logLevel = 1; // 0=Debug, 1=Info, 2=Warning, 3=Error
+
         // Multiplayer Compatibility
         public bool respectAsyncTimeSetting = true;
         public bool enableMultiplayerOptimizations = true;
@@ -46,6 +49,9 @@ namespace RimAsync.Core
             Scribe_Values.Look(ref asyncTimeoutSeconds, "asyncTimeoutSeconds", 5.0f);
             Scribe_Values.Look(ref enableDebugLogging, "enableDebugLogging", false);
 
+            // Logging Settings
+            Scribe_Values.Look(ref logLevel, "logLevel", 1);
+
             // Multiplayer Compatibility
             Scribe_Values.Look(ref respectAsyncTimeSetting, "respectAsyncTimeSetting", true);
             Scribe_Values.Look(ref enableMultiplayerOptimizations, "enableMultiplayerOptimizations", true);
@@ -64,7 +70,7 @@ namespace RimAsync.Core
 
             // Performance Section
             listing.Label("Performance Optimizations:");
-            listing.CheckboxLabeled("Enable Async Pathfinding", ref enableAsyncPathfinding, 
+            listing.CheckboxLabeled("Enable Async Pathfinding", ref enableAsyncPathfinding,
                 "Allows pawns to find paths in background without blocking gameplay");
             listing.CheckboxLabeled("Enable Background Jobs", ref enableBackgroundJobs,
                 "Processes work tasks in background for smoother performance");
@@ -95,22 +101,27 @@ namespace RimAsync.Core
 
             // Advanced Section
             listing.Label("Advanced Settings:");
-            
+
             listing.Label($"Max Async Threads: {maxAsyncThreads}");
             maxAsyncThreads = (int)listing.Slider(maxAsyncThreads, 1, 8);
-            
+
             listing.Label($"Async Timeout: {asyncTimeoutSeconds:F1}s");
             asyncTimeoutSeconds = listing.Slider(asyncTimeoutSeconds, 1.0f, 30.0f);
-            
+
             listing.CheckboxLabeled("Enable Debug Logging", ref enableDebugLogging,
                 "Enables detailed logging for troubleshooting (may impact performance)");
+
+            // Logging Level Setting
+            var logLevelLabels = new[] { "Debug", "Info", "Warning", "Error" };
+            listing.Label($"Log Level: {logLevelLabels[logLevel]}");
+            logLevel = (int)listing.Slider(logLevel, 0, 3);
 
             listing.Gap();
 
             // Status Information
             var core = RimAsync.Core.RimAsyncCore.GetExecutionMode();
             listing.Label($"Current Mode: {core}");
-            
+
             if (RimAsync.Core.RimAsyncCore.IsMultiplayerActive)
             {
                 listing.Label($"AsyncTime Enabled: {RimAsync.Core.RimAsyncCore.AsyncTimeEnabled}");
@@ -119,4 +130,4 @@ namespace RimAsync.Core
             listing.End();
         }
     }
-} 
+}

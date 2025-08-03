@@ -23,29 +23,32 @@ namespace RimAsync.Core
         {
             if (IsInitialized)
             {
-                Log.Warning("[RimAsync] Already initialized, skipping...");
+                RimAsyncLogger.Warning("Already initialized, skipping...", "Core");
                 return;
             }
 
             try
             {
-                Log.Message("[RimAsync] Initializing core systems...");
+                RimAsyncLogger.InitStep("RimAsyncCore", "Starting initialization");
 
                 // Initialize multiplayer compatibility detection
+                RimAsyncLogger.Debug("Initializing multiplayer compatibility detection", "Core");
                 MultiplayerCompat.Initialize();
 
                 // Initialize threading manager
+                RimAsyncLogger.Debug("Initializing threading manager", "Core");
                 AsyncManager.Initialize();
 
                 // Initialize performance monitoring
+                RimAsyncLogger.Debug("Initializing performance monitoring", "Core");
                 PerformanceMonitor.Initialize();
 
                 IsInitialized = true;
-                Log.Message("[RimAsync] Core systems initialized successfully");
+                RimAsyncLogger.InitStep("RimAsyncCore", "Core systems initialization completed", true);
             }
             catch (Exception ex)
             {
-                Log.Error($"[RimAsync] Failed to initialize core systems: {ex}");
+                RimAsyncLogger.Error("Failed to initialize core systems", ex, "Core");
                 throw;
             }
         }
@@ -59,17 +62,24 @@ namespace RimAsync.Core
 
             try
             {
-                Log.Message("[RimAsync] Settings changed, updating systems...");
-                
+                RimAsyncLogger.Info("Settings changed, updating systems...", "Core");
+
+                // Configure logger with new settings
+                var settings = RimAsyncMod.Settings;
+                RimAsyncLogger.Configure(settings.enableDebugLogging, (RimAsyncLogger.LogLevel)settings.logLevel);
+
                 // Notify all systems of settings change
+                RimAsyncLogger.Debug("Notifying AsyncManager of settings change", "Core");
                 AsyncManager.OnSettingsChanged();
+
+                RimAsyncLogger.Debug("Notifying PerformanceMonitor of settings change", "Core");
                 PerformanceMonitor.OnSettingsChanged();
-                
-                Log.Message("[RimAsync] Systems updated for new settings");
+
+                RimAsyncLogger.Info("Systems updated for new settings", "Core");
             }
             catch (Exception ex)
             {
-                Log.Error($"[RimAsync] Error updating systems for new settings: {ex}");
+                RimAsyncLogger.Error("Error updating systems for new settings", ex, "Core");
             }
         }
 
@@ -82,17 +92,20 @@ namespace RimAsync.Core
 
             try
             {
-                Log.Message("[RimAsync] Shutting down systems...");
+                RimAsyncLogger.Info("Shutting down systems...", "Core");
 
+                RimAsyncLogger.Debug("Shutting down AsyncManager", "Core");
                 AsyncManager.Shutdown();
+
+                RimAsyncLogger.Debug("Shutting down PerformanceMonitor", "Core");
                 PerformanceMonitor.Shutdown();
 
                 IsInitialized = false;
-                Log.Message("[RimAsync] Systems shut down successfully");
+                RimAsyncLogger.Info("Systems shut down successfully", "Core");
             }
             catch (Exception ex)
             {
-                Log.Error($"[RimAsync] Error during shutdown: {ex}");
+                RimAsyncLogger.Error("Error during shutdown", ex, "Core");
             }
         }
 
@@ -130,15 +143,15 @@ namespace RimAsync.Core
         /// Single player - full async performance
         /// </summary>
         FullAsync,
-        
+
         /// <summary>
         /// Multiplayer with AsyncTime - limited async operations
         /// </summary>
         AsyncTimeEnabled,
-        
+
         /// <summary>
         /// Multiplayer without AsyncTime - full synchronous execution
         /// </summary>
         FullSync
     }
-} 
+}
