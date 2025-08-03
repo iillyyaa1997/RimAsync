@@ -42,12 +42,14 @@ RUN cp -r /app/About/* /app/Build/About/
 FROM build AS test
 WORKDIR /app
 
-# Install NUnit console runner
-RUN dotnet tool install --global NUnit.ConsoleRunner --version 3.16.3
-ENV PATH="$PATH:/root/.dotnet/tools"
+# Set up test environment
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+ENV DOTNET_NOLOGO=1
 
-# Run tests
-RUN dotnet test Tests/ --configuration Release --logger "console;verbosity=detailed"
+# Create test results directory
+RUN mkdir -p /app/TestResults
+
+# Note: Tests are run via docker-compose command, not during build
 
 # Production stage - minimal image with just the compiled mod
 FROM mcr.microsoft.com/dotnet/runtime:8.0-alpine AS runtime
@@ -65,4 +67,4 @@ RUN echo "Docker: $(dotnet --version)" >> ./Build-Info.txt
 VOLUME ["/mod/output"]
 
 # Default command copies mod to output volume
-CMD ["sh", "-c", "cp -r /mod/* /mod/output/ && echo 'RimAsync mod copied to output volume'"] 
+CMD ["sh", "-c", "cp -r /mod/* /mod/output/ && echo 'RimAsync mod copied to output volume'"]
