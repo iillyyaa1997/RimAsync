@@ -1,7 +1,7 @@
 # RimAsync Makefile
 # Convenient commands for Docker-based development
 
-.PHONY: help build test test-filter test-method test-class test-advanced dev quick-build release clean logs shell format lint setup
+.PHONY: help build test test-filter test-method test-class test-advanced test-run test-quick test-find t dev quick-build release clean logs shell format lint setup
 
 # Default target
 .DEFAULT_GOAL := help
@@ -32,6 +32,10 @@ help:
 	@echo "  $(YELLOW)make test-method METHOD=\"TestMethod\"$(NC) - Run specific test method"
 	@echo "  $(YELLOW)make test-class CLASS=\"TestClass\"$(NC) - Run specific test class"
 	@echo "  $(YELLOW)make test-advanced FILTER=\"...\" [OPTIONS]$(NC) - Advanced test runner"
+	@echo "  $(YELLOW)make test-run [TARGET=\"...\"] [OPTS=\"...\"]$(NC) - Universal test runner (interactive)"
+	@echo "  $(YELLOW)make test-quick$(NC) - Quick test menu (4 most common options)"
+	@echo "  $(YELLOW)make test-find NAME=\"SearchTerm\"$(NC) - Smart search for tests by name"
+	@echo "  $(YELLOW)make t$(NC) - Super quick test (unit tests only)"
 	@echo ""
 	@echo "$(GREEN)🚀 Development Commands:$(NC)"
 	@echo "  $(YELLOW)make dev$(NC)          - Start development environment"
@@ -169,6 +173,116 @@ test-advanced:
 	echo "  Logger: $$LOGGER_OPT"; \
 	docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$(FILTER)\" --logger \"$$LOGGER_OPT\" --results-directory \"$$RESULTS_OPT\""
 	@echo "$(GREEN)✅ Advanced tests completed!$(NC)"
+
+## 🎯 Universal test runner - one command for everything
+test-run:
+	@if [ -n "$(TARGET)" ]; then \
+		echo "$(CYAN)🎯 Running tests with target: $(TARGET)$(NC)"; \
+		if [ -n "$(OPTS)" ]; then \
+			echo "$(YELLOW)📋 Using options: $(OPTS)$(NC)"; \
+			docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$(TARGET)\" $(OPTS)"; \
+		else \
+			docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$(TARGET)\" --logger \"console;verbosity=normal\""; \
+		fi; \
+		echo "$(GREEN)✅ Tests completed!$(NC)"; \
+	else \
+		echo "$(CYAN)🚀 Universal Test Runner$(NC)"; \
+		echo "$(YELLOW)Choose test target:$(NC)"; \
+		echo "  1) All tests"; \
+		echo "  2) Unit tests only"; \
+		echo "  3) Integration tests only"; \
+		echo "  4) Performance tests only"; \
+		echo "  5) Multiplayer tests"; \
+		echo "  6) Settings UI tests"; \
+		echo "  7) Specific test class"; \
+		echo "  8) Specific test method"; \
+		echo "  9) Custom filter"; \
+		echo ""; \
+		echo "$(YELLOW)💡 Quick examples:$(NC)"; \
+		echo "  make test-run TARGET=\"Category=Unit\""; \
+		echo "  make test-run TARGET=\"MultiplayerDetectionTests\""; \
+		echo "  make test-run TARGET=\"Name~Initialize\" OPTS=\"--logger html;LogFileName=report.html\""; \
+		echo ""; \
+		read -p "Enter choice (1-9) or press Enter for all tests: " choice; \
+		case "$$choice" in \
+			1|"") echo "$(CYAN)🧪 Running all tests...$(NC)"; \
+				docker-compose run test bash -c "cd /app/Tests && dotnet test --logger \"console;verbosity=normal\"";; \
+			2) echo "$(CYAN)🔬 Running unit tests...$(NC)"; \
+				docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Unit\" --logger \"console;verbosity=normal\"";; \
+			3) echo "$(CYAN)🔗 Running integration tests...$(NC)"; \
+				docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Integration\" --logger \"console;verbosity=normal\"";; \
+			4) echo "$(CYAN)⚡ Running performance tests...$(NC)"; \
+				docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Performance\" --logger \"console;verbosity=normal\"";; \
+			5) echo "$(CYAN)🌐 Running multiplayer tests...$(NC)"; \
+				docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"MultiplayerDetectionTests\" --logger \"console;verbosity=normal\"";; \
+			6) echo "$(CYAN)🎨 Running settings UI tests...$(NC)"; \
+				docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"SettingsUITests\" --logger \"console;verbosity=normal\"";; \
+			7) echo "$(CYAN)📋 Running specific test class...$(NC)"; \
+				read -p "Enter test class name: " classname; \
+				if [ -n "$$classname" ]; then \
+					docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$$classname\" --logger \"console;verbosity=normal\""; \
+				else \
+					echo "$(RED)❌ Class name required$(NC)"; \
+				fi;; \
+			8) echo "$(CYAN)🔍 Running specific test method...$(NC)"; \
+				read -p "Enter test method name (or part of it): " methodname; \
+				if [ -n "$$methodname" ]; then \
+					docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Name~$$methodname\" --logger \"console;verbosity=detailed\""; \
+				else \
+					echo "$(RED)❌ Method name required$(NC)"; \
+				fi;; \
+			9) echo "$(CYAN)🎛️ Custom filter...$(NC)"; \
+				read -p "Enter filter expression: " filter; \
+				if [ -n "$$filter" ]; then \
+					read -p "Enter verbosity (normal/detailed/diagnostic) [normal]: " verbosity; \
+					verbosity=$${verbosity:-normal}; \
+					docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$$filter\" --logger \"console;verbosity=$$verbosity\""; \
+				else \
+					echo "$(RED)❌ Filter expression required$(NC)"; \
+				fi;; \
+			*) echo "$(RED)❌ Invalid choice$(NC)";; \
+		esac; \
+		echo "$(GREEN)✅ Test run completed!$(NC)"; \
+	fi
+
+## 🚀 Quick test shortcuts - most common test scenarios
+test-quick:
+	@echo "$(CYAN)⚡ Quick Test Menu$(NC)"
+	@echo "$(YELLOW)What do you want to test?$(NC)"
+	@echo "  1) Unit tests (fast)"
+	@echo "  2) Multiplayer detection"
+	@echo "  3) Settings UI"
+	@echo "  4) Everything"
+	@echo ""
+	@read -p "Choice (1-4): " choice; \
+	case "$$choice" in \
+		1) make test-run TARGET="Category=Unit";; \
+		2) make test-run TARGET="MultiplayerDetectionTests";; \
+		3) make test-run TARGET="SettingsUITests";; \
+		4) make test-run;; \
+		*) echo "$(RED)❌ Invalid choice$(NC)";; \
+	esac
+
+## 📋 Test specific component by name (smart search)
+test-find:
+	@if [ -z "$(NAME)" ]; then \
+		echo "$(RED)❌ NAME parameter required$(NC)"; \
+		echo "$(YELLOW)💡 Usage: make test-find NAME=\"SearchTerm\"$(NC)"; \
+		echo "$(YELLOW)📋 Examples:$(NC)"; \
+		echo "  make test-find NAME=\"Multiplayer\"    # Find tests with 'Multiplayer'"; \
+		echo "  make test-find NAME=\"Settings\"      # Find tests with 'Settings'"; \
+		echo "  make test-find NAME=\"Initialize\"    # Find tests with 'Initialize'"; \
+	else \
+		echo "$(CYAN)🔍 Searching for tests containing: $(NAME)$(NC)"; \
+		docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Name~$(NAME)\" --logger \"console;verbosity=normal\""; \
+		echo "$(GREEN)✅ Search completed!$(NC)"; \
+	fi
+
+## ⚡ Super quick test - fastest option for development
+t:
+	@echo "$(CYAN)⚡ Running unit tests (fastest)...$(NC)"
+	@docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Unit\" --logger \"console;verbosity=minimal\""
+	@echo "$(GREEN)✅ Quick tests completed!$(NC)"
 
 ## 💻 Start development environment
 dev:

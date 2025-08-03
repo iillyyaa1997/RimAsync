@@ -6,6 +6,19 @@ RimAsync provides flexible testing commands through the Makefile for different t
 
 ## 🎯 Basic Test Commands
 
+### ⚡ Super Quick Commands (Recommended)
+```bash
+make t                       # Fastest - unit tests only (minimal output)
+make test-quick             # Interactive menu (4 most common options)
+make test-run               # Universal interactive runner
+```
+
+### 🔍 Smart Search Commands
+```bash
+make test-find NAME="SearchTerm"    # Find tests by name
+make test-run TARGET="..."          # Run with specific target
+```
+
 ### Standard Test Commands
 ```bash
 make test                    # Run all tests
@@ -239,12 +252,39 @@ make test-filter FILTER="Category=HighPriority|Category=CriticalPriority"
 5. **Test by priority** when time is limited
 6. **Use performance tests** to catch regressions early
 
+## 🎯 Recommended Workflow
+
+### For Daily Development
+```bash
+# 1. Quick check during coding
+make t
+
+# 2. Test specific functionality
+make test-find NAME="Multiplayer"
+
+# 3. Interactive selection
+make test-quick
+```
+
+### For Debugging
+```bash
+# 1. Smart search for failing tests
+make test-find NAME="FailingTest"
+
+# 2. Run with specific target and options
+make test-run TARGET="ProblematicClass" OPTS="--logger html;LogFileName=debug.html"
+```
+
 ## 🔄 Quick Reference
 
-| Command | Purpose | Example |
-|---------|---------|---------|
-| `make test` | All tests | `make test` |
-| `make test-filter` | Custom filter | `make test-filter FILTER="Unit"` |
-| `make test-method` | Specific method | `make test-method METHOD="Initialize"` |
-| `make test-class` | Specific class | `make test-class CLASS="AsyncManager"` |
-| `make test-advanced` | Full control | `make test-advanced FILTER="..." VERBOSITY="detailed"` |
+| Command | Purpose | Example | Speed |
+|---------|---------|---------|--------|
+| `make t` | Super quick unit tests | `make t` | ⚡⚡⚡ |
+| `make test-quick` | Interactive menu | `make test-quick` | ⚡⚡ |
+| `make test-find` | Smart search | `make test-find NAME="Multiplayer"` | ⚡⚡ |
+| `make test-run` | Universal runner | `make test-run TARGET="Category=Unit"` | ⚡⚡ |
+| `make test` | All tests | `make test` | ⚡ |
+| `make test-filter` | Custom filter | `make test-filter FILTER="Unit"` | ⚡ |
+| `make test-method` | Specific method | `make test-method METHOD="Initialize"` | ⚡ |
+| `make test-class` | Specific class | `make test-class CLASS="AsyncManager"` | ⚡ |
+| `make test-advanced` | Full control | `make test-advanced FILTER="..." VERBOSITY="detailed"` | 🐌 |
