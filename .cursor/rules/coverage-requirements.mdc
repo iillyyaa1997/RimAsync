@@ -2,19 +2,40 @@
 
 ## 🚨 MANDATORY Coverage Rules
 
-### When to Use Coverage Commands
+### When Coverage is REQUIRED
 
-**ALWAYS use coverage when running individual tests or specific components instead of the full test suite:**
+**ALWAYS use coverage when:**
+
+- **Testing new functionality** or changes
+- **Before committing** code changes
+- **Testing critical components** (AsyncManager, Core, Settings)
+- **Investigating test quality** issues
+- **Working on production code** that needs reliability
+
+### When Coverage is OPTIONAL
+
+**Coverage not required for:**
+
+- **Quick debugging** and temporary testing
+- **TDD red-green cycles** (during development iteration)
+- **Testing already well-covered** components (> 85% coverage)
+- **Experimental code** or proof-of-concepts
+- **Investigating existing test failures** (just checking if tests pass)
+
+### Smart Coverage Usage
 
 ```bash
-❌ WRONG:   make test-unit
-✅ CORRECT: make test-unit && make coverage-quick
+# 🚨 REQUIRED for new features:
+make test-run TARGET="NewFeatureTests" && make coverage-quick
 
-❌ WRONG:   make test-run TARGET="AsyncManager"  
-✅ CORRECT: make test-run TARGET="AsyncManager" && make coverage-quick
+# ⚡ OPTIONAL for quick debug:
+make t                    # Just checking if tests pass
 
-❌ WRONG:   make t
-✅ CORRECT: make t && make coverage-quick
+# 🔄 OPTIONAL during TDD cycles:
+make test-run TARGET="WorkInProgress"  # Red-green iterations
+
+# 🚨 REQUIRED before commit:
+make coverage            # Full analysis before push
 ```
 
 ### Coverage Commands
@@ -114,29 +135,30 @@ make coverage-quick  # MANDATORY follow-up
 
 ### AI Assistant Guidelines
 
-- **ALWAYS suggest coverage** when user runs individual tests
-- **NEVER approve individual test runs** without coverage verification
-- **ALWAYS mention coverage requirements** when creating/running tests
-- **RECOMMEND coverage-quick** for daily development
+- **SUGGEST coverage** when user runs tests for new functionality
+- **RECOMMEND coverage** for critical components testing
+- **MENTION coverage** when test quality is important
+- **ALLOW quick testing** without coverage for debugging
+- **ENCOURAGE coverage-quick** for daily development when appropriate
 
 ### Development Workflow
 
-- **Individual testing REQUIRES coverage**
-- **Coverage is MANDATORY before commit**
-- **HTML reports REQUIRED for complex analysis**
-- **Coverage gaps MUST be addressed**
+- **Individual testing of NEW code REQUIRES coverage**
+- **Coverage is RECOMMENDED before commit**
+- **HTML reports USEFUL for complex analysis**
+- **Coverage gaps SHOULD be addressed for critical code**
 
 ### Example AI Responses
 
 ```
-✅ Running your unit tests with coverage verification:
-make test-unit && make coverage-quick
+✅ Testing new functionality - including coverage verification:
+make test-run TARGET="NewFeature" && make coverage-quick
 
-✅ Testing AsyncManager with coverage analysis:
+✅ Quick debug session:
+make t  # Just checking if tests pass
+
+✅ For comprehensive analysis of critical component:
 make test-run TARGET="AsyncManager" && make coverage-quick
-
-✅ For detailed coverage analysis:
-make coverage-html
 ```
 
 **Remember: Coverage is not optional - it's a quality gate for individual testing!**
