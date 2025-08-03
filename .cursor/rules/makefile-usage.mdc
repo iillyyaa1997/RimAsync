@@ -5,19 +5,30 @@
 RimAsync has a comprehensive Makefile with convenient commands for all development tasks. **ALWAYS use Makefile commands instead of raw Docker commands** for consistency and better UX.
 
 ### 🏗️ Build Commands
+
 - `make build` - Full build in Docker container (replaces: docker-compose up build)
 - `make quick-build` - Quick incremental build  
 - `make release` - Production release build
 
 ### 🧪 Test Commands  
+
 - `make test` - Run all tests in Docker (replaces: docker-compose up test)
 - `make test-unit` - Run unit tests only
 - `make test-integration` - Run integration tests only  
 - `make test-performance` - Run performance tests only
-- `make test-coverage` - Run tests with coverage report
-- `make test-report` - Generate HTML test report
+- `make test-run [TARGET="..."] [OPTS="..."]` - Universal test runner (interactive)
+- `make test-quick` - Quick test menu (4 most common options)
+- `make test-find NAME="SearchTerm"` - Smart search for tests by name
+- `make t` - Super quick unit tests (fastest)
+
+### 📊 Code Coverage Commands (MANDATORY for individual testing)
+
+- `make coverage-quick` - Quick coverage for unit tests (daily development)
+- `make coverage` - Full coverage report for all tests
+- `make coverage-html` - HTML coverage report with visual analysis
 
 ### 🚀 Development Commands
+
 - `make dev` - Start development environment
 - `make shell` - Enter Docker container shell for debugging  
 - `make logs` - Show Docker container logs
@@ -26,17 +37,20 @@ RimAsync has a comprehensive Makefile with convenient commands for all developme
 - `make lint` - Run code analysis
 
 ### 🧹 Maintenance Commands
+
 - `make clean` - Clean Docker images and containers
 - `make clean-all` - Deep clean (removes ALL Docker data - use with caution)
 - `make setup` - Initial project setup
 - `make docker-info` - Show Docker environment info
 
 ### 📦 Distribution Commands
+
 - `make package` - Create distribution package  
 - `make deploy-local` - Deploy to local RimWorld mods directory (macOS)
 - `make security-scan` - Run security vulnerability scan
 
 ### 🔄 Workflow Shortcuts
+
 - `make cycle` - Full development cycle: clean → build → test
 - `make quick-cycle` - Quick cycle: build → test
 - `make status` - Git status + Docker build info
@@ -45,6 +59,7 @@ RimAsync has a comprehensive Makefile with convenient commands for all developme
 ## 🚨 MANDATORY Makefile Usage Rules
 
 ### 1. **Always Prefer Makefile Commands**
+
 ```bash
 ✅ CORRECT:   make build
 ❌ WRONG:     docker-compose up build
@@ -57,21 +72,25 @@ RimAsync has a comprehensive Makefile with convenient commands for all developme
 ```
 
 ### 2. **When to Use Raw Docker Commands**  
+
 - Only when debugging Makefile issues
 - When Makefile command doesn't exist for specific need
 - When instructed explicitly by user
 
 ### 3. **Command Suggestions**
+
 When user asks for:
+
 - **"build"** → suggest `make build`
-- **"test"** → suggest `make test` 
+- **"test"** → suggest `make test`
 - **"clean"** → suggest `make clean`
 - **"help"** → suggest `make help`
 - **"setup"** → suggest `make setup`
 
 ### 4. **Makefile Integration with Cursor Commands**
 
-#### @execute-task Integration:
+#### @execute-task Integration
+
 ```bash
 # Instead of docker-compose commands, use:
 make build          # For compilation
@@ -79,16 +98,24 @@ make test           # For testing
 make quick-cycle    # For build + test workflow
 ```
 
-#### @run-tests Integration:
+#### @run-tests Integration
+
 ```bash
 make test                 # All tests
 make test-unit           # Unit tests only
 make test-integration    # Integration tests  
 make test-performance    # Performance tests
-make test-coverage       # With coverage
+make test-run TARGET="..." # Universal test runner
+make t                   # Super quick unit tests
+
+# MANDATORY coverage for individual tests:
+make coverage-quick      # Quick coverage (daily development)
+make coverage           # Full coverage report
+make coverage-html      # HTML coverage analysis
 ```
 
-#### @analyze-logs Integration:
+#### @analyze-logs Integration
+
 ```bash
 make logs           # View container logs
 make status         # Git + Docker status
@@ -97,7 +124,8 @@ make docker-info    # Docker environment info
 
 ## 🎯 Common Development Workflows
 
-### 🚀 Starting Development:
+### 🚀 Starting Development
+
 ```bash
 make setup          # Initial setup (first time)
 make docker-info    # Verify Docker environment  
@@ -105,21 +133,24 @@ make build          # Build project
 make test           # Run tests
 ```
 
-### 🔄 Daily Development:
+### 🔄 Daily Development
+
 ```bash
 make status         # Check current state
 make quick-cycle    # Build + test
 make dev            # Start dev environment
 ```
 
-### 🧹 Maintenance:
+### 🧹 Maintenance
+
 ```bash
 make clean          # Clean Docker resources
 make format         # Format code
 make lint          # Run analysis
 ```
 
-### 🚀 Release Preparation:
+### 🚀 Release Preparation
+
 ```bash
 make cycle          # Full clean cycle
 make security-scan  # Security check
@@ -129,7 +160,8 @@ make deploy-local   # Test locally
 
 ## 💡 Makefile Benefits
 
-### ✅ Advantages of Using Makefile:
+### ✅ Advantages of Using Makefile
+
 - **Consistency**: Same commands work for everyone
 - **Simplicity**: `make build` vs `docker-compose up build --remove-orphans`
 - **Color Output**: Better visual feedback
@@ -138,7 +170,8 @@ make deploy-local   # Test locally
 - **Workflow Integration**: Combines multiple steps
 - **Cross-Platform**: Works on macOS, Linux, Windows (with WSL)
 
-### 🎨 Visual Feedback:
+### 🎨 Visual Feedback
+
 - **Cyan**: Command descriptions  
 - **Green**: Success messages
 - **Yellow**: Warnings and info
@@ -146,13 +179,15 @@ make deploy-local   # Test locally
 
 ## 🔧 Makefile Maintenance
 
-### When to Update Makefile:
+### When to Update Makefile
+
 - Adding new Docker services to docker-compose.yml
 - Creating new test categories
 - Adding deployment targets
 - Introducing new development workflows
 
-### How to Add New Commands:
+### How to Add New Commands
+
 1. Add .PHONY target
 2. Add help description with ##
 3. Use color variables for consistent output
@@ -162,6 +197,7 @@ make deploy-local   # Test locally
 ## 📝 Example Usage in AI Responses
 
 When user asks to build:
+
 ```
 🏗️ Building RimAsync using Makefile...
 
@@ -175,6 +211,7 @@ This will:
 ```
 
 When user asks for help:
+
 ```
 📋 Available commands:
 
@@ -186,3 +223,38 @@ make clean         # Clean environment
 
 Use `make help` for complete list with descriptions.
 ```
+
+## 🚨 MANDATORY Coverage Requirements
+
+### When Testing Individual Components
+
+**ALWAYS include coverage when running specific tests instead of full test suite:**
+
+```bash
+❌ WRONG:   make test-unit
+✅ CORRECT: make test-unit && make coverage-quick
+
+❌ WRONG:   make test-run TARGET="AsyncManager"  
+✅ CORRECT: make test-run TARGET="AsyncManager" && make coverage-quick
+
+❌ WRONG:   make t
+✅ CORRECT: make t && make coverage-quick
+```
+
+### Coverage Commands Usage
+
+- **Daily development:** `make coverage-quick` (fastest, unit tests only)
+- **Before commit:** `make coverage` (full coverage analysis)
+- **Detailed analysis:** `make coverage-html` (visual HTML reports)
+
+### Coverage Requirements
+
+- **Unit tests:** Minimum 80% line coverage
+- **Critical components:** Minimum 90% coverage  
+- **New features:** 85%+ coverage before merge
+
+### Coverage Reports Location
+
+- **Quick reports:** `./TestResults/Coverage/Quick/`
+- **Full reports:** `./TestResults/Coverage/`
+- **HTML reports:** `./TestResults/Coverage/Html/index.html`

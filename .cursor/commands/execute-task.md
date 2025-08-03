@@ -32,6 +32,12 @@ In Cursor IDE chat, type:
 ### 📋 Makefile Commands (Recommended):
 - `make build` - compile project (with colored output)
 - `make test` - run tests (with progress)
+- `make test-run TARGET="..." [OPTS="..."]` - universal test runner (interactive)
+- `make test-quick` - quick test menu (4 most common options)
+- `make t` - super quick unit tests (fastest)
+- `make coverage-quick` - quick coverage for unit tests (MANDATORY for individual testing)
+- `make coverage` - full coverage report for all tests
+- `make coverage-html` - HTML coverage report with visual analysis
 - `make dev` - development mode
 - `make quick-build` - quick compilation for debugging
 - `make help` - show all available commands
@@ -142,6 +148,34 @@ public void TaskName_Multiplayer_NoDesync()
     // Test multiplayer compatibility
 }
 ```
+
+### 🚨 5. MANDATORY Coverage Testing
+
+**After implementing any task, ALWAYS verify code coverage:**
+
+```bash
+# For unit tests specifically for your task:
+make test-run TARGET="YourTaskTestClass" && make coverage-quick
+
+# For full task verification:
+make test && make coverage
+
+# For detailed analysis:
+make coverage-html
+```
+
+**Coverage Requirements for Tasks:**
+- **New functionality:** Minimum 85% coverage
+- **Critical systems (Core, AsyncManager):** Minimum 90% coverage
+- **Bug fixes:** Must include tests reproducing the bug
+- **Performance improvements:** Must include benchmark tests
+
+**Coverage Verification Checklist:**
+- [ ] Unit tests cover all new methods
+- [ ] Error handling paths are tested
+- [ ] Edge cases are covered
+- [ ] Integration points are tested
+- [ ] Performance requirements are verified
 
 ## 🔄 Workflow
 

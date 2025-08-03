@@ -39,7 +39,15 @@ All tests run in isolated Docker containers for consistency:
 - `make test-unit` - run only unit tests quickly
 - `make test-integration` - run integration tests (slower)
 - `make test-performance` - run performance benchmarks
-- `make test-coverage` - run tests with coverage report
+- `make test-run TARGET="..." [OPTS="..."]` - universal test runner (interactive)
+- `make test-quick` - quick test menu (4 most common options)
+- `make test-find NAME="SearchTerm"` - smart search for tests by name
+- `make t` - super quick unit tests (fastest)
+
+### 📊 Code Coverage Commands (MANDATORY for individual tests):
+- `make coverage-quick` - quick coverage for unit tests (recommended for development)
+- `make coverage` - full coverage report for all tests
+- `make coverage-html` - HTML coverage report with visual analysis
 
 ### 🔧 Raw Docker Commands:
 - `docker-compose up test` - run all tests
@@ -217,4 +225,36 @@ public class ComponentNameTests
 
 ---
 
+## 🚨 MANDATORY Coverage Requirements
+
+### When running individual tests or specific components:
+- **ALWAYS run coverage** to verify test completeness
+- Use `make coverage-quick` for daily development
+- Use `make coverage-html` for detailed analysis
+
+### Examples:
+```bash
+# Instead of just:
+make test-unit
+
+# ALWAYS include coverage:
+make test-unit && make coverage-quick
+
+# For specific components:
+make test-run TARGET="AsyncManager" && make coverage-quick
+
+# For detailed analysis:
+make test-run TARGET="Category=Unit" && make coverage-html
+```
+
+### Coverage Requirements:
+- **Unit tests:** Minimum 80% code coverage
+- **Integration tests:** Must cover all interaction paths
+- **Critical components:** 90%+ coverage required
+
 **Note:** Use `make test` for best experience with automatic cleanup and colored output!
+
+**Coverage Reports Location:**
+- Quick reports: `./TestResults/Coverage/Quick/`
+- Full reports: `./TestResults/Coverage/`
+- HTML reports: `./TestResults/Coverage/Html/index.html`

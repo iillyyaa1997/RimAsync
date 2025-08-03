@@ -3,21 +3,25 @@
 ## Test Categories
 
 ### 1. Unit Tests
+
 - Test individual components in isolation
 - Mock dependencies where necessary
 - Focus on algorithm correctness
 
 ### 2. Integration Tests
+
 - Test interaction between components
 - Verify Harmony patches work correctly
 - Test with real RimWorld environment
 
 ### 3. Performance Tests
+
 - Measure TPS improvements
 - Memory usage profiling
 - Long-running stability tests
 
 ### 4. Multiplayer Compatibility Tests
+
 - Determinism verification
 - State synchronization testing
 - Desync detection
@@ -25,6 +29,7 @@
 ## Required Test Patterns
 
 ### Multiplayer Determinism Test
+
 ```csharp
 [Test]
 public void TestMultiplayerDeterminism()
@@ -43,6 +48,7 @@ public void TestMultiplayerDeterminism()
 ```
 
 ### Performance Benchmark Test
+
 ```csharp
 [Test]
 public void BenchmarkPathfinding()
@@ -60,6 +66,7 @@ public void BenchmarkPathfinding()
 ```
 
 ### Thread Safety Test
+
 ```csharp
 [Test]
 public void TestThreadSafety()
@@ -88,6 +95,7 @@ public void TestThreadSafety()
 ## Test Environment Setup
 
 ### Mock RimWorld Environment
+
 ```csharp
 [SetUp]
 public void SetupRimWorldMocks()
@@ -103,6 +111,7 @@ public void SetupRimWorldMocks()
 ```
 
 ### Multiplayer Test Environment
+
 ```csharp
 [SetUp]
 public void SetupMultiplayerTest()
@@ -125,6 +134,7 @@ public void CleanupMultiplayerTest()
 ## Performance Testing Requirements
 
 ### Memory Usage Tests
+
 ```csharp
 [Test]
 public void TestMemoryUsage()
@@ -148,6 +158,7 @@ public void TestMemoryUsage()
 ```
 
 ### Long-Running Stability Test
+
 ```csharp
 [Test]
 [Timeout(300000)] // 5 minutes
@@ -170,19 +181,57 @@ public void TestLongRunningStability()
 ## Testing Checklist
 
 ### Before Each Commit
+
 - [ ] All unit tests pass
+- [ ] **Code coverage minimum 80%** (use `make coverage-quick`)
 - [ ] Performance benchmarks meet targets
 - [ ] Memory usage is acceptable
 - [ ] Multiplayer determinism verified
 
 ### Before Each Release
+
 - [ ] Full integration test suite passes
+- [ ] **Code coverage minimum 85%** (use `make coverage`)
+- [ ] **HTML coverage report generated** (use `make coverage-html`)
 - [ ] Long-running stability test passes
 - [ ] Tested with popular mod combinations
 - [ ] Multiplayer desync testing completed
 - [ ] Performance regression testing done
 
+### 📊 MANDATORY Code Coverage Rules
+
+#### Coverage Requirements
+
+- **Unit Tests:** Minimum 80% line coverage
+- **Critical Components (AsyncManager, Core):** Minimum 90% coverage
+- **Integration Tests:** Must cover all component interaction paths
+- **New Features:** 85%+ coverage required before merge
+
+#### Coverage Commands
+
+```bash
+# Daily development workflow:
+make t && make coverage-quick              # Fast unit tests + coverage
+
+# Before commit:
+make test-unit && make coverage-quick      # Verify unit test coverage
+
+# Detailed analysis:
+make coverage-html                         # Generate HTML reports
+
+# Full project coverage:
+make coverage                              # All tests with coverage
+```
+
+#### Coverage Analysis
+
+- **Use HTML reports** for detailed line-by-line analysis
+- **Focus on untested critical paths** (error handling, edge cases)
+- **Ensure async operations are covered** with proper test scenarios
+- **Test multiplayer compatibility paths** separately
+
 ## Mock Helpers
+
 ```csharp
 public static class TestHelpers
 {
@@ -204,6 +253,7 @@ public static class TestHelpers
 ```
 
 ## Test Data Management
+
 - Use deterministic test data
 - Create reusable test scenarios
 - Maintain test save files for regression testing
