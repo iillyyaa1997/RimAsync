@@ -1,5 +1,6 @@
 using HarmonyLib;
 using RimAsync.Core;
+using RimAsync.Threading;
 using RimAsync.Utils;
 using Verse;
 
@@ -50,12 +51,12 @@ namespace RimAsync.Patches.Performance_Patches
             {
                 // Update performance metrics after each tick
                 // This is handled by RimAsyncGameComponent, but we can add additional metrics here
-                
+
                 if (RimAsyncMod.Settings?.enableDebugLogging == true && Find.TickManager.TicksGame % 3600 == 0) // Every minute
                 {
                     var ticksGame = Find.TickManager.TicksGame;
                     var realTime = Find.TickManager.TickRateMultiplier;
-                    
+
                     Log.Message($"[RimAsync] Tick {ticksGame}, Rate: {realTime:F2}x, TPS: {PerformanceMonitor.CurrentTPS:F1}");
                 }
             }
@@ -106,8 +107,8 @@ namespace RimAsync.Patches.Performance_Patches
             try
             {
                 // Example: Schedule background map optimizations if performance is good
-                if (RimAsyncMod.Settings.enableBackgroundJobs && 
-                    PerformanceMonitor.IsPerformanceGood && 
+                if (RimAsyncMod.Settings.enableBackgroundJobs &&
+                    PerformanceMonitor.IsPerformanceGood &&
                     AsyncManager.CanExecuteAsync())
                 {
                     // Could schedule background optimizations here
@@ -123,4 +124,4 @@ namespace RimAsync.Patches.Performance_Patches
             }
         }
     }
-} 
+}

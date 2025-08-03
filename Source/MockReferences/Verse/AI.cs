@@ -1,5 +1,7 @@
-// Mock references for Verse.AI classes
+// Mock reference for RimWorld Verse.AI classes
 // Used for Docker compilation when RimWorld assemblies are not available
+
+using System.Collections.Generic;
 
 namespace Verse.AI
 {
@@ -11,17 +13,37 @@ namespace Verse.AI
         InteractionCell
     }
 
+    public class Job
+    {
+        public JobDef def;
+        public SourceJobDef SourceJobDef { get; set; }
+        public LocalTargetInfo targetA;
+        public LocalTargetInfo targetB;
+        public LocalTargetInfo targetC;
+
+        public Job()
+        {
+            targetA = new LocalTargetInfo();
+        }
+    }
+
+    public class SourceJobDef
+    {
+        public string defName;
+        public string label;
+    }
+
     public struct ThinkResult
     {
         public Job Job { get; set; }
         public JobDef SourceJobDef { get; set; }
-        
+
         public ThinkResult(Job job)
         {
             Job = job;
             SourceJobDef = job?.def;
         }
-        
+
         public static ThinkResult NoJob => new ThinkResult();
     }
 
@@ -32,9 +54,9 @@ namespace Verse.AI
 
     public abstract class ThinkNode
     {
-        public virtual ThinkResult TryIssueJobPackage(Pawn pawn, JobIssueParams jobParams) 
-        { 
-            return ThinkResult.NoJob; 
+        public virtual ThinkResult TryIssueJobPackage(Pawn pawn, JobIssueParams jobParams)
+        {
+            return ThinkResult.NoJob;
         }
     }
 
@@ -43,7 +65,7 @@ namespace Verse.AI
         public bool canTakeInventory;
         public bool canBash;
         public bool canDig;
-        
+
         public JobIssueParams(bool canTakeInventory = true, bool canBash = false, bool canDig = false)
         {
             this.canTakeInventory = canTakeInventory;
@@ -51,4 +73,4 @@ namespace Verse.AI
             this.canDig = canDig;
         }
     }
-} 
+}

@@ -1,21 +1,24 @@
+using System;
+using HarmonyLib;
 using RimAsync.Core;
 using RimAsync.Threading;
 using RimAsync.Utils;
 using RimWorld;
+using UnityEngine;
 using Verse;
 
 namespace RimAsync.Components
 {
     /// <summary>
-    /// Main game component for RimAsync
-    /// Handles per-game lifecycle and coordinates systems during gameplay
+    /// Game component responsible for managing RimAsync state across save/load cycles
+    /// Provides debug overlay and performance monitoring
     /// </summary>
-    public class RimAsyncGameComponent : GameComponent
+    public class RimAsyncGameComponent : RimWorld.GameComponent
     {
         private int _tickCounter = 0;
         private const int PERFORMANCE_UPDATE_INTERVAL = 60; // Update every 60 ticks (1 second at 60 TPS)
 
-        public RimAsyncGameComponent(Game game) : base()
+        public RimAsyncGameComponent(Game game) : base(game)
         {
         }
 
@@ -67,22 +70,16 @@ namespace RimAsync.Components
         {
             // Simple performance display in top-left corner
             var rect = new UnityEngine.Rect(10, 10, 300, 100);
-            
+
             UnityEngine.GUI.Box(rect, "");
             UnityEngine.GUILayout.BeginArea(rect);
-            
+
             UnityEngine.GUILayout.Label($"RimAsync Debug");
             UnityEngine.GUILayout.Label($"TPS: {PerformanceMonitor.CurrentTPS:F1}");
             UnityEngine.GUILayout.Label($"Mode: {RimAsyncCore.GetExecutionMode()}");
             UnityEngine.GUILayout.Label($"Async Available: {AsyncManager.CanExecuteAsync()}");
-            
+
             UnityEngine.GUILayout.EndArea();
         }
-
-        public override void ExposeData()
-        {
-            base.ExposeData();
-            // No persistent data to save/load for this component
-        }
     }
-} 
+}

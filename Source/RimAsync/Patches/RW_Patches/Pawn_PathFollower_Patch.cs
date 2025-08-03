@@ -25,7 +25,7 @@ namespace RimAsync.Patches.RW_Patches
         public static bool GeneratePatherPath_Prefix(
             Pawn_PathFollower __instance,
             IntVec3 destination,
-            PathEndMode peMode,
+            Verse.AI.PathEndMode peMode,
             ref PawnPath __result)
         {
             // Only apply async pathfinding if enabled and safe
@@ -62,7 +62,7 @@ namespace RimAsync.Patches.RW_Patches
         /// <summary>
         /// Attempt asynchronous pathfinding
         /// </summary>
-        private static PawnPath TryAsyncPathfinding(Pawn_PathFollower pathFollower, IntVec3 destination, PathEndMode peMode)
+        private static PawnPath TryAsyncPathfinding(Pawn_PathFollower pathFollower, IntVec3 destination, Verse.AI.PathEndMode peMode)
         {
             // Check if we can use async operations
             if (!AsyncManager.CanExecuteAsync())
@@ -78,18 +78,18 @@ namespace RimAsync.Patches.RW_Patches
 
             // For demonstration - in real implementation this would be a proper async operation
             // This is a simplified example showing the pattern
-            
+
             using (PerformanceMonitor.StartMeasuring("AsyncPathfinding"))
             {
                 // Quick pathfinding for immediate response
                 var quickPath = pawn.Map.pathFinder.FindPath(pawn.Position, destination, pawn, peMode);
-                
+
                 // Schedule background optimization if path is complex
                 if (quickPath.TotalCost > 100) // Arbitrary threshold
                 {
                     SchedulePathOptimization(pawn, destination, peMode);
                 }
-                
+
                 return quickPath;
             }
         }
@@ -97,7 +97,7 @@ namespace RimAsync.Patches.RW_Patches
         /// <summary>
         /// Schedule background path optimization
         /// </summary>
-        private static void SchedulePathOptimization(Pawn pawn, IntVec3 destination, PathEndMode peMode)
+        private static void SchedulePathOptimization(Pawn pawn, IntVec3 destination, Verse.AI.PathEndMode peMode)
         {
             if (!RimAsyncCore.CanUseAsync()) return;
 
@@ -111,10 +111,10 @@ namespace RimAsync.Patches.RW_Patches
                         {
                             // Simulate path optimization work
                             await Task.Delay(10, cancellationToken);
-                            
+
                             // Record the optimization
                             PerformanceMonitor.RecordMetric("PathOptimization", 10.0f);
-                            
+
                             if (RimAsyncMod.Settings?.enableDebugLogging == true)
                             {
                                 Log.Message($"[RimAsync] Optimized path for {pawn.LabelShort}");
@@ -146,9 +146,9 @@ namespace RimAsync.Patches.RW_Patches
             if (pawn.InCombat()) return true;
             if (pawn.health?.hediffSet?.PainTotal > 0.5f) return true; // Injured pawn
             if (pawn.needs?.food?.CurLevel < 0.1f) return true; // Starving
-            
+
             // Add more critical conditions as needed
-            
+
             return false;
         }
     }
@@ -180,4 +180,4 @@ namespace RimAsync.Patches.RW_Patches
             }
         }
     }
-} 
+}

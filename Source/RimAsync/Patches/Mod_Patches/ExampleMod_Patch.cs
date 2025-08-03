@@ -50,7 +50,7 @@ namespace RimAsync.Patches.Mod_Patches
                 if (mod.PackageId.ToLower().Contains("examplemod"))
                 {
                     _modDetected = true;
-                    
+
                     // Try to get the mod's assembly
                     foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
                     {
@@ -83,7 +83,7 @@ namespace RimAsync.Patches.Mod_Patches
                     {
                         var harmony = RimAsyncMod.HarmonyInstance;
                         var prefix = typeof(ExampleMod_Patch).GetMethod(nameof(ExampleMethod_Prefix));
-                        
+
                         harmony.Patch(targetMethod, prefix: new HarmonyMethod(prefix));
                         Log.Message("[RimAsync] Applied compatibility patch for ExampleMod.ExampleMethod");
                     }
@@ -109,7 +109,7 @@ namespace RimAsync.Patches.Mod_Patches
                 }
 
                 // Example: Wrap the operation for multiplayer safety
-                MultiplayerCompat_Patch.WrapMultiplayerSafeOperation(() =>
+                RimAsync.Patches.Multiplayer_Patches.MultiplayerCompat_Patch.WrapMultiplayerSafeOperation(() =>
                 {
                     // Custom logic that works with RimAsync
                     if (RimAsyncMod.Settings?.enableDebugLogging == true)
@@ -203,7 +203,7 @@ namespace RimAsync.Patches.Mod_Patches
         /// <summary>
         /// Safely try to patch a method from another mod
         /// </summary>
-        public static bool TryPatchModMethod(Assembly modAssembly, string typeName, string methodName, 
+        public static bool TryPatchModMethod(Assembly modAssembly, string typeName, string methodName,
             MethodInfo prefix = null, MethodInfo postfix = null, MethodInfo transpiler = null)
         {
             try
@@ -220,7 +220,7 @@ namespace RimAsync.Patches.Mod_Patches
                 var harmonyTranspiler = transpiler != null ? new HarmonyMethod(transpiler) : null;
 
                 harmony.Patch(targetMethod, harmonyPrefix, harmonyPostfix, harmonyTranspiler);
-                
+
                 Log.Message($"[RimAsync] Successfully patched {typeName}.{methodName}");
                 return true;
             }
@@ -231,4 +231,4 @@ namespace RimAsync.Patches.Mod_Patches
             }
         }
     }
-} 
+}

@@ -69,12 +69,12 @@ namespace RimAsync.Patches.Multiplayer_Patches
     /// <summary>
     /// Component that monitors multiplayer state changes
     /// </summary>
-    public class MultiplayerStateMonitor : GameComponent
+    public class MultiplayerStateMonitor : RimWorld.GameComponent
     {
         private bool _wasInMultiplayer = false;
         private bool _wasAsyncTimeEnabled = false;
 
-        public MultiplayerStateMonitor(Game game) : base()
+        public MultiplayerStateMonitor(Game game) : base(game)
         {
         }
 
@@ -102,7 +102,7 @@ namespace RimAsync.Patches.Multiplayer_Patches
         private void OnMultiplayerStateChanged(bool inMultiplayer)
         {
             Log.Message($"[RimAsync] Multiplayer state changed: {(inMultiplayer ? "Entered" : "Exited")} multiplayer");
-            
+
             // Notify core systems of the change
             RimAsyncCore.OnSettingsChanged();
         }
@@ -110,15 +110,9 @@ namespace RimAsync.Patches.Multiplayer_Patches
         private void OnAsyncTimeStateChanged(bool asyncTimeEnabled)
         {
             Log.Message($"[RimAsync] AsyncTime state changed: {(asyncTimeEnabled ? "Enabled" : "Disabled")}");
-            
+
             // Notify core systems of the change
             RimAsyncCore.OnSettingsChanged();
         }
-
-        public override void ExposeData()
-        {
-            base.ExposeData();
-            // No data to save/load for this component
-        }
     }
-} 
+}

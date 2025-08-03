@@ -194,7 +194,7 @@ namespace RimAsync.Utils
         {
             private readonly ConcurrentQueue<T> _queue = new ConcurrentQueue<T>();
             private readonly int _maxSize;
-            private int _currentSize = 0;
+            private long _currentSize = 0;
 
             public BoundedSafeQueue(int maxSize)
             {
@@ -223,7 +223,7 @@ namespace RimAsync.Utils
                 return false;
             }
 
-            public int Count => _currentSize;
+            public int Count => (int)_currentSize;
 
             public int MaxSize => _maxSize;
 
@@ -251,7 +251,7 @@ namespace RimAsync.Utils
         /// <summary>
         /// Channel for async to main thread communication
         /// </summary>
-        public static readonly AsyncSafeCollections.SafeList<AsyncMessage> MainThreadMessages = 
+        public static readonly AsyncSafeCollections.SafeList<AsyncMessage> MainThreadMessages =
             new AsyncSafeCollections.SafeList<AsyncMessage>();
 
         /// <summary>
@@ -259,10 +259,10 @@ namespace RimAsync.Utils
         /// </summary>
         public static void SendToMainThread(string type, object data = null)
         {
-            MainThreadMessages.Add(new AsyncMessage 
-            { 
-                Type = type, 
-                Data = data 
+            MainThreadMessages.Add(new AsyncMessage
+            {
+                Type = type,
+                Data = data
             });
         }
 
@@ -322,4 +322,4 @@ namespace RimAsync.Utils
             }
         }
     }
-} 
+}

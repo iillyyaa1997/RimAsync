@@ -8,17 +8,23 @@ namespace RimWorld
 {
     public abstract class Mod
     {
-        public ModContentPack Content { get; private set; }
+        public ModContentPack Content { get; protected set; }
         public ModSettings Settings { get; private set; }
-        
+
         public Mod(ModContentPack content)
         {
             Content = content;
         }
-        
+
         public virtual void DoSettingsWindowContents(UnityEngine.Rect inRect) { }
         public virtual string SettingsCategory() { return null; }
         public virtual void WriteSettings() { }
+
+        public T GetSettings<T>() where T : ModSettings, new()
+        {
+            // Mock implementation - return new instance for testing
+            return new T();
+        }
     }
 
     public class ModContentPack
@@ -33,25 +39,35 @@ namespace RimWorld
         public virtual void ExposeData() { }
     }
 
-    public abstract class GameComponent
+    public class GameComponent
     {
-        public Game game;
-        
-        public GameComponent(Game game)
+        public Verse.Game game;
+
+        public GameComponent()
+        {
+        }
+
+        public GameComponent(Verse.Game game)
         {
             this.game = game;
         }
-        
-        public virtual void GameComponentTick() { }
+
         public virtual void GameComponentUpdate() { }
+        public virtual void GameComponentTick() { }
         public virtual void GameComponentOnGUI() { }
-        public virtual void StartedNewGame() { }
-        public virtual void LoadedGame() { }
-        public virtual void ExposeData() { }
+        public virtual void FinalizeInit() { }
+    }
+
+    public class LoadedModManager
+    {
+        public static ModContentPack GetModContentPack(string packageId)
+        {
+            return new ModContentPack { PackageId = packageId, Name = "Mock Mod" };
+        }
     }
 
     public static class Current
     {
         public static Game Game => Verse.Game.CurrentGame;
     }
-} 
+}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using RimAsync.Core;
 using Verse;
 
@@ -15,7 +16,7 @@ namespace RimAsync.Utils
         private static readonly ConcurrentDictionary<string, CacheEntry> _cache = new ConcurrentDictionary<string, CacheEntry>();
         private static readonly object _cleanupLock = new object();
         private static int _lastCleanupTick = 0;
-        
+
         private const int CLEANUP_INTERVAL = 3600; // Clean up every minute (60 ticks/second * 60 seconds)
         private const int DEFAULT_TTL_TICKS = 600; // Default 10 second TTL
 
@@ -31,7 +32,7 @@ namespace RimAsync.Utils
             }
 
             var currentTick = Find.TickManager?.TicksGame ?? 0;
-            
+
             // Try to get from cache
             if (_cache.TryGetValue(key, out var entry))
             {
@@ -59,22 +60,22 @@ namespace RimAsync.Utils
             using (PerformanceMonitor.StartMeasuring($"Cache.Compute.{key}"))
             {
                 var value = computeFunc();
-                
+
                 // Store in cache
                 var newEntry = new CacheEntry
                 {
                     Value = value,
                     CreatedTick = currentTick
                 };
-                
+
                 _cache.TryAdd(key, newEntry);
-                
+
                 // Periodic cleanup
                 if (currentTick - _lastCleanupTick > CLEANUP_INTERVAL)
                 {
                     CleanupExpiredEntries(currentTick);
                 }
-                
+
                 return value;
             }
         }
@@ -93,7 +94,7 @@ namespace RimAsync.Utils
         public static void InvalidatePattern(string pattern)
         {
             var keysToRemove = new List<string>();
-            
+
             foreach (var kvp in _cache)
             {
                 if (kvp.Key.Contains(pattern))
@@ -101,7 +102,7 @@ namespace RimAsync.Utils
                     keysToRemove.Add(kvp.Key);
                 }
             }
-            
+
             foreach (var key in keysToRemove)
             {
                 _cache.TryRemove(key, out _);
@@ -125,7 +126,7 @@ namespace RimAsync.Utils
             var currentTick = Find.TickManager?.TicksGame ?? 0;
             int validEntries = 0;
             int expiredEntries = 0;
-            
+
             foreach (var entry in _cache.Values)
             {
                 if (currentTick - entry.CreatedTick < DEFAULT_TTL_TICKS)
@@ -137,7 +138,7 @@ namespace RimAsync.Utils
                     expiredEntries++;
                 }
             }
-            
+
             return new CacheStats
             {
                 TotalEntries = _cache.Count,
@@ -159,7 +160,7 @@ namespace RimAsync.Utils
             try
             {
                 var keysToRemove = new List<string>();
-                
+
                 foreach (var kvp in _cache)
                 {
                     if (currentTick - kvp.Value.CreatedTick > DEFAULT_TTL_TICKS * 2) // Extra buffer
@@ -167,7 +168,7 @@ namespace RimAsync.Utils
                         keysToRemove.Add(kvp.Key);
                     }
                 }
-                
+
                 int removedCount = 0;
                 foreach (var key in keysToRemove)
                 {
@@ -176,9 +177,9 @@ namespace RimAsync.Utils
                         removedCount++;
                     }
                 }
-                
+
                 _lastCleanupTick = currentTick;
-                
+
                 if (removedCount > 0 && RimAsyncMod.Settings?.enableDebugLogging == true)
                 {
                     Log.Message($"[RimAsync] Cleaned up {removedCount} expired cache entries");
@@ -208,9 +209,9 @@ namespace RimAsync.Utils
         public int TotalEntries { get; set; }
         public int ValidEntries { get; set; }
         public int ExpiredEntries { get; set; }
-        
+
         public float HitRatio => TotalEntries > 0 ? (float)ValidEntries / TotalEntries : 0f;
-        
+
         public override string ToString()
         {
             return $"Cache: {ValidEntries}/{TotalEntries} valid ({HitRatio:P1}), {ExpiredEntries} expired";
@@ -246,4 +247,4 @@ namespace RimAsync.Utils
             return $"Thing_{thing.ThingID}_{operation}";
         }
     }
-} 
+}

@@ -11,7 +11,7 @@ namespace UnityEngine
         public float y;
         public float width;
         public float height;
-        
+
         public Rect(float x, float y, float width, float height)
         {
             this.x = x;
@@ -25,13 +25,13 @@ namespace UnityEngine
     {
         public float x;
         public float y;
-        
+
         public Vector2(float x, float y)
         {
             this.x = x;
             this.y = y;
         }
-        
+
         public static Vector2 zero => new Vector2(0, 0);
     }
 
@@ -40,14 +40,14 @@ namespace UnityEngine
         public float x;
         public float y;
         public float z;
-        
+
         public Vector3(float x, float y, float z)
         {
             this.x = x;
             this.y = y;
             this.z = z;
         }
-        
+
         public static Vector3 zero => new Vector3(0, 0, 0);
     }
 
@@ -62,12 +62,12 @@ namespace UnityEngine
     {
         public string name;
         public bool activeInHierarchy { get; set; }
-        
+
         public GameObject(string name)
         {
             this.name = name;
         }
-        
+
         public T GetComponent<T>() where T : class { return null; }
         public T AddComponent<T>() where T : class, new() { return new T(); }
     }
@@ -80,21 +80,118 @@ namespace UnityEngine
         public static float unscaledDeltaTime { get; set; } = 0.016f;
     }
 
-    public static class Debug
+    public static class GUI
     {
-        public static void Log(object message)
+        public static void Label(Rect position, string text)
         {
-            Console.WriteLine($"[Unity] {message}");
+            // Mock implementation
         }
-        
-        public static void LogWarning(object message)
+
+        public static bool Button(Rect position, string text)
         {
-            Console.WriteLine($"[Unity Warning] {message}");
+            // Mock implementation - return false (not clicked)
+            return false;
         }
-        
-        public static void LogError(object message)
+
+        public static string TextField(Rect position, string text)
         {
-            Console.WriteLine($"[Unity Error] {message}");
+            // Mock implementation - return unchanged text
+            return text;
+        }
+
+        public static void Box(Rect position, string text)
+        {
+            // Mock implementation
         }
     }
-} 
+
+    public static class GUILayout
+    {
+        public static void Label(string text, params object[] options)
+        {
+            // Mock implementation
+        }
+
+        public static bool Button(string text, params object[] options)
+        {
+            // Mock implementation - return false (not clicked)
+            return false;
+        }
+
+        public static string TextField(string text, params object[] options)
+        {
+            // Mock implementation - return unchanged text
+            return text;
+        }
+
+        public static void Box(string text, params object[] options)
+        {
+            // Mock implementation
+        }
+
+        public static void Space(float pixels)
+        {
+            // Mock implementation
+        }
+
+        public static void BeginHorizontal(params object[] options)
+        {
+            // Mock implementation
+        }
+
+        public static void EndHorizontal()
+        {
+            // Mock implementation
+        }
+
+        public static void BeginVertical(params object[] options)
+        {
+            // Mock implementation
+        }
+
+        public static void EndVertical()
+        {
+            // Mock implementation
+        }
+
+        public static void BeginArea(Rect screenRect)
+        {
+            // Mock implementation
+        }
+
+        public static void EndArea()
+        {
+            // Mock implementation
+        }
+    }
+
+    public static class Application
+    {
+        public static bool isPlaying => true;
+        public static string persistentDataPath => "/tmp/unity_data";
+    }
+
+    public static class Random
+    {
+        private static System.Random _rnd = new System.Random();
+
+        public static int Range(int min, int max)
+        {
+            return _rnd.Next(min, max);
+        }
+
+        public static float Range(float min, float max)
+        {
+            return (float)(_rnd.NextDouble() * (max - min) + min);
+        }
+
+        public static float value => (float)_rnd.NextDouble();
+    }
+
+    public static class Debug
+    {
+        public static void Log(object message) { Console.WriteLine($"[Unity] {message}"); }
+        public static void LogWarning(object message) { Console.WriteLine($"[Unity WARN] {message}"); }
+        public static void LogError(object message) { Console.WriteLine($"[Unity ERROR] {message}"); }
+    }
+}
