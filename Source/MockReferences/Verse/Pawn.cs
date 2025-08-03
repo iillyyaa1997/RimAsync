@@ -17,7 +17,7 @@ namespace Verse
         public bool Dead { get; set; }
 
         // Add missing properties
-        public string LabelShort => Name?.ToStringShort ?? "Unknown";
+        public string LabelShort => Name?.ToStringShort() ?? "Unknown";
         public bool InCombat { get; set; } = false;
         public Pawn_HealthTracker health { get; set; } = new Pawn_HealthTracker();
         public Pawn_NeedsTracker needs { get; set; } = new Pawn_NeedsTracker();
@@ -80,6 +80,12 @@ namespace Verse
     {
         public bool Dead { get; set; } = false;
         public float summaryHealth { get; set; } = 1.0f;
+        public HediffSet hediffSet { get; set; } = new HediffSet();
+    }
+
+    public class HediffSet
+    {
+        public float PainTotal { get; set; } = 0f;
     }
 
     public class Pawn_NeedsTracker

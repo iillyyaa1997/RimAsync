@@ -82,7 +82,7 @@ namespace RimAsync.Patches.RW_Patches
             using (PerformanceMonitor.StartMeasuring("AsyncPathfinding"))
             {
                 // Quick pathfinding for immediate response
-                var quickPath = pawn.Map.pathFinder.FindPath(pawn.Position, destination, pawn, peMode);
+                var quickPath = pawn.Map.pathFinder.FindPath(pawn.Position, new LocalTargetInfo(destination), pawn, TraverseMode.ByPawn, peMode);
 
                 // Schedule background optimization if path is complex
                 if (quickPath.TotalCost > 100) // Arbitrary threshold
@@ -143,9 +143,9 @@ namespace RimAsync.Patches.RW_Patches
             if (pawn == null) return true;
 
             // Critical situations where we need immediate pathfinding
-            if (pawn.InCombat()) return true;
-            if (pawn.health?.hediffSet?.PainTotal > 0.5f) return true; // Injured pawn
-            if (pawn.needs?.food?.CurLevel < 0.1f) return true; // Starving
+            if (pawn.InCombat) return true;
+            if (pawn.health?.summaryHealth < 0.5f) return true; // Injured pawn
+            if (pawn.needs?.food < 0.1f) return true; // Starving
 
             // Add more critical conditions as needed
 

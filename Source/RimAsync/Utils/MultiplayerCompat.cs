@@ -13,17 +13,42 @@ namespace RimAsync.Utils
         private static bool _initialized = false;
         private static bool _multiplayerLoaded = false;
         private static Assembly _multiplayerAssembly = null;
-        
+
         // Reflected types and methods for multiplayer compatibility
         private static Type _multiplayerAPIType = null;
         private static PropertyInfo _isInMultiplayerProperty = null;
         private static Type _multiplayerSettingsType = null;
         private static PropertyInfo _asyncTimeProperty = null;
 
+        // Testing support
+        private static bool _testMode = false;
+        private static bool _testIsInMultiplayer = false;
+        private static bool _testAsyncTimeEnabled = false;
+
+        /// <summary>
+        /// Enable test mode with mock values
+        /// </summary>
+        public static void EnableTestMode(bool isInMultiplayer, bool asyncTimeEnabled)
+        {
+            _testMode = true;
+            _testIsInMultiplayer = isInMultiplayer;
+            _testAsyncTimeEnabled = asyncTimeEnabled;
+        }
+
+        /// <summary>
+        /// Disable test mode and return to normal detection
+        /// </summary>
+        public static void DisableTestMode()
+        {
+            _testMode = false;
+            _testIsInMultiplayer = false;
+            _testAsyncTimeEnabled = false;
+        }
+
         /// <summary>
         /// True if RimWorld Multiplayer mod is loaded and active
         /// </summary>
-        public static bool IsMultiplayerLoaded => _multiplayerLoaded;
+        public static bool IsMultiplayerLoaded => _testMode ? true : _multiplayerLoaded;
 
         /// <summary>
         /// True if currently in a multiplayer session
@@ -32,8 +57,10 @@ namespace RimAsync.Utils
         {
             get
             {
+                if (_testMode) return _testIsInMultiplayer;
+
                 if (!_multiplayerLoaded || _isInMultiplayerProperty == null) return false;
-                
+
                 try
                 {
                     return (bool)_isInMultiplayerProperty.GetValue(null);
@@ -53,8 +80,10 @@ namespace RimAsync.Utils
         {
             get
             {
+                if (_testMode) return _testAsyncTimeEnabled;
+
                 if (!_multiplayerLoaded || _asyncTimeProperty == null) return false;
-                
+
                 try
                 {
                     return (bool)_asyncTimeProperty.GetValue(null);
@@ -146,11 +175,11 @@ namespace RimAsync.Utils
         {
             if (!_initialized) return "Not initialized";
             if (!_multiplayerLoaded) return "Multiplayer not loaded";
-            
+
             var inMultiplayer = IsInMultiplayer;
             var asyncTime = AsyncTimeEnabled;
-            
+
             return $"In Multiplayer: {inMultiplayer}, AsyncTime: {asyncTime}";
         }
     }
-} 
+}
