@@ -1,247 +1,322 @@
 # Analyze Logs Command
 
-**Команда:** `@analyze-logs`  
-**Описание:** Анализировать логи ошибок RimAsync и RimWorld для диагностики проблем
+**Command:** `@analyze-logs`
+**Description:** Comprehensive analysis of RimWorld logs, Docker containers, and multiplayer desync files
 
-## 🎯 Использование
+## 🎯 Usage
 
+### Basic Usage
 ```
-@analyze-logs [options]
-```
-
-**Примеры:**
-```
-@analyze-logs                      # Анализ всех доступных логов
-@analyze-logs --docker             # Только Docker логи
-@analyze-logs --rimworld           # Только RimWorld логи
-@analyze-logs --desyncs            # Только desync логи Multiplayer
-@analyze-logs --compilation        # Только ошибки компиляции
-@analyze-logs --recent             # Только недавние логи (последние 24 часа)
-@analyze-logs --errors-only        # Только ошибки, без warnings
+@analyze-logs                    # Analyze all available logs
+@analyze-logs --desyncs         # Focus on multiplayer desync analysis
+@analyze-logs --performance     # Focus on performance issues
+@analyze-logs --errors          # Focus on error patterns
 ```
 
-## 📁 Анализируемые источники логов
+### Advanced Usage
+```
+@analyze-logs --docker          # Analyze Docker container logs
+@analyze-logs --rimworld        # Analyze RimWorld game logs
+@analyze-logs --last 24h        # Analyze logs from last 24 hours
+@analyze-logs --export          # Export analysis to file
+```
 
-### 🔴 RimWorld Multiplayer Desyncs
-**Путь:** `/Users/ilyavolkov/Library/Application Support/RimWorld/MpDesyncs`
-- Анализирует desync логи
-- Выявляет проблемы синхронизации  
-- Проверяет совместимость с AsyncTime
-- Идентифицирует проблемные методы
+## 🔧 What the command does
+
+1. **Scans log directories** for RimWorld, Docker, and system logs
+2. **Identifies error patterns** and performance bottlenecks
+3. **Analyzes multiplayer desyncs** for AsyncTime compatibility
+4. **Generates actionable recommendations** for fixing issues
+5. **Exports detailed reports** for debugging and optimization
+6. **Tracks trends** in errors and performance over time
+
+## 📁 Log Sources
+
+### 🎮 RimWorld Logs
+```
+~/Library/Application Support/RimWorld/
+├── Player.log (main game log)
+├── Player-prev.log (previous session)
+├── Config/ (settings and preferences)
+└── MpDesyncs/ (multiplayer desync files)
+```
 
 ### 🐳 Docker Container Logs
-```bash
-docker-compose logs build    # Логи компиляции
-docker-compose logs test     # Логи тестирования
-docker-compose logs dev      # Логи разработки
+```
+Docker Containers:
+├── rimasync_build (compilation logs)
+├── rimasync_test (test execution logs)
+├── rimasync_dev (development logs)
+└── rimasync_performance (benchmark logs)
 ```
 
-### 🎮 RimWorld Player.log
-**Пути:**
-- macOS: `~/Library/Logs/RimWorld by Ludeon Studios/Player.log`
-- Windows: `%USERPROFILE%\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios\Player.log`
-
-### 📊 RimAsync Specific Logs
-- `./TestResults/` - Результаты тестов
-- `./Build/` - Логи компиляции
-- Performance metrics из PerformanceMonitor
-
-## 🔧 Типы анализа
-
-### 1. 🚨 Critical Error Analysis
+### 🖥️ System Logs
 ```
-[CRITICAL] NullReferenceException in AsyncManager
-[CRITICAL] Harmony patch conflict detected
-[CRITICAL] Multiplayer desync detected
+macOS System Logs:
+├── /var/log/system.log
+├── ~/Library/Logs/
+└── Console app integration
 ```
 
-### 2. ⚠️ Performance Issues
+## 🔍 Analysis Categories
+
+### ❌ Error Analysis (`--errors`)
+
+#### RimAsync Specific Errors
+- **Harmony patch failures**
+- **AsyncManager initialization issues**
+- **Thread synchronization problems**
+- **Multiplayer compatibility violations**
+
+#### RimWorld Game Errors
+- **Mod loading failures**
+- **Save game corruption**
+- **Memory allocation issues**
+- **Performance degradation**
+
+### 🎮 Multiplayer Desync Analysis (`--desyncs`)
+
+#### Desync Pattern Detection
 ```
-[PERFORMANCE] TPS drop detected: 45 → 12
-[PERFORMANCE] Memory leak in SmartCache
-[PERFORMANCE] Thread contention detected
+🛡️ Multiplayer Desync Analysis:
+
+📊 Desync Statistics:
+├── Total Desyncs: 3 files
+├── AsyncTime Related: 0 (0%)
+├── Other Mods: 2 (66.7%)
+└── Unknown: 1 (33.3%)
+
+🔍 AsyncTime Safety Check:
+├── Safe Operations: ✅ 847/847 (100%)
+├── Unsafe Operations: ❌ 0/847 (0%)
+├── Fallback Triggers: 🔄 23 times
+└── Deterministic Execution: ✅ Verified
 ```
 
-### 3. 🔄 Multiplayer Compatibility
+#### Desync File Analysis
 ```
-[MULTIPLAYER] AsyncTime not enabled
-[MULTIPLAYER] Desync in Pawn_PathFollower_Patch
-[MULTIPLAYER] Determinism violation detected
+📁 Recent Desync Files:
+
+1. MpDesync_2025-08-03_14-32-45.log
+   ├── Size: 234 KB
+   ├── Cause: Mod conflict (not RimAsync)
+   ├── Players: 4
+   └── Duration: 2h 15m before desync
+
+2. MpDesync_2025-08-03_16-21-12.log
+   ├── Size: 89 KB
+   ├── Cause: Save game issue
+   ├── Players: 2
+   └── RimAsync Status: ✅ Safe mode active
 ```
 
-### 4. 🐳 Docker Build Issues
+### ⚡ Performance Analysis (`--performance`)
+
+#### TPS Monitoring
 ```
-[DOCKER] Compilation failed: missing reference
-[DOCKER] Test timeout: AsyncManagerTests
-[DOCKER] Container volume mount issue
+📈 TPS Performance Trends:
+
+🎯 Colony Performance:
+├── Small Colony (5-10 pawns): 60 TPS (Target: 60)
+├── Medium Colony (11-50 pawns): 48 TPS (Target: 45)
+├── Large Colony (51-100 pawns): 32 TPS (Target: 30)
+└── Mega Colony (100+ pawns): 18 TPS (Target: 15)
+
+🧵 Thread Utilization:
+├── Main Thread: 78% avg usage
+├── Async Threads: 6/8 active (75%)
+├── Memory Usage: 2.3 GB (stable)
+└── GC Collections: 12/hour (normal)
 ```
 
-## 📋 Output Format
+#### Performance Bottlenecks
+```
+⚠️ Performance Issues Detected:
 
-### Структурированный отчет:
+🐌 Slow Operations:
+1. Pathfinding (large maps): 145ms avg (target: <100ms)
+   ├── Cause: Complex terrain calculation
+   ├── Impact: Medium TPS reduction
+   └── Recommendation: Enable async pathfinding
+
+2. Job scheduling: 23ms avg (target: <15ms)
+   ├── Cause: Large pawn count
+   ├── Impact: Low TPS reduction
+   └── Recommendation: Optimize job priority queue
+```
+
+### 🐳 Docker Analysis (`--docker`)
+
+#### Container Health
+```
+🐳 Docker Container Analysis:
+
+📊 Container Status:
+├── rimasync_build: ✅ Healthy (0 errors)
+├── rimasync_test: ⚠️ Warning (2 timeout issues)
+├── rimasync_dev: ✅ Healthy (0 errors)
+└── rimasync_performance: ✅ Healthy (0 errors)
+
+🔍 Resource Usage:
+├── CPU: 45% avg (8 cores)
+├── Memory: 6.2 GB / 16 GB (38%)
+├── Disk I/O: 234 MB/s read, 89 MB/s write
+└── Network: 12 MB/s (Docker internal)
+```
+
+#### Build Issues
+```
+❌ Docker Build Issues:
+
+1. NuGet package restore timeout
+   ├── Frequency: 3 times in last 24h
+   ├── Duration: 5-10 minutes each
+   ├── Cause: Network connectivity
+   └── Solution: Update Docker registry mirror
+
+2. Test environment initialization slow
+   ├── Frequency: Consistent
+   ├── Duration: 45 seconds (target: <20s)
+   ├── Cause: Mock assembly loading
+   └── Solution: Optimize test setup
+```
+
+## 📊 Report Generation
+
+### 🗂️ Analysis Report Structure
+
+#### Summary Report
 ```
 🔍 RimAsync Log Analysis Report
-===============================
-📅 Analysis Date: 2025-07-20 15:30:45
-🕐 Time Range: Last 24 hours
-📊 Total Logs Analyzed: 156 files
+📅 Period: 2025-08-03 00:00 - 2025-08-03 23:59
 
-🚨 CRITICAL ISSUES (3):
-┌─────────────────────────────────────────────────
-│ [15:25:32] NullReferenceException in AsyncManager.StartAsyncOperation()
-│ File: AsyncManager.cs:247
-│ Stack: AsyncManager.StartAsyncOperation() → Job.StartJob()
-│ Impact: HIGH - Async operations failing
-│ Solution: Add null check before operation
-├─────────────────────────────────────────────────
-│ [15:20:15] Multiplayer Desync detected
-│ File: /Users/ilyavolkov/Library/Application Support/RimWorld/MpDesyncs/desync_2025-07-20_15-20-15.log
-│ Method: Pawn_PathFollower.PatherTick()  
-│ Impact: CRITICAL - Multiplayer incompatible
-│ Solution: Review AsyncTime integration
-└─────────────────────────────────────────────────
+📊 Executive Summary:
+├── ✅ Overall Health: Good (87/100)
+├── ❌ Critical Issues: 0
+├── ⚠️ Warnings: 3
+└── 📈 Performance: Above target
 
-⚠️ PERFORMANCE WARNINGS (5):
-┌─────────────────────────────────────────────────
-│ [15:18:45] TPS Performance Drop
-│ Before: 60 TPS → After: 25 TPS
-│ Cause: SmartCache lock contention
-│ Impact: MEDIUM - Noticeable stuttering
-│ Solution: Optimize cache locking strategy
-└─────────────────────────────────────────────────
+🎯 Key Findings:
+1. AsyncTime integration working correctly (0 desyncs)
+2. Performance targets met for all colony sizes
+3. Minor Docker timeout issues (non-critical)
+4. No RimAsync-related errors detected
 
-🐳 DOCKER ISSUES (2):
-┌─────────────────────────────────────────────────
-│ [15:30:12] Docker Build Failed
-│ Service: rimasync-build
-│ Error: CS0246: Type 'Verse.Pawn' not found
-│ Impact: LOW - Missing RimWorld references
-│ Solution: Update Dockerfile with RimWorld libs
-└─────────────────────────────────────────────────
-
-✅ SUCCESSFUL OPERATIONS (12):
-- AsyncManager initialization: OK
-- Harmony patches applied: 8/8 OK
-- Performance monitor: Active
-- Multiplayer detection: Working
-
-📈 TRENDS:
-- Error frequency: ↑ 25% vs yesterday
-- Docker build success rate: 85%
-- Test pass rate: 92% (Unit), 78% (Integration)
-- Performance: TPS average 45 (target: 60)
-
-🎯 RECOMMENDED ACTIONS:
-1. URGENT: Fix AsyncManager null reference (AsyncManager.cs:247)
-2. HIGH: Review Pawn_PathFollower_Patch for multiplayer compatibility  
-3. MEDIUM: Optimize SmartCache locking to reduce TPS drops
-4. LOW: Update Docker references for RimWorld assemblies
-
-📊 STATISTICS:
-- Total Errors: 3 critical, 5 warnings
-- Most Frequent Error: NullReferenceException (40%)
-- Peak Error Time: 15:20-15:30 (8 errors)
-- Clean Period: 14:00-15:00 (0 errors)
+📋 Recommendations:
+1. Update Docker registry configuration
+2. Optimize test environment initialization
+3. Monitor large colony performance trends
 ```
 
-## 🛠️ Advanced Options
+#### Detailed Technical Report
+```
+🔧 Technical Analysis Details:
 
-### Custom Time Range
-```
-@analyze-logs --from "2025-07-20 10:00" --to "2025-07-20 16:00"
-```
+📊 Error Breakdown:
+├── Total Errors: 12
+├── Critical: 0 (0%)
+├── High: 1 (8.3%)
+├── Medium: 4 (33.3%)
+├── Low: 7 (58.4%)
 
-### Specific Error Types
-```
-@analyze-logs --filter "NullReferenceException,AsyncManager"
-@analyze-logs --filter "Multiplayer,Desync"
-@analyze-logs --filter "Performance,TPS"
-```
+🎮 RimWorld Integration:
+├── Mod Load Success: ✅ 100%
+├── Harmony Patches: ✅ 34/34 applied
+├── Settings Loading: ✅ Success
+├── Game Component: ✅ Initialized
 
-### Export Options
-```
-@analyze-logs --export-json ./logs-analysis.json
-@analyze-logs --export-csv ./logs-analysis.csv  
-@analyze-logs --export-html ./logs-report.html
-```
-
-## 🔄 Automatic Analysis
-
-### Scheduled Analysis
-Команда может быть настроена для автоматического запуска:
-- После каждой компиляции (`@execute-task`)
-- После тестирования (`@run-tests`)
-- При обнаружении новых логов
-
-### Integration with Development Workflow
-```
-@execute-task → build → test → @analyze-logs --auto
+🧵 Threading Analysis:
+├── Thread Safety: ✅ No violations detected
+├── Deadlock Detection: ✅ No deadlocks
+├── Resource Leaks: ✅ No leaks detected
+├── Performance Impact: +23.4% TPS improvement
 ```
 
-## 📍 Log File Locations Reference
+### 📈 Trend Analysis
 
-### RimWorld Core Logs
+#### Historical Performance
 ```
-macOS:
-- Player.log: ~/Library/Logs/RimWorld by Ludeon Studios/
-- Multiplayer Desyncs: ~/Library/Application Support/RimWorld/MpDesyncs/
-- Mod Configs: ~/Library/Application Support/RimWorld/Config/
+📊 Performance Trends (7 days):
 
-Windows:  
-- Player.log: %USERPROFILE%\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios\
-- Multiplayer Desyncs: %USERPROFILE%\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios\MpDesyncs\
-```
+TPS Improvements:
+Day 1: +18.2% (baseline established)
+Day 2: +19.7% (stable improvement)
+Day 3: +21.1% (optimization effects)
+Day 4: +22.8% (peak performance)
+Day 5: +23.4% (current stable state)
+Day 6: +23.1% (minor regression)
+Day 7: +23.4% (recovered)
 
-### RimAsync Project Logs
-```
-./TestResults/TestResults.trx    # NUnit test results
-./Build/build.log               # Compilation logs
-./docker-compose.logs           # Docker container logs
+Trend: ↗️ Steadily improving (+5.2% over week)
 ```
 
-## 🚀 Quick Diagnostic Commands
+#### Error Patterns
+```
+❌ Error Frequency (7 days):
 
-### Emergency Analysis (when game crashes)
-```
-@analyze-logs --emergency --last-10-minutes
-```
+Critical Errors: [0,0,0,0,0,0,0] ✅ Stable
+High Priority: [2,1,0,1,0,0,1] ✅ Decreasing
+Medium Priority: [8,6,4,3,4,2,4] 📈 Improving
+Low Priority: [15,12,9,8,7,6,7] 📈 Improving
 
-### Pre-Release Validation
-```
-@analyze-logs --validate-release --full-scan
-```
-
-### Performance Regression Detection
-```
-@analyze-logs --performance-compare --baseline yesterday
+Overall Trend: ↘️ Errors decreasing (-53% over week)
 ```
 
-## 🎯 Error Categories
+## 🔧 Command Options
 
-### 🔴 Critical (Requires Immediate Action)
-- NullReferenceException in core systems
-- Multiplayer desyncs
-- Complete build failures
-- Game crashes
+### Filter Options
+- `--errors` - Focus on error analysis
+- `--desyncs` - Multiplayer desync analysis
+- `--performance` - Performance bottleneck analysis
+- `--docker` - Docker container analysis
 
-### 🟠 High Priority
-- Performance degradation > 25%
-- Failed integration tests
-- Harmony patch conflicts
-- Memory leaks
+### Time Range Options
+- `--last 1h` - Last hour
+- `--last 24h` - Last 24 hours (default)
+- `--last 7d` - Last 7 days
+- `--since "2025-08-03"` - Since specific date
 
-### 🟡 Medium Priority  
-- Minor performance issues
-- Non-critical test failures
-- Docker build warnings
-- Deprecated API usage
+### Output Options
+- `--verbose` - Detailed technical output
+- `--summary` - Executive summary only
+- `--export` - Export to file
+- `--format json|html|text` - Output format
 
-### 🟢 Low Priority
-- Code style warnings
-- Optimization opportunities
-- Documentation issues
-- Non-blocking suggestions
+## 🚀 Usage Examples
+
+### Quick Health Check
+```
+@analyze-logs --summary
+
+📊 RimAsync Health Check:
+├── ✅ Overall Status: Healthy
+├── ❌ Critical Issues: 0
+├── ⚠️ Warnings: 2 (minor)
+└── 📈 Performance: +23.4% TPS
+```
+
+### Desync Investigation
+```
+@analyze-logs --desyncs --verbose
+
+🔍 Detailed Desync Analysis:
+├── 📁 3 desync files found
+├── 🛡️ 0 AsyncTime related (100% safe)
+├── 📊 Analysis complete
+└── 📋 Recommendations generated
+```
+
+### Performance Troubleshooting
+```
+@analyze-logs --performance --last 7d
+
+📈 7-Day Performance Analysis:
+├── 📊 Trend analysis complete
+├── 🎯 All targets met
+├── ⚠️ 2 minor bottlenecks identified
+└── 📋 Optimization suggestions provided
+```
 
 ---
 
-**Примечание:** Команда автоматически создает backup анализов и отслеживает тренды ошибок для выявления регрессий. 
+**Note:** This command automatically detects log locations on macOS and provides actionable insights for debugging and optimization.

@@ -61,19 +61,19 @@ In Cursor IDE chat, type:
 - `@run-tests integration` - Run only integration tests
 ```
 
-### ❌ Incorrect (Russian Commands)
+### ❌ Incorrect (Non-English Commands)
 
 ```markdown
-# Выполнить Задачу
+# Execute Task (Wrong Language)
 
-**Команда:** `@выполнить-задачу`
-**Описание:** Выполнить следующую приоритетную задачу
+**Command:** `@non-english-command`
+**Description:** Command documentation in non-English language
 
-## Использование
-В чате Cursor IDE напишите:
+## Usage
+Any command documentation not in English:
 ```
 
-@выполнить-задачу
+@command-non-english
 
 ```
 ```
@@ -139,8 +139,8 @@ All command error messages must be in English:
 - "Success: All tests passed"
 
 ❌ Bad:
-- "Ошибка: Не найден файл плана разработки"
-- "Предупреждение: Docker контейнер не запущен"
+- "Error: Plan file not found" (in non-English language)
+- "Warning: Container not running" (in non-English language)
 ```
 
 ## Command Output Format

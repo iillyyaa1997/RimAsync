@@ -1,171 +1,302 @@
 # Create Branch Command
 
-**Команда:** `@create-branch`
-**Описание:** Создать git ветку вручную для специальных случаев (НЕ для обычного development workflow)
+**Command:** `@create-branch`
+**Description:** Create git branches for special scenarios (NOT for regular development tasks)
 
-## ⚠️ ВАЖНО: Когда НЕ использовать эту команду
+## ⚠️ Important Note
 
-**🚫 НЕ используйте `@create-branch` для обычной разработки!**
+**Use `@execute-task` for regular development!** This command is only for special cases where manual branch creation is needed.
 
-Для выполнения задач используйте `@execute-task` - она автоматически создает ветку и выполняет задачу.
+## 🎯 Usage
 
-## 🎯 Когда использовать @create-branch
-
-Эта команда предназначена для **специальных случаев**:
-
-- 🧪 **Экспериментальные ветки** - для тестирования идей
-- 🔧 **Hotfix ветки** - для срочных исправлений
-- 📚 **Документация** - когда работаете только с docs
-- 🏗️ **Рефакторинг** - для крупных структурных изменений
-- 🎨 **Настройка среды** - изменения конфигураций без кода
-
-## 🌿 Использование
-
+### Basic Usage
 ```
-@create-branch <branch-name>
+@create-branch feature/feature-name     # Create feature branch
+@create-branch bugfix/issue-description # Create bugfix branch
+@create-branch hotfix/critical-fix      # Create hotfix branch
 ```
 
-**Примеры специальных случаев:**
+### Advanced Usage
 ```
-@create-branch experiment/new-architecture
-@create-branch hotfix/critical-memory-leak
-@create-branch docs/api-documentation
-@create-branch refactor/project-structure
-@create-branch config/docker-optimization
+@create-branch experimental/new-idea --no-tests    # Skip test creation
+@create-branch docs/update-readme --docs-only      # Documentation only
+@create-branch refactor/cleanup --from develop     # From specific branch
 ```
+
+## 🔧 What the command does
+
+1. **Validates branch name** according to project conventions
+2. **Creates git branch** from master (or specified base)
+3. **Sets up branch tracking** for remote repository
+4. **Creates basic test structure** (if applicable)
+5. **Updates local documentation** with branch info
+6. **Prepares development environment** for the new branch
+
+## 📋 Branch Naming Conventions
+
+### 🌿 Branch Types
+
+#### Feature Branches (`feature/`)
+```
+feature/async-pathfinding
+feature/performance-monitor
+feature/multiplayer-compat
+feature/settings-ui
+```
+
+#### Bugfix Branches (`bugfix/`)
+```
+bugfix/null-reference-asyncmanager
+bugfix/docker-build-timeout
+bugfix/memory-leak-smartcache
+bugfix/harmony-patch-conflict
+```
+
+#### Hotfix Branches (`hotfix/`)
+```
+hotfix/critical-desync-fix
+hotfix/game-crash-startup
+hotfix/multiplayer-incompatible
+```
+
+#### Experimental Branches (`experimental/`)
+```
+experimental/new-threading-model
+experimental/alternative-caching
+experimental/ui-redesign
+```
+
+#### Documentation Branches (`docs/`)
+```
+docs/api-documentation
+docs/user-guide-update
+docs/developer-readme
+```
+
+### 📝 Naming Rules
+
+#### ✅ Good Branch Names
+- **Descriptive:** `feature/async-pathfinding-optimization`
+- **Kebab-case:** `bugfix/memory-leak-detection`
+- **Concise:** `hotfix/startup-crash`
+- **Clear purpose:** `docs/installation-guide`
+
+#### ❌ Bad Branch Names
+- **Too generic:** `feature/improvement`
+- **CamelCase:** `feature/AsyncPathfinding`
+- **Spaces:** `feature/async pathfinding`
+- **Too long:** `feature/implement-async-pathfinding-with-multiplayer-compatibility-and-performance-optimization`
 
 ## 🔄 Workflow
 
-### 1. **Pre-branch проверки:**
-- ✅ Проверяет что нет uncommitted changes
-- ✅ Переключается на master
-- ✅ Обновляет master (git pull origin master)
-- ✅ Проверяет что master актуальный
+### 🌿 Git Operations
+1. **git checkout master** - switches to main branch
+2. **git pull origin master** - gets latest changes
+3. **git checkout -b [branch-name]** - creates new branch
+4. **git push -u origin [branch-name]** - sets up remote tracking
 
-### 2. **Создание ветки:**
-- 🌿 Создает новую ветку от последнего master
-- 🔀 Переключается на новую ветку
-- 📋 Показывает статус
+### 📁 Project Setup
+5. **Creates branch directory** in `Planning/Branches/`
+6. **Generates branch documentation** with objectives
+7. **Creates test placeholders** (if applicable)
+8. **Updates branch tracking** in project metadata
 
-### 3. **После создания:**
-- 💡 Напоминает о следующих шагах
-- 📝 Предлагает использовать `@execute-task` для задач
+### 📋 Documentation Updates
+9. **Updates CONTRIBUTORS.md** with branch info
+10. **Creates branch TODO list** for objectives
+11. **Sets up merge requirements** for the branch
 
-## 🚨 Error Handling
+## 🎯 Special Branch Types
 
-### Uncommitted Changes:
+### 🧪 Experimental Branches
 ```
-❌ Ошибка: У вас есть uncommitted changes
-💡 Решение:
-   - git commit или git stash ваши изменения
-   - Затем повторите команду
-```
+@create-branch experimental/new-threading --no-tests
 
-### Outdated Master:
-```
-❌ Ошибка: Master branch устарел
-💡 Решение:
-   - git checkout master
-   - git pull origin master
-   - Затем повторите команду
+Features:
+- No automatic test creation
+- Isolated from main development
+- Can break existing functionality
+- Used for proof-of-concept work
 ```
 
-### Branch Already Exists:
+### 📚 Documentation Branches
 ```
-❌ Ошибка: Ветка 'feature/name' уже существует
-💡 Решение:
-   - Выберите другое имя ветки
-   - Или удалите существующую: git branch -D feature/name
-```
+@create-branch docs/api-update --docs-only
 
-## 📋 Naming Conventions
-
-### Рекомендуемые префиксы:
-- `experiment/` - экспериментальные изменения
-- `hotfix/` - критические исправления
-- `docs/` - обновления документации
-- `refactor/` - рефакторинг кода
-- `config/` - изменения конфигураций
-- `research/` - исследовательские ветки
-
-### Примеры хороших имен:
-```bash
-✅ experiment/async-ui-rendering
-✅ hotfix/memory-leak-pathfinder
-✅ docs/api-reference-update
-✅ refactor/extract-async-manager
-✅ config/improve-docker-performance
+Features:
+- Only documentation changes
+- No code compilation required
+- Fast merge to master
+- Automatic README updates
 ```
 
-### Избегайте:
-```bash
-❌ test                    # Слишком общее
-❌ my-branch              # Не информативное
-❌ feature/new-feature    # Избыточность (feature/feature)
-❌ fix-bug                # Какой именно баг?
+### 🚨 Hotfix Branches
+```
+@create-branch hotfix/critical-bug --urgent
+
+Features:
+- Created from master
+- Immediate priority
+- Minimal testing requirements
+- Fast-track merge process
 ```
 
-## 🔗 Интеграция с другими командами
+### 🔧 Refactor Branches
+```
+@create-branch refactor/code-cleanup --full-tests
 
-### После создания ветки:
-```bash
-# Для выполнения задачи development:
-@execute-task [task-name]
-
-# Для тестирования:
-@run-tests
-
-# Для анализа:
-@analyze-logs
+Features:
+- Comprehensive test coverage required
+- No functionality changes
+- Code quality improvements only
+- Performance validation needed
 ```
 
-## 💡 Best Practices
+## 🔍 Branch Validation
 
-### 1. **Используйте описательные имена**
-```bash
-✅ experiment/thread-safe-collections
-❌ experiment/test1
+### Pre-Creation Checks
+```
+✅ Validation Results:
+
+🌿 Git Status:
+├── Current branch: master
+├── Working directory: Clean
+├── Remote sync: Up to date
+└── Uncommitted changes: None
+
+📝 Branch Name:
+├── Format: ✅ Valid (feature/async-pathfinding)
+├── Length: ✅ Appropriate (25 chars)
+├── Conventions: ✅ Follows project standards
+└── Uniqueness: ✅ No conflicts
+
+🎯 Project State:
+├── Build status: ✅ Passing
+├── Tests status: ✅ All passing
+├── Dependencies: ✅ Up to date
+└── Documentation: ✅ Current
 ```
 
-### 2. **Документируйте цель ветки**
-После создания добавьте комментарий в первый commit:
-```bash
-git commit -m "Create experimental branch for testing new async architecture
+### Post-Creation Verification
+```
+🎉 Branch Created Successfully:
 
-Goal: Evaluate performance impact of async collections
-Expected outcome: 15-20% performance improvement
-Risk: Potential compatibility issues with existing mods"
+🌿 Git Information:
+├── Branch: feature/async-pathfinding
+├── Base: master (commit: abc123def)
+├── Remote tracking: ✅ Set up
+└── Local checkout: ✅ Active
+
+📁 Project Structure:
+├── Branch docs: Planning/Branches/feature-async-pathfinding.md
+├── Test placeholders: Tests/Unit/AsyncPathfinding/
+├── TODO list: Created with 5 objectives
+└── Merge requirements: Defined
+
+📋 Next Steps:
+1. Review objectives in branch documentation
+2. Start development with @execute-task
+3. Regular commits with descriptive messages
+4. Create PR when ready for review
 ```
 
-### 3. **Регулярно sync с master**
-```bash
-git checkout master
-git pull origin master
-git checkout your-branch
-git rebase master
+## 🔧 Command Options
+
+### Branch Type Options
+- `--feature` - Feature branch (default)
+- `--bugfix` - Bugfix branch
+- `--hotfix` - Hotfix branch
+- `--experimental` - Experimental branch
+- `--docs` - Documentation branch
+
+### Setup Options
+- `--no-tests` - Skip test structure creation
+- `--docs-only` - Documentation changes only
+- `--full-tests` - Comprehensive test coverage
+- `--urgent` - Fast-track urgent changes
+
+### Base Branch Options
+- `--from master` - Create from master (default)
+- `--from develop` - Create from develop branch
+- `--from [branch]` - Create from specific branch
+
+## 🚫 When NOT to Use This Command
+
+### Use `@execute-task` Instead For:
+- **Regular development tasks** from Development_Plan.md
+- **Planned feature implementation**
+- **Scheduled bug fixes**
+- **Standard workflow tasks**
+
+### Only Use `@create-branch` For:
+- **Experimental work** not in the plan
+- **Emergency hotfixes** requiring immediate attention
+- **Documentation updates** separate from development
+- **Code refactoring** projects
+- **Special investigation** branches
+
+## 🚀 Usage Examples
+
+### Feature Development
+```
+@create-branch feature/ui-improvements
+
+🌿 Creating feature branch for UI improvements...
+├── ✅ Branch: feature/ui-improvements
+├── 📁 Documentation: Planning/Branches/feature-ui-improvements.md
+├── 🧪 Tests: Tests/Unit/UI/
+└── 📋 TODO: 3 objectives created
+
+Ready for development! Use @execute-task to begin implementation.
 ```
 
-## 🎯 Типичный пример использования
+### Emergency Hotfix
+```
+@create-branch hotfix/startup-crash --urgent
 
-```bash
-# Хотите протестировать новую идею architecture
-@create-branch experiment/event-driven-async
+🚨 Creating urgent hotfix branch...
+├── ✅ Branch: hotfix/startup-crash
+├── 🔥 Priority: CRITICAL
+├── 📋 Fast-track: Enabled
+└── ⏰ Timeline: Immediate
 
-# Ветка создана, теперь работаете над экспериментом
-# ... делаете изменения ...
-
-# Когда готово к merge:
-git checkout master
-git merge experiment/event-driven-async
-git branch -d experiment/event-driven-async
+Emergency branch ready! Address critical issue immediately.
 ```
 
-## 🚀 Напоминание
+### Documentation Update
+```
+@create-branch docs/api-reference --docs-only
 
-**Для обычной разработки используйте `@execute-task`** - она автоматически:
-- Создает feature ветку от master
-- Выполняет задачу из Development Plan
-- Форматирует код и запускает тесты
-- Коммитит изменения
+📚 Creating documentation branch...
+├── ✅ Branch: docs/api-reference
+├── 📖 Type: Documentation only
+├── 🚫 No code compilation
+└── 📝 Focus: Documentation updates
 
-`@create-branch` - только для специальных случаев! 🎯
+Documentation branch ready! Update docs without code changes.
+```
+
+## 📋 Branch Management
+
+### Active Branch Tracking
+The project maintains a list of active branches in `Planning/Branches/`:
+
+```
+Planning/Branches/
+├── active-branches.md (branch registry)
+├── feature-async-pathfinding.md
+├── bugfix-memory-leak.md
+├── docs-api-update.md
+└── experimental-threading.md
+```
+
+### Branch Lifecycle
+1. **Created** - Branch created and documented
+2. **Active** - Development in progress
+3. **Testing** - Under review and testing
+4. **Ready** - Ready for merge to master
+5. **Merged** - Successfully merged and deleted
+
+---
+
+**Remember:** Use `@execute-task` for regular development. This command is for special cases only!

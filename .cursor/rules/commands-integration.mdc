@@ -15,6 +15,7 @@ When user types `@execute-task`, `@create-tests`, or `@run-tests`, you should:
 ### Command Priority Matrix
 
 #### @execute-task Command
+
 - **Read:** `Planning/Development_Plan.md` for current tasks
 - **Priority Order:** 🔴 Critical → 🟠 High → 🟡 Medium
 - **Create Tests:** Always create comprehensive tests first
@@ -22,12 +23,14 @@ When user types `@execute-task`, `@create-tests`, or `@run-tests`, you should:
 - **Commit Message:** Format: "feat: [task-name] - [brief description]"
 
 #### @create-tests Command  
+
 - **Structure:** Follow the test structure in command file
 - **Templates:** Use the exact templates provided
 - **Categories:** Unit/Integration/Performance/Multiplayer
 - **Files:** Create in Tests/ directory with proper naming
 
 #### @run-tests Command
+
 - **Parse Options:** Handle all command line style options
 - **Simulate Execution:** Provide realistic test results
 - **Check MpDesyncs:** Always mention the desync logs folder
@@ -35,27 +38,31 @@ When user types `@execute-task`, `@create-tests`, or `@run-tests`, you should:
 
 ### Integration with Planning System
 
-#### File Reading Priority:
+#### File Reading Priority
+
 1. `Planning/Development_Plan.md` - Current tasks and status
 2. `Planning/Features_Plan.md` - Feature priorities  
 3. `Planning/Testing_Plan.md` - Testing strategies
 4. `Planning/Performance_Plan.md` - Performance targets
 
-#### Status Updates:
+#### Status Updates
+
 - **Task Status:** ⏳ (planned) → 🔄 (in progress) → ✅ (completed)
 - **Always Update:** Corresponding planning files after task completion
 - **Maintain Consistency:** Across all planning documents
 
 ### Testing Requirements
 
-#### Every Command Must:
+#### Every Command Must
+
 - ✅ Create tests before implementation
 - ✅ Include all 4 test categories (Unit/Integration/Performance/Multiplayer)  
 - ✅ Use proper naming conventions
 - ✅ Follow test templates exactly
 - ✅ Include multiplayer desync checking
 
-#### Test File Structure:
+#### Test File Structure
+
 ```
 Tests/
 ├── Unit/[Category]/[Component]Tests.cs
@@ -66,18 +73,21 @@ Tests/
 
 ### RimAsync-Specific Rules
 
-#### AsyncTime Integration:
+#### AsyncTime Integration
+
 - **Always Check:** MultiplayerCompat.IsAsyncTimeEnabled()
 - **Safe Execution:** Use SyncSafeWrapper for multiplayer operations
 - **Fallback Logic:** Include sync fallback in every async operation
 
-#### Performance Targets:
+#### Performance Targets
+
 - **Small Colony:** +15% TPS minimum
 - **Medium Colony:** +20% TPS minimum  
 - **Large Colony:** +25% TPS minimum
 - **Memory Usage:** <+10% increase maximum
 
-#### Harmony Patching:
+#### Harmony Patching
+
 - **Prefix Pattern:** Always include fallback to original method
 - **Exception Handling:** Wrap all async operations in try-catch
 - **Patch Safety:** Never break original game functionality
@@ -86,24 +96,26 @@ Tests/
 
 When executing commands, always:
 
-1. **Start with analysis:** "🎯 Анализирую текущие задачи..."
-2. **Show selected task:** "📋 Выбрана задача: [task-name]"  
-3. **List steps:** "🔧 Выполняю следующие шаги:"
-4. **Create tests first:** "🧪 Создаю тесты..."
-5. **Implement functionality:** "⚡ Реализую функциональность..."
-6. **Run tests:** "✅ Запускаю тесты..."
-7. **Update status:** "📊 Обновляю статус в плане..."
-8. **Show completion:** "🎉 Задача завершена!"
+1. **Start with analysis:** "🎯 Analyzing current tasks..."
+2. **Show selected task:** "📋 Selected task: [task-name]"  
+3. **List steps:** "🔧 Executing the following steps:"
+4. **Create tests first:** "🧪 Creating tests..."
+5. **Implement functionality:** "⚡ Implementing functionality..."
+6. **Run tests:** "✅ Running tests..."
+7. **Update status:** "📊 Updating status in plan..."
+8. **Show completion:** "🎉 Task completed!"
 
 ### Error Handling
 
-#### If Command Fails:
+#### If Command Fails
+
 - **Explain Issue:** Clearly state what went wrong
 - **Suggest Solution:** Provide actionable next steps  
 - **Partial Completion:** Update status to reflect partial progress
 - **Rollback Option:** Offer to revert changes if needed
 
-#### Common Issues:
+#### Common Issues
+
 - **Missing Files:** Create necessary files first
 - **Compilation Errors:** Fix before proceeding with tests
 - **Test Failures:** Debug and fix before marking complete
@@ -111,7 +123,8 @@ When executing commands, always:
 
 ### Quality Gates
 
-#### Before Task Completion:
+#### Before Task Completion
+
 - ✅ All tests created and passing
 - ✅ Code compiles without errors  
 - ✅ Performance targets met (if applicable)
@@ -119,7 +132,8 @@ When executing commands, always:
 - ✅ Documentation updated (if needed)
 - ✅ Planning files updated
 
-#### Test Coverage Requirements:
+#### Test Coverage Requirements
+
 - **Unit Tests:** 90%+ coverage
 - **Integration Tests:** All major workflows  
 - **Performance Tests:** All optimization targets
@@ -127,17 +141,20 @@ When executing commands, always:
 
 ### Special Considerations
 
-#### Multiplayer Testing:
+#### Multiplayer Testing
+
 - **Always Mention:** Desync logs path `/Users/ilyavolkov/Library/Application Support/RimWorld/MpDesyncs`
 - **Check AsyncTime:** Simulate detection logic
 - **Sync Safety:** Verify deterministic execution
 
-#### Performance Monitoring:
+#### Performance Monitoring
+
 - **TPS Tracking:** Include before/after measurements
 - **Memory Usage:** Track memory growth
 - **Thread Utilization:** Monitor thread efficiency
 
-#### Mod Compatibility:
+#### Mod Compatibility
+
 - **Priority Mods:** HugsLib, RimWorld Multiplayer, Combat Extended
 - **Conflict Detection:** Check for known incompatibilities
 - **Safe Fallbacks:** Ensure graceful degradation

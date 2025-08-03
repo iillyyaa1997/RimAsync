@@ -1,275 +1,220 @@
 # Run Tests Command
 
-**Команда:** `@run-tests`  
-**Описание:** Запустить тесты RimAsync в Docker контейнере с различными опциями фильтрации и отчетности
+**Command:** `@run-tests`
+**Description:** Execute comprehensive test suite in Docker environment with support for different test categories
 
-## 🐳 Docker Environment
+## 🎯 Usage
 
-**ВСЕ тесты выполняются в Docker контейнере для обеспечения изолированной и воспроизводимой среды!**
-
-## 🎯 Использование
-
+### Basic Usage
 ```
-@run-tests [options]
-```
-
-**Примеры:**
-```
-@run-tests                           # Все тесты в Docker
-@run-tests --unit                    # Только unit тесты
-@run-tests --integration             # Только integration тесты
-@run-tests --performance             # Только performance тесты
-@run-tests --multiplayer             # Только multiplayer тесты
-@run-tests --component AsyncManager  # Тесты для конкретного компонента
-@run-tests --critical                # Только критические тесты
-@run-tests --watch                   # Continuous testing mode
+@run-tests                    # Run all tests
+@run-tests unit              # Run only unit tests
+@run-tests integration       # Run only integration tests
+@run-tests performance       # Run only performance tests
 ```
 
-### 📋 Makefile Commands (Рекомендуемые):
+### Advanced Usage
 ```
-make test                # Полный запуск тестов (с цветным выводом)
-make test-unit           # Unit тесты
-make test-integration    # Integration тесты  
-make test-performance    # Performance тесты
-make test-coverage       # Тесты с coverage отчетом
-make test-report         # HTML отчет тестов
+@run-tests --verbose         # Run with detailed output
+@run-tests --coverage        # Run with code coverage
+@run-tests --parallel        # Run tests in parallel
+@run-tests --timeout 300     # Set custom timeout (seconds)
 ```
 
-### 🔧 Raw Docker Commands (альтернатива):
+## 🔧 What the command does
+
+1. **Analyzes test configuration** from TestConfig.cs
+2. **Builds project in Docker** using latest code
+3. **Executes selected test categories** with proper isolation
+4. **Collects test results** and coverage data
+5. **Generates test report** with detailed metrics
+6. **Identifies failing tests** for debugging
+
+## 🐳 Docker Test Environment
+
+All tests run in isolated Docker containers for consistency:
+
+### 📋 Makefile Commands (Recommended):
+- `make test` - run all tests with progress indication
+- `make test-unit` - run only unit tests quickly
+- `make test-integration` - run integration tests (slower)
+- `make test-performance` - run performance benchmarks
+- `make test-coverage` - run tests with coverage report
+
+### 🔧 Raw Docker Commands:
+- `docker-compose up test` - run all tests
+- `docker-compose up test-unit` - unit tests only
+- `docker-compose up test-integration` - integration tests only
+
+## 📊 Test Categories
+
+### 🧪 Unit Tests (`unit`)
+- **Location:** `Tests/Unit/`
+- **Purpose:** Test individual components in isolation
+- **Speed:** Fast (< 1 minute)
+- **Dependencies:** Minimal mocking
+
+### 🔗 Integration Tests (`integration`)
+- **Location:** `Tests/Integration/`
+- **Purpose:** Test component interactions
+- **Speed:** Medium (1-5 minutes)
+- **Dependencies:** Full mock environment
+
+### ⚡ Performance Tests (`performance`)
+- **Location:** `Tests/Performance/`
+- **Purpose:** Benchmark speed and memory usage
+- **Speed:** Slow (5-15 minutes)
+- **Dependencies:** Performance monitoring tools
+
+### 🎮 Multiplayer Tests (`multiplayer`)
+- **Location:** `Tests/Multiplayer/`
+- **Purpose:** Test multiplayer compatibility
+- **Speed:** Medium (2-10 minutes)
+- **Dependencies:** Multiplayer simulation
+
+## 📈 Test Results Format
+
+### ✅ Success Output
 ```
-docker-compose up test               # Полный запуск тестов
-docker-compose run test dotnet test Tests/Unit/     # Unit тесты
-docker-compose run test dotnet test Tests/Integration/ # Integration тесты
-```
+🧪 Running RimAsync Test Suite
+📁 Category: All Tests (51 total)
 
-## 🔧 Опции команды
+[1/51] CompilationTests.ProjectBuilds ✅ (234ms)
+[2/51] AsyncManagerTests.Initialize ✅ (89ms)
+[3/51] PathfindingTests.BasicAsync ✅ (156ms)
+...
+[51/51] PerformanceTests.MemoryUsage ✅ (2.1s)
 
-### По типу тестов:
-- `--unit` - Unit tests
-- `--integration` - Integration tests  
-- `--performance` - Performance benchmarks
-- `--multiplayer` - Multiplayer compatibility tests
-
-### По приоритету:
-- `--critical` - 🔴 Критические тесты
-- `--high` - 🟠 Высокий приоритет
-- `--medium` - 🟡 Средний приоритет  
-- `--all` - Все приоритеты (по умолчанию)
-
-### По компоненту:
-- `--component [name]` - Тесты для конкретного компонента
-- `--category [category]` - Тесты для категории (Core, Threading, Utils, etc.)
-
-### Режимы выполнения:
-- `--watch` - Continuous testing (пересборка при изменениях)
-- `--parallel` - Параллельный запуск тестов
-- `--verbose` - Подробный вывод
-- `--coverage` - Анализ покрытия кода
-
-## 📊 Отчеты
-
-### Console Output
-```
-🧪 Running RimAsync Tests...
-
-📁 Test Categories:
-├── Unit Tests: 45/45 ✅
-├── Integration Tests: 18/20 ⚠️ (2 failed)
-├── Performance Tests: 12/12 ✅  
-└── Multiplayer Tests: 8/10 ❌ (2 failed)
-
-📊 Summary:
-✅ Passed: 83/87 (95.4%)
-❌ Failed: 4/87 (4.6%)
-⏱️ Duration: 2m 34s
+📊 Test Results Summary:
+✅ Passed: 51/51 (100%)
+❌ Failed: 0/51 (0%)
+⏱️ Total Time: 2m 34s
 📈 Coverage: 87.3%
 ```
 
-### Performance Metrics
+### ❌ Failure Output
 ```
-⚡ Performance Benchmarks:
+🧪 Running RimAsync Test Suite
+📁 Category: All Tests (51 total)
 
-🎯 TPS Improvements:
-├── Small Colony: +18.5% (Target: +15%) ✅
-├── Medium Colony: +24.2% (Target: +20%) ✅
-└── Large Colony: +31.7% (Target: +25%) ✅
+[1/51] CompilationTests.ProjectBuilds ✅ (234ms)
+[2/51] AsyncManagerTests.Initialize ❌ (Failed)
 
-💾 Memory Usage:
-├── Baseline: 2.1 GB
-├── Current: 2.3 GB (+9.5%)
-└── Target: <+10% ✅
+❌ FAILURE DETAILS:
+Test: AsyncManagerTests.Initialize
+Error: System.NullReferenceException: RimAsyncMod.Settings is null
+File: Tests/Unit/Threading/AsyncManagerTests.cs:45
+Stack: AsyncManager.Initialize() line 23
 
-🧵 Thread Utilization:
-├── Max Threads: 6/8
-├── Average Load: 65%
-└── Efficiency: 92.1%
-```
+[3/51] PathfindingTests.BasicAsync ⏭️ (Skipped - dependency failed)
 
-### Multiplayer Results
-```
-🛡️ Multiplayer Compatibility:
-
-AsyncTime Tests:
-├── Detection: ✅ 100% accuracy
-├── Safe Execution: ✅ No desyncs
-├── Fallback Mode: ✅ Sync guaranteed
-└── State Switching: ⚠️ 1 edge case
-
-📁 Desync Logs: /Users/ilyavolkov/Library/Application Support/RimWorld/MpDesyncs
-└── No new desync files created ✅
+📊 Test Results Summary:
+✅ Passed: 48/51 (94.1%)
+❌ Failed: 2/51 (3.9%)
+⏭️ Skipped: 1/51 (2.0%)
+⏱️ Total Time: 1m 12s (stopped early)
 ```
 
-## 🔄 Continuous Testing
+## 🔧 Test Configuration
 
-### Watch Mode
-```
-@run-tests --watch --unit
-
-🔄 Watching for changes...
-📁 Monitoring: Source/RimAsync/**/*.cs
-
-[12:34:56] File changed: AsyncManager.cs
-🧪 Running AsyncManager tests...
-✅ All tests passed (2.1s)
-
-[12:35:12] File changed: MultiplayerCompat.cs  
-🧪 Running MultiplayerCompat tests...
-❌ 2 tests failed (see details below)
+### Environment Variables
+```bash
+RIMWORLD_VERSION=1.5       # Target RimWorld version
+ENABLE_PERFORMANCE=true    # Enable performance monitoring
+TEST_TIMEOUT=300          # Test timeout in seconds
+PARALLEL_TESTS=4          # Number of parallel test runners
 ```
 
-## 🎯 Test Categories
-
-### Critical Tests (--critical)
-```
-🔴 Critical Priority Tests:
-├── Core initialization ✅
-├── Harmony patch application ✅
-├── AsyncTime detection ✅
-├── Multiplayer sync safety ✅
-├── Performance targets ✅
-└── Memory leak prevention ✅
-```
-
-### Component Tests (--component AsyncManager)
-```
-🔧 AsyncManager Test Suite:
-
-Unit Tests (12):
-├── Thread limiting ✅
-├── Cancellation tokens ✅
-├── Execution modes ✅
-└── Error handling ✅
-
-Integration Tests (6):
-├── Core integration ✅
-├── Settings application ✅
-└── Harmony compatibility ✅
-
-Performance Tests (4):
-├── Thread efficiency ✅
-├── Memory usage ✅
-└── TPS improvement ✅
-
-Multiplayer Tests (8):
-├── AsyncTime safety ✅
-├── Sync fallback ✅
-└── Deterministic execution ✅
-```
-
-## 🐛 Failure Analysis
-
-### Failed Test Details
-```
-❌ Failed Tests:
-
-1. MultiplayerCompat_EdgeCase_HandlesCorrectly
-   📍 File: Tests/Unit/Utils/MultiplayerCompatTests.cs:45
-   🔍 Assertion: Expected True but was False
-   💡 Suggestion: Check AsyncTime detection logic
-   
-2. AsyncManager_HighLoad_MaintainsPerformance  
-   📍 File: Tests/Performance/AsyncManagerPerformanceTests.cs:78
-   🔍 Assertion: Expected <100ms but was 145ms
-   💡 Suggestion: Optimize thread scheduling
-```
-
-### Performance Regressions
-```
-⚠️ Performance Warnings:
-
-Thread Utilization:
-├── Current: 78% (was 85%)
-├── Trend: ↓ -7% over last 3 runs
-└── Action: Review recent threading changes
-
-Memory Usage:
-├── Current: 2.4 GB (was 2.1 GB)  
-├── Trend: ↑ +14% over last week
-└── Action: Check for memory leaks
-```
-
-## 🔧 Test Infrastructure
-
-### Test Discovery
+### Custom Test Attributes
 ```csharp
-// Auto-discovery of test files
-Tests/
-├── **/*Tests.cs (Unit tests)
-├── **/*IntegrationTests.cs (Integration)
-├── **/*PerformanceTests.cs (Performance)
-└── **/*MultiplayerTests.cs (Multiplayer)
-```
-
-### Test Configuration
-```csharp
-// Tests/TestConfig.cs
-public static class TestConfig
+[Test]
+[Category(TestConfig.CriticalPriority)]    // Critical tests (run first)
+[Category(TestConfig.PerformanceTestCategory)] // Performance tests
+[Timeout(TestConfig.PerformanceTimeoutMs)]     // Custom timeout
+public void MyTest_Scenario_ExpectedResult()
 {
-    public const int DefaultTimeoutMs = 5000;
-    public const int PerformanceTimeoutMs = 30000;
-    public const string MpDesyncPath = "/Users/ilyavolkov/Library/Application Support/RimWorld/MpDesyncs";
+    // Test implementation
 }
 ```
 
-## 🚀 Пример выполнения
+## 🐛 Debugging Failed Tests
 
+### Common Issues & Solutions
+
+#### 1. **Compilation Errors**
+```bash
+@run-tests unit              # Run fast unit tests first
+make build                   # Check compilation issues
+make lint                    # Check code quality
 ```
-User: @run-tests --performance --verbose
 
-AI: 🧪 Запускаю performance тесты RimAsync...
+#### 2. **Harmony Patch Failures**
+```bash
+@run-tests --verbose         # Get detailed error output
+# Check for .NET Core vs .NET Framework compatibility
+```
 
-📊 Performance Test Suite:
-├── 🔍 Discovering tests... (12 found)
-├── 🏗️ Setting up test environment...
-├── 📈 Warming up benchmarks...
-└── ▶️ Running tests...
+#### 3. **Performance Test Timeouts**
+```bash
+@run-tests performance --timeout 600  # Increase timeout
+@run-tests --parallel 1      # Disable parallelization
+```
 
-[1/12] AsyncManager_ThreadUtilization_Efficient
-├── Threads: 6/8 (75% utilization)
-├── Duration: 2.3s
-└── Result: ✅ PASS
+#### 4. **Docker Environment Issues**
+```bash
+make clean                   # Clean Docker containers
+make dev                     # Rebuild development environment
+docker system prune -f      # Clean Docker cache
+```
 
-[2/12] PathFinding_LargeMap_Performance  
-├── Map Size: 250x250
-├── Path Length: 847 cells
-├── Duration: 89ms (Target: <100ms)
-└── Result: ✅ PASS (+11ms margin)
+## 📋 Test Development Guidelines
 
-[3/12] SmartCache_HighVolume_Performance
-├── Cache Size: 10,000 entries
-├── Hit Rate: 94.2%
-├── Avg Access: 0.03ms
-└── Result: ✅ PASS
+### Creating New Tests
+1. **Follow naming convention:** `ComponentName_Scenario_ExpectedResult`
+2. **Use proper categories:** `[Category(TestConfig.UnitTestCategory)]`
+3. **Add performance timeouts:** `[Timeout(TestConfig.DefaultTimeoutMs)]`
+4. **Include setup/teardown:** `[SetUp]` and `[TearDown]` methods
 
-📊 Performance Summary:
-✅ All 12 tests passed
-⏱️ Total Duration: 4m 12s
-🎯 All targets met or exceeded
-📈 Average improvement: +22.7% TPS
+### Test Structure
+```csharp
+[TestFixture]
+public class ComponentNameTests
+{
+    private ComponentType _component;
 
-🎉 Performance tests completed successfully!
+    [SetUp]
+    public void SetUp()
+    {
+        // Initialize test environment
+        TestHelpers.MockRimWorldEnvironment();
+        _component = new ComponentType();
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        // Clean up resources
+        TestHelpers.ResetMocks();
+        _component?.Dispose();
+    }
+
+    [Test]
+    [Category(TestConfig.UnitTestCategory)]
+    public void Component_ValidInput_ReturnsExpectedResult()
+    {
+        // Arrange
+        var input = CreateValidInput();
+
+        // Act
+        var result = _component.ProcessInput(input);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(expectedValue, result.Value);
+    }
+}
 ```
 
 ---
 
-**Примечание:** Команда автоматически создает детальные отчеты и сохраняет результаты для отслеживания регрессий. 
+**Note:** Use `make test` for best experience with automatic cleanup and colored output!

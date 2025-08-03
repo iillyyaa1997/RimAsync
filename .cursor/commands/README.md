@@ -1,336 +1,244 @@
-# 🚀 RimAsync Commands для Cursor IDE
+# Cursor IDE Commands for RimAsync
 
-**Версия:** 1.0
-**Дата создания:** 19 июля 2025
+**Version:** 2.0
+**Language:** English Only (as per project requirements)
 
-## 🎯 Обзор системы команд
+## 📋 Command Overview
 
-Эта папка содержит **специализированные команды** для Cursor IDE, которые позволяют эффективно управлять разработкой RimAsync через чат с LLM. Все команды интегрированы с планами разработки и автоматизируют routine задачи.
+This directory contains all Cursor IDE commands for the RimAsync project. All commands are documented in English to ensure international collaboration and compatibility.
 
-## 📚 Доступные команды
+### 🌍 Language Policy
 
-### 🔥 Основные команды
+**IMPORTANT:** All Cursor commands must be written in English. See [Language Requirements](./../rules/cursor-commands.mdc) for detailed guidelines.
 
-#### 📈 [`@execute-task`](./execute-task.md) - Выполнение задач
-**Основная команда для разработки** (автоматически создает git ветки)
+## 🚀 Available Commands
 
-**Использование:**
+### 🎯 Primary Development Command
+
+#### `@execute-task`
+- **Purpose:** Execute the next priority task from development plan
+- **Features:** Automatic task breakdown, testing, and branch management
+- **Usage:** `@execute-task` (automatic task selection)
+- **File:** `execute-task.md`
+
+### 🧪 Testing Commands
+
+#### `@run-tests`
+- **Purpose:** Execute comprehensive test suite in Docker environment
+- **Features:** Multiple test categories, performance benchmarks, coverage reports
+- **Usage:** `@run-tests [category] [options]`
+- **File:** `run-tests.md`
+
+#### `@create-tests`
+- **Purpose:** Generate comprehensive test suites for components
+- **Features:** Unit, integration, and performance test generation
+- **Usage:** `@create-tests [component] [options]`
+- **File:** `create-tests.md`
+
+### 🔍 Analysis Commands
+
+#### `@analyze-logs`
+- **Purpose:** Comprehensive analysis of RimWorld logs and Docker containers
+- **Features:** Error detection, desync analysis, performance monitoring
+- **Usage:** `@analyze-logs [options]`
+- **File:** `analyze-logs.md`
+
+### 🌿 Git Management Commands
+
+#### `@create-branch`
+- **Purpose:** Create git branches for special scenarios (NOT regular development)
+- **Features:** Branch validation, documentation generation, tracking setup
+- **Usage:** `@create-branch [branch-name] [options]`
+- **File:** `create-branch.md`
+
+## 🔄 Command Workflow
+
+### Primary Development Workflow
 ```
-@execute-task                    # Автоматический выбор приоритетной задачи
-@execute-task [task-name]        # Выполнение конкретной задачи
+1. @execute-task              # Select and execute next priority task
+2. [Automatic branching]      # Creates feature branch automatically
+3. [Automatic testing]       # Runs tests in Docker environment
+4. [Automatic merging]       # Merges to master when complete
 ```
 
-**Что делает:**
-- 🎯 Анализирует Planning/Development_Plan.md
-- 🌿 **Автоматически создает git ветку от master**
-- 🔴 Выбирает задачу с наивысшим приоритетом
-- 🎨 Форматирует код (make format-fix)
-- 🧪 Создает comprehensive тесты
-- 🔧 Реализует функциональность
-- 🔍 Проверяет качество кода (make lint)
-- ✅ Обновляет статус в плане
+### Supporting Workflow
+```
+1. @analyze-logs             # Analyze issues if problems occur
+2. @create-tests Component   # Generate additional tests if needed
+3. @run-tests --specific     # Run targeted test categories
+4. @create-branch hotfix/... # Emergency fixes (special cases only)
+```
+
+## 📁 Command Structure
+
+### File Organization
+```
+.cursor/commands/
+├── README.md              # This overview document
+├── execute-task.md        # Primary development command
+├── run-tests.md          # Test execution command
+├── create-tests.md       # Test generation command
+├── analyze-logs.md       # Log analysis command
+└── create-branch.md      # Branch management command
+```
+
+### Documentation Format
+Each command file follows this structure:
+```markdown
+# [Command Name] Command
+
+**Command:** `@command-name`
+**Description:** Brief description in English
+
+## 🎯 Usage
+[Usage examples and syntax]
+
+## 🔧 What the command does
+[Step-by-step breakdown]
+
+## [Additional sections as needed]
+```
+
+## 🎯 Command Categories
+
+### 🔴 Critical Priority Commands
+- `@execute-task` - Primary development workflow
+- `@run-tests` - Essential testing validation
+- `@analyze-logs` - Critical issue debugging
+
+### 🟠 High Priority Commands
+- `@create-tests` - Test infrastructure development
+- `@create-branch` - Emergency branch management
+
+### 🟡 Medium Priority Commands
+- Future commands will be added as needed
+
+## 🔧 Command Development Guidelines
+
+### Creating New Commands
+
+1. **Follow English-only policy** - All text must be in English
+2. **Use standard structure** - Follow existing command documentation format
+3. **Include comprehensive examples** - Provide clear usage scenarios
+4. **Add appropriate categories** - Use established priority system
+5. **Test thoroughly** - Validate command functionality before committing
+
+### Command Naming Conventions
+
+#### ✅ Good Command Names
+- `@execute-task` - Clear action verb + target
+- `@run-tests` - Simple verb + noun
+- `@analyze-logs` - Descriptive action + object
+- `@create-branch` - Action verb + target object
+
+#### ❌ Bad Command Names
+- `@non-english-command` - Non-English language (forbidden)
+- `@do-stuff` - Too generic
+- `@executeTaskAndRunTestsAndAnalyzeLogs` - Too long
+- `@et` - Too abbreviated
+
+### Documentation Standards
+
+#### Required Sections
+- **Command name and description** (English only)
+- **Usage section** with examples
+- **What the command does** step-by-step breakdown
+- **Options/parameters** if applicable
+
+#### Optional Sections
+- **Examples** for complex commands
+- **Best practices** for proper usage
+- **Integration** with other commands
+- **Troubleshooting** for common issues
+
+## 🌐 International Collaboration
+
+### Why English?
+
+1. **Global Accessibility** - Enables international contributors
+2. **Tool Integration** - Better compatibility with development tools
+3. **Community Sharing** - Facilitates sharing with RimWorld modding community
+4. **Long-term Maintenance** - Ensures future maintainability
+5. **Industry Standards** - Aligns with software development practices
+
+### Migration from Russian
+
+The project is transitioning from Russian to English commands:
+
+#### Migration Status
+- ✅ **Language policy established** - Rules documented
+- ✅ **English command examples created** - Templates available
+- ⏳ **Command migration in progress** - Gradual transition
+- 📋 **Documentation updates ongoing** - Comprehensive coverage
+
+#### Backward Compatibility
+- Existing Russian commands continue to work during transition
+- New commands created only in English
+- Gradual deprecation of Russian commands over time
+
+## 🔍 Command Testing
+
+### Validation Process
+
+Before adding new commands:
+
+1. **Syntax validation** - Ensure proper markdown format
+2. **Language compliance** - Verify English-only content
+3. **Functionality testing** - Test command execution
+4. **Documentation review** - Check completeness and clarity
+5. **Integration testing** - Verify compatibility with existing commands
+
+### Quality Assurance
+
+Commands must meet these standards:
+
+- **Clear documentation** - Easy to understand and follow
+- **Comprehensive examples** - Cover common use cases
+- **Error handling** - Graceful failure modes
+- **Performance** - Efficient execution
+- **Reliability** - Consistent results
+
+## 📊 Command Usage Statistics
+
+### Most Used Commands (Expected)
+1. `@execute-task` - Primary development workflow
+2. `@run-tests` - Testing and validation
+3. `@analyze-logs` - Debugging and troubleshooting
+4. `@create-tests` - Test development
+5. `@create-branch` - Special case branch management
+
+## 🔄 Future Development
+
+### Planned Commands
+- `@check-compatibility` - RimWorld/Multiplayer compatibility validation
+- `@generate-docs` - Automatic documentation generation
+- `@optimize-performance` - Performance analysis and optimization
+- `@validate-release` - Pre-release validation checks
+
+### Command Enhancement
+- Enhanced error reporting
+- Better integration between commands
+- Automated workflow suggestions
+- Performance optimizations
+
+## 🎯 Getting Started
+
+### For New Contributors
+
+1. **Read language requirements** - Understand English-only policy
+2. **Study existing commands** - Learn established patterns
+3. **Follow documentation standards** - Use consistent format
+4. **Test thoroughly** - Validate before submitting
+5. **Seek review** - Get feedback from team members
+
+### For Command Users
+
+1. **Start with `@execute-task`** - Primary development command
+2. **Use `@run-tests`** for validation
+3. **Check `@analyze-logs`** for debugging
+4. **Avoid `@create-branch`** for regular development
+5. **Follow command examples** - Use provided syntax
 
 ---
 
-#### 🧪 [`@create-tests`](./create-tests.md) - Создание тестов
-**Comprehensive test creation**
-
-**Использование:**
-```
-@create-tests [component-name]   # Тесты для компонента
-```
-
-**Что создает:**
-- 🎯 Unit tests для всех public методов
-- 🔄 Integration tests для async компонентов
-- ⚡ Performance benchmarks
-- 🌐 Multiplayer compatibility тесты
-- 📊 Coverage reports
-
-**Структура тестов:**
-```
-Tests/
-├── Unit/              # Изолированные unit тесты
-├── Integration/       # Тесты взаимодействий
-├── Performance/       # Benchmarks
-└── Multiplayer/       # Multiplayer tests
-```
-
----
-
-#### 🧪 [`@run-tests`](./run-tests.md) - Запуск тестов
-**Docker-based comprehensive testing**
-
-**Использование:**
-```
-@run-tests [options]             # Запуск тестов в Docker
-```
-
-**Опции фильтрации:**
-- `--unit`, `--integration`, `--performance`, `--multiplayer`
-- `--critical`, `--high`, `--medium` (приоритет)
-- `--component [name]` (тесты для компонента)
-- `--watch` (continuous testing)
-- `--export-json`, `--export-html`
-
----
-
-#### 🔍 [`@analyze-logs`](./analyze-logs.md) - Анализ логов ошибок
-**Comprehensive log analysis and diagnostics**
-
-**Использование:**
-```
-@analyze-logs [options]         # Анализ всех доступных логов
-```
-
-**Анализирует:**
-- 🔴 RimWorld Multiplayer desyncs (`/Users/ilyavolkov/Library/Application Support/RimWorld/MpDesyncs`)
-- 🐳 Docker контейнер логи
-- 🎮 RimWorld Player.log
-- 📊 RimAsync тест результаты
-
-**Опции:**
-- `--docker`, `--rimworld`, `--desyncs`, `--compilation`
-- `--recent`, `--errors-only`, `--emergency`
-- `--export-json`, `--export-html`
-
----
-
-#### 🌿 [`@create-branch`](./create-branch.md) - Создание git веток (специальные случаи)
-**⚠️ НЕ для обычной разработки! Используйте @execute-task для задач.**
-
-**Использование:**
-```
-@create-branch <branch-name>    # Только ручное создание для специальных случаев
-```
-
-**Когда использовать:**
-- 🧪 Экспериментальные ветки (experiment/)
-- 🔧 Hotfix ветки (hotfix/)
-- 📚 Документация без кода (docs/)
-- 🏗️ Рефакторинг (refactor/)
-- 🎨 Конфигурации (config/)
-
-**Примеры:**
-- `@create-branch experiment/new-async-architecture` - тестирование идей
-- `@create-branch hotfix/critical-memory-leak` - срочные исправления
-
-## 🔄 Workflow использования
-
-### 📋 Типичный цикл разработки:
-
-```
-1. @create-branch (или @execute-task автоматически)
-   └── Создает новую git ветку от последнего master
-   └── Выбирает задачу и обновляет статус: ⏳ → 🔄
-   └── Настраивает tracking ветки в плане
-
-2. @execute-task
-   └── Работает в созданной ветке
-   └── Создает тесты автоматически
-   └── Реализует функциональность
-   └── Запускает тесты в Docker
-   └── Коммитит изменения с conventional commits
-
-3. @run-tests --watch
-   └── Continuous testing во время разработки
-   └── Мониторинг изменений файлов
-   └── Автоматический перезапуск тестов
-
-4. @analyze-logs --auto
-   └── Автоматический анализ логов после компиляции
-   └── Выявление проблем в реальном времени
-   └── Диагностика Docker и RimWorld ошибок
-
-5. @create-tests [NewComponent]
-   └── Создание тестов для новых компонентов
-   └── Покрытие всех аспектов: Unit/Integration/Performance/MP
-```
-
-### 🚨 Emergency Workflow (при критических ошибках):
-
-```
-1. @analyze-logs --emergency --last-10-minutes
-   └── Быстрый анализ последних ошибок
-   └── Идентификация критических проблем
-
-2. @analyze-logs --desyncs --recent
-   └── Специализированный анализ Multiplayer desyncs
-   └── Проверка AsyncTime compatibility
-
-3. @execute-task (fix identified issues)
-   └── Исправление выявленных проблем
-   └── Приоритизация критических ошибок
-```
-
-### 🎯 Приоритизация задач:
-
-1. **🔴 КРИТИЧЕСКИЙ** - Компиляция, AsyncTime, базовый функционал
-2. **🟠 ВЫСОКИЙ** - Производительность, совместимость с модами
-3. **🟡 СРЕДНИЙ** - UI, дополнительные функции
-
-## 🧪 Testing Strategy
-
-### Каждая команда включает тестирование:
-
-```
-🧪 Test Pyramid:
-├── 🔵 Unit Tests (60%)
-│   ├── Core functionality
-│   ├── Error handling
-│   ├── Edge cases
-│   └── Thread safety
-├── 🟡 Integration Tests (25%)
-│   ├── System integration
-│   ├── Harmony patches
-│   └── RimWorld API
-├── 🔴 Performance Tests (10%)
-│   ├── TPS benchmarks
-│   ├── Memory usage
-│   └── Thread efficiency
-└── 🛡️ Multiplayer Tests (5%)
-    ├── AsyncTime detection
-    ├── Sync safety
-    └── Desync prevention
-```
-
-### 📊 Quality Gates:
-
-- ✅ **90%+ test coverage** обязательно
-- ✅ **Все критические тесты** должны проходить
-- ✅ **Performance targets** должны достигаться
-- ✅ **0 multiplayer desyncs** в AsyncTime режиме
-
-## 🔧 Настройка команд
-
-### Как активировать команды в Cursor IDE:
-
-1. **Откройте проект** RimAsync в Cursor IDE
-2. **Команды автоматически доступны** через символ `@`
-3. **В чате начните печатать** `@execute-task` или другую команду
-4. **Следуйте инструкциям** AI для выполнения задач
-
-### Интеграция с планами:
-
-Команды автоматически читают и обновляют:
-- 📈 `Planning/Development_Plan.md` - текущие задачи
-- 🔧 `Planning/Features_Plan.md` - приоритеты функций
-- 🧪 `Planning/Testing_Plan.md` - стратегии тестирования
-- 📊 `Planning/Performance_Plan.md` - цели производительности
-
-## 📁 Структура проекта для команд
-
-### Рабочие директории:
-```
-RimAsync/
-├── Source/RimAsync/           # Основной код
-├── Tests/                     # Все тесты (создается командами)
-│   ├── Unit/
-│   ├── Integration/
-│   ├── Performance/
-│   └── Multiplayer/
-├── Planning/                  # Планы разработки
-└── .cursor/commands/          # Команды (эта папка)
-```
-
-### Создаваемые файлы:
-- **Test files:** `Tests/[Category]/[Component]Tests.cs`
-- **Config files:** `Tests/TestConfig.cs`, `Tests/Utils/TestHelpers.cs`
-- **Reports:** Автоматические отчеты в консоли
-
-## 🎯 Примеры использования
-
-### Начало работы над проектом:
-```
-User: @execute-task
-
-AI: 🎯 Анализирую текущие задачи...
-📋 Выбрана задача: "Компиляция проекта"
-🔧 Исправляю ошибки компиляции...
-🧪 Создаю тесты для компиляции...
-✅ Задача завершена!
-```
-
-### Создание тестов для нового компонента:
-```
-User: @create-tests SmartCache
-
-AI: 🧪 Создаю comprehensive тесты для SmartCache...
-📁 Создано 4 файла тестов
-✅ 28 тестов готовы к выполнению
-```
-
-### Запуск specific тестов:
-```
-User: @run-tests --multiplayer --verbose
-
-AI: 🛡️ Запускаю multiplayer тесты...
-📊 AsyncTime detection: ✅
-🔍 Sync safety validation: ✅
-📁 Checking MpDesyncs folder: ✅ No new files
-```
-
-## 🚨 Важные моменты
-
-### ⚠️ Перед использованием команд:
-1. **Убедитесь** что проект открыт в Cursor IDE
-2. **Проверьте** что файлы планирования существуют
-3. **Настройте** Git repository для commits
-
-### 🔍 Мониторинг результатов:
-- **Логи тестов** сохраняются в консоли
-- **Performance metrics** отображаются в реальном времени
-- **Desync logs** проверяются в `/Users/ilyavolkov/Library/Application Support/RimWorld/MpDesyncs`
-
-### 📊 Отслеживание прогресса:
-- **Статусы задач** автоматически обновляются в `Planning/Development_Plan.md`
-- **Test results** включают regression analysis
-- **Performance trends** отслеживаются между запусками
-
-## 🔮 Будущие команды (в планах)
-
-### Дополнительные команды:
-- `@benchmark` - Глубокий performance анализ
-- `@deploy` - Подготовка к релизу и Steam Workshop
-- `@compatibility-check` - Тестирование с популярными модами
-- `@update-plan` - Обновление планов разработки
-- `@generate-docs` - Автоматическая генерация документации
-
-## 🤝 Contribution
-
-### Добавление новых команд:
-1. Создайте файл `new-command.md` в этой папке
-2. Следуйте структуре существующих команд
-3. Обновите этот README.md
-4. Протестируйте команду с реальными сценариями
-
-### Улучшение существующих команд:
-1. Обновите соответствующий `.md` файл
-2. Добавьте новые примеры использования
-3. Обновите test templates если нужно
-
----
-
-## 📝 Quick Reference
-
-### Основные команды:
-```bash
-@execute-task                 # Выполнить следующую задачу
-@create-tests [component]     # Создать тесты
-@run-tests [options]          # Запустить тесты
-```
-
-### Полезные опции:
-```bash
---critical                    # Только критические тесты
---watch                       # Continuous testing
---performance                 # Performance benchmarks
---multiplayer                 # Multiplayer compatibility
---verbose                     # Подробный вывод
-```
-
----
-
-**🚀 Начните с команды `@execute-task` для запуска разработки!**
-
-*"Автоматизация - это ключ к успеху RimAsync!"* ⚡
+**Remember:** Use `@execute-task` for regular development. It handles branching, testing, and merging automatically!
