@@ -1,7 +1,7 @@
 # RimAsync Makefile
 # Convenient commands for Docker-based development
 
-.PHONY: help build test test-unit test-integration test-performance test-run test-quick test-find t dev quick-build release clean logs shell format lint setup
+.PHONY: help build test test-unit test-integration test-performance test-run test-quick test-find t coverage coverage-html coverage-quick dev quick-build release clean logs shell format lint setup
 
 # Default target
 .DEFAULT_GOAL := help
@@ -33,6 +33,9 @@ help:
 	@echo "  $(YELLOW)make test-quick$(NC) - Quick test menu (4 most common options)"
 	@echo "  $(YELLOW)make test-find NAME=\"SearchTerm\"$(NC) - Smart search for tests by name"
 	@echo "  $(YELLOW)make t$(NC) - Super quick test (unit tests only)"
+	@echo "  $(YELLOW)make coverage$(NC) - Generate code coverage report"
+	@echo "  $(YELLOW)make coverage-html$(NC) - Generate HTML coverage report"
+	@echo "  $(YELLOW)make coverage-quick$(NC) - Quick coverage (unit tests only)"
 	@echo ""
 	@echo "$(GREEN)🚀 Development Commands:$(NC)"
 	@echo "  $(YELLOW)make dev$(NC)          - Start development environment"
@@ -216,6 +219,29 @@ t:
 	@docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Unit\" --logger \"console;verbosity=minimal\""
 	@echo "$(GREEN)✅ Quick tests completed!$(NC)"
 
+## 📊 Generate code coverage report
+coverage:
+	@echo "$(CYAN)📊 Generating code coverage report...$(NC)"
+	@docker-compose run test bash -c "cd /app/Tests && dotnet test --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/ --logger \"console;verbosity=normal\""
+	@echo "$(GREEN)✅ Coverage report generated in ./TestResults/Coverage/$(NC)"
+	@echo "$(YELLOW)💡 Find coverage.cobertura.xml in ./TestResults/Coverage/$(NC)"
+	@echo "$(YELLOW)📋 Use 'make coverage-html' for human-readable HTML report$(NC)"
+
+## 🌐 Generate HTML coverage report
+coverage-html:
+	@echo "$(CYAN)🌐 Generating HTML coverage report...$(NC)"
+	@docker-compose run test bash -c "cd /app/Tests && dotnet test --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/ --logger \"console;verbosity=normal\" && if command -v reportgenerator >/dev/null 2>&1; then reportgenerator \"-reports:./TestResults/Coverage/*/coverage.cobertura.xml\" \"-targetdir:./TestResults/Coverage/Html\" \"-reporttypes:Html\"; else echo 'Installing ReportGenerator...'; dotnet tool install --global dotnet-reportgenerator-globaltool && reportgenerator \"-reports:./TestResults/Coverage/*/coverage.cobertura.xml\" \"-targetdir:./TestResults/Coverage/Html\" \"-reporttypes:Html\"; fi"
+	@echo "$(GREEN)✅ HTML coverage report generated!$(NC)"
+	@echo "$(YELLOW)💡 Open ./TestResults/Coverage/Html/index.html in browser$(NC)"
+	@echo "$(YELLOW)📋 If ReportGenerator fails, install it: dotnet tool install --global dotnet-reportgenerator-globaltool$(NC)"
+
+## 📈 Quick coverage check (unit tests only)
+coverage-quick:
+	@echo "$(CYAN)📈 Quick coverage check (unit tests)...$(NC)"
+	@docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Category=Unit\" --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/Quick/ --logger \"console;verbosity=minimal\""
+	@echo "$(GREEN)✅ Quick coverage completed!$(NC)"
+	@echo "$(YELLOW)💡 Check ./TestResults/Coverage/Quick/ for results$(NC)"
+
 ## 💻 Start development environment
 dev:
 	@echo "$(CYAN)💻 Starting development environment...$(NC)"
@@ -307,17 +333,7 @@ docker-info:
 
 # Advanced targets for CI/CD and automation
 
-## 🚨 Run tests with coverage report
-test-coverage:
-	@echo "$(CYAN)🚨 Running tests with coverage...$(NC)"
-	docker-compose exec test dotnet test --collect:"XPlat Code Coverage" --results-directory ./TestResults/Coverage/
-	@echo "$(GREEN)✅ Coverage report generated in ./TestResults/Coverage/$(NC)"
 
-## 📊 Generate test report
-test-report:
-	@echo "$(CYAN)📊 Generating test report...$(NC)"
-	docker-compose exec test dotnet test --logger "html;LogFileName=TestReport.html" --results-directory ./TestResults/Reports/
-	@echo "$(GREEN)✅ Test report generated in ./TestResults/Reports/$(NC)"
 
 ## 🔒 Security scan
 security-scan:

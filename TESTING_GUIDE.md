@@ -11,6 +11,7 @@ RimAsync provides flexible testing commands through the Makefile for different t
 make t                       # Fastest - unit tests only (minimal output)
 make test-quick             # Interactive menu (4 most common options)
 make test-run               # Universal interactive runner
+make coverage-quick         # Quick code coverage (unit tests only)
 ```
 
 ### 🔍 Smart Search Commands
@@ -143,6 +144,32 @@ make test-advanced FILTER="..." LOGGER="html;LogFileName=MyReport.html"
 ```
 Report will be saved to: `./TestResults/MyReport.html`
 
+## 📊 Code Coverage Testing
+
+### Quick Coverage Commands
+```bash
+make coverage-quick         # Unit tests coverage (fastest)
+make coverage              # All tests coverage
+make coverage-html         # HTML coverage report
+```
+
+### Coverage Results Location
+- **XML Reports**: `./TestResults/Coverage/`
+- **HTML Reports**: `./TestResults/Coverage/Html/index.html`
+- **Quick Reports**: `./TestResults/Coverage/Quick/`
+
+### Coverage Workflow
+```bash
+# 1. Quick coverage check during development
+make coverage-quick
+
+# 2. Full coverage analysis
+make coverage
+
+# 3. Generate HTML report for detailed analysis
+make coverage-html
+```
+
 ## 🚀 Performance Testing
 
 ### Quick Performance Check
@@ -239,4 +266,7 @@ make test-run TARGET="ProblematicClass" OPTS="--logger html;LogFileName=debug.ht
 | `make test-quick` | Interactive menu | `make test-quick` | ⚡⚡ |
 | `make test-find` | Smart search | `make test-find NAME="Multiplayer"` | ⚡⚡ |
 | `make test-run` | Universal runner | `make test-run TARGET="Category=Unit"` | ⚡⚡ |
+| `make coverage-quick` | Quick coverage | `make coverage-quick` | ⚡⚡ |
+| `make coverage` | Full coverage | `make coverage` | ⚡ |
+| `make coverage-html` | HTML coverage | `make coverage-html` | 🐌 |
 | `make test` | All tests | `make test` | ⚡ |
