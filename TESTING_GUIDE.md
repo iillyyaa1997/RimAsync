@@ -27,78 +27,35 @@ make test-integration       # Run integration tests only
 make test-performance       # Run performance tests only
 ```
 
-## 🔧 Advanced Test Commands
+## 🔧 Universal Test Commands
 
-### Custom Filter Tests
+### Universal Test Runner
 ```bash
-make test-filter FILTER="YourFilter"
+make test-run [TARGET="..."] [OPTS="..."]
 ```
 
-**Examples:**
+**Interactive Mode (no parameters):**
+- Provides menu with 9 test options
+- User-friendly prompts for all scenarios
+- Automatic parameter handling
+
+**Direct Mode (with parameters):**
 ```bash
 # Run specific test class
-make test-filter FILTER="MultiplayerDetectionTests"
+make test-run TARGET="MultiplayerDetectionTests"
 
 # Run tests by category
-make test-filter FILTER="Category=Unit"
-make test-filter FILTER="Category=Integration"
-make test-filter FILTER="Category=Performance"
+make test-run TARGET="Category=Unit"
+make test-run TARGET="Category=Integration"
+make test-run TARGET="Category=Performance"
 
 # Run tests containing specific name
-make test-filter FILTER="Name~AsyncManager"
-make test-filter FILTER="Name~Initialize"
-```
+make test-run TARGET="Name~AsyncManager"
+make test-run TARGET="Name~Initialize"
 
-### Specific Test Method
-```bash
-make test-method METHOD="TestMethodName"
-```
-
-**Examples:**
-```bash
-# Run specific test method
-make test-method METHOD="IsInMultiplayer"
-make test-method METHOD="Initialize"
-make test-method METHOD="DoWindowContents"
-```
-
-### Specific Test Class
-```bash
-make test-class CLASS="TestClassName"
-```
-
-**Examples:**
-```bash
-# Run specific test classes
-make test-class CLASS="MultiplayerDetectionTests"
-make test-class CLASS="SettingsUITests"
-make test-class CLASS="AsyncManagerTests"
-```
-
-### Advanced Test Runner
-```bash
-make test-advanced FILTER="..." [OPTIONS]
-```
-
-**Available Options:**
-- `FILTER` - Custom filter expression (required)
-- `VERBOSITY` - Logging verbosity: `quiet`, `minimal`, `normal`, `detailed`, `diagnostic`
-- `RESULTS` - Results directory (default: `./TestResults`)
-- `LOGGER` - Logger format (default: `console;verbosity=normal`)
-
-**Examples:**
-```bash
-# Detailed output for unit tests
-make test-advanced FILTER="Category=Unit" VERBOSITY="detailed"
-
-# HTML report generation
-make test-advanced FILTER="MultiplayerDetectionTests" LOGGER="html;LogFileName=report.html"
-
-# Custom results directory
-make test-advanced FILTER="Category=Integration" RESULTS="./CustomTestResults"
-
-# Combination of options
-make test-advanced FILTER="Name~Multiplayer" VERBOSITY="diagnostic" RESULTS="./DetailedResults"
+# With custom options
+make test-run TARGET="Category=Unit" OPTS="--logger html;LogFileName=report.html"
+make test-run TARGET="MultiplayerDetectionTests" OPTS="--logger console;verbosity=detailed"
 ```
 
 ## 📋 Filter Syntax Reference
@@ -138,10 +95,10 @@ FILTER="Category=Integration|Category=Unit"  # Integration OR Unit tests
 make test-unit
 
 # 2. Test specific functionality you're working on
-make test-class CLASS="AsyncManagerTests"
+make test-run TARGET="AsyncManagerTests"
 
 # 3. Test specific method after changes
-make test-method METHOD="Initialize"
+make test-run TARGET="Name~Initialize"
 
 # 4. Full integration test before commit
 make test-integration
@@ -150,14 +107,13 @@ make test-integration
 ### Debugging Workflow
 ```bash
 # 1. Run failing test with detailed output
-make test-method METHOD="FailingTest"
-# (automatically uses detailed verbosity)
+make test-run TARGET="Name~FailingTest" OPTS="--logger console;verbosity=detailed"
 
-# 2. Run test class with custom verbosity
-make test-advanced FILTER="ProblematicTestClass" VERBOSITY="diagnostic"
+# 2. Run test class with diagnostic verbosity
+make test-run TARGET="ProblematicTestClass" OPTS="--logger console;verbosity=diagnostic"
 
 # 3. Generate HTML report for analysis
-make test-advanced FILTER="Category=Integration" LOGGER="html;LogFileName=debug_report.html"
+make test-run TARGET="Category=Integration" OPTS="--logger html;LogFileName=debug_report.html"
 ```
 
 ### CI/CD Workflow
@@ -196,8 +152,8 @@ make test-performance
 
 ### Specific Performance Tests
 ```bash
-make test-filter FILTER="Category=Performance&Name~Cache"
-make test-advanced FILTER="Performance" VERBOSITY="detailed"
+make test-run TARGET="Category=Performance&Name~Cache"
+make test-run TARGET="Performance" OPTS="--logger console;verbosity=detailed"
 ```
 
 ## 🛠️ Troubleshooting
@@ -220,7 +176,7 @@ make test
 ### Verbose Output
 For debugging test issues:
 ```bash
-make test-advanced FILTER="YourFilter" VERBOSITY="diagnostic"
+make test-run TARGET="YourFilter" OPTS="--logger console;verbosity=diagnostic"
 ```
 
 ## 📊 Test Categories
@@ -237,10 +193,10 @@ make test-advanced FILTER="YourFilter" VERBOSITY="diagnostic"
 ### Priority-Based Testing
 ```bash
 # Run only critical tests for quick feedback
-make test-filter FILTER="Category=CriticalPriority"
+make test-run TARGET="Category=CriticalPriority"
 
 # Run high priority tests
-make test-filter FILTER="Category=HighPriority|Category=CriticalPriority"
+make test-run TARGET="Category=HighPriority|Category=CriticalPriority"
 ```
 
 ## 💡 Tips and Best Practices
@@ -284,7 +240,3 @@ make test-run TARGET="ProblematicClass" OPTS="--logger html;LogFileName=debug.ht
 | `make test-find` | Smart search | `make test-find NAME="Multiplayer"` | ⚡⚡ |
 | `make test-run` | Universal runner | `make test-run TARGET="Category=Unit"` | ⚡⚡ |
 | `make test` | All tests | `make test` | ⚡ |
-| `make test-filter` | Custom filter | `make test-filter FILTER="Unit"` | ⚡ |
-| `make test-method` | Specific method | `make test-method METHOD="Initialize"` | ⚡ |
-| `make test-class` | Specific class | `make test-class CLASS="AsyncManager"` | ⚡ |
-| `make test-advanced` | Full control | `make test-advanced FILTER="..." VERBOSITY="detailed"` | 🐌 |

@@ -1,7 +1,7 @@
 # RimAsync Makefile
 # Convenient commands for Docker-based development
 
-.PHONY: help build test test-filter test-method test-class test-advanced test-run test-quick test-find t dev quick-build release clean logs shell format lint setup
+.PHONY: help build test test-unit test-integration test-performance test-run test-quick test-find t dev quick-build release clean logs shell format lint setup
 
 # Default target
 .DEFAULT_GOAL := help
@@ -28,10 +28,7 @@ help:
 	@echo "  $(YELLOW)make test-unit$(NC)    - Run unit tests only"
 	@echo "  $(YELLOW)make test-integration$(NC) - Run integration tests only"
 	@echo "  $(YELLOW)make test-performance$(NC) - Run performance tests only"
-	@echo "  $(YELLOW)make test-filter FILTER=\"ClassName\"$(NC) - Run tests with custom filter"
-	@echo "  $(YELLOW)make test-method METHOD=\"TestMethod\"$(NC) - Run specific test method"
-	@echo "  $(YELLOW)make test-class CLASS=\"TestClass\"$(NC) - Run specific test class"
-	@echo "  $(YELLOW)make test-advanced FILTER=\"...\" [OPTIONS]$(NC) - Advanced test runner"
+
 	@echo "  $(YELLOW)make test-run [TARGET=\"...\"] [OPTS=\"...\"]$(NC) - Universal test runner (interactive)"
 	@echo "  $(YELLOW)make test-quick$(NC) - Quick test menu (4 most common options)"
 	@echo "  $(YELLOW)make test-find NAME=\"SearchTerm\"$(NC) - Smart search for tests by name"
@@ -101,78 +98,13 @@ test-performance:
 	docker-compose exec test dotnet test --filter Category=Performance
 	@echo "$(GREEN)✅ Performance tests completed!$(NC)"
 
-## 🎯 Run tests with custom filter
-test-filter:
-	@if [ -z "$(FILTER)" ]; then \
-		echo "$(RED)❌ Error: FILTER parameter is required$(NC)"; \
-		echo "$(YELLOW)💡 Usage: make test-filter FILTER=\"YourFilter\"$(NC)"; \
-		echo "$(YELLOW)📋 Examples:$(NC)"; \
-		echo "  make test-filter FILTER=\"MultiplayerDetectionTests\""; \
-		echo "  make test-filter FILTER=\"Category=Unit\""; \
-		echo "  make test-filter FILTER=\"Name~AsyncManager\""; \
-		echo "  make test-filter FILTER=\"Name~Initialize\""; \
-		exit 1; \
-	fi
-	@echo "$(CYAN)🎯 Running tests with filter: $(FILTER)$(NC)"
-	docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$(FILTER)\" --logger \"console;verbosity=normal\""
-	@echo "$(GREEN)✅ Filtered tests completed!$(NC)"
 
-## 🔍 Run specific test method
-test-method:
-	@if [ -z "$(METHOD)" ]; then \
-		echo "$(RED)❌ Error: METHOD parameter is required$(NC)"; \
-		echo "$(YELLOW)💡 Usage: make test-method METHOD=\"TestMethodName\"$(NC)"; \
-		echo "$(YELLOW)📋 Examples:$(NC)"; \
-		echo "  make test-method METHOD=\"IsInMultiplayer_WithoutMultiplayerMod_ReturnsFalse\""; \
-		echo "  make test-method METHOD=\"Initialize\""; \
-		exit 1; \
-	fi
-	@echo "$(CYAN)🔍 Running test method: $(METHOD)$(NC)"
-	docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"Name~$(METHOD)\" --logger \"console;verbosity=detailed\""
-	@echo "$(GREEN)✅ Test method completed!$(NC)"
 
-## 📋 Run specific test class
-test-class:
-	@if [ -z "$(CLASS)" ]; then \
-		echo "$(RED)❌ Error: CLASS parameter is required$(NC)"; \
-		echo "$(YELLOW)💡 Usage: make test-class CLASS=\"TestClassName\"$(NC)"; \
-		echo "$(YELLOW)📋 Examples:$(NC)"; \
-		echo "  make test-class CLASS=\"MultiplayerDetectionTests\""; \
-		echo "  make test-class CLASS=\"SettingsUITests\""; \
-		echo "  make test-class CLASS=\"AsyncManagerTests\""; \
-		exit 1; \
-	fi
-	@echo "$(CYAN)📋 Running test class: $(CLASS)$(NC)"
-	docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$(CLASS)\" --logger \"console;verbosity=normal\""
-	@echo "$(GREEN)✅ Test class completed!$(NC)"
 
-## 🚀 Advanced test runner with verbose options
-test-advanced:
-	@echo "$(CYAN)🚀 Advanced test runner$(NC)"
-	@echo "$(YELLOW)Available options:$(NC)"
-	@echo "  FILTER     - Custom filter expression"
-	@echo "  VERBOSITY  - Logging verbosity (quiet, minimal, normal, detailed, diagnostic)"
-	@echo "  RESULTS    - Results directory (default: ./TestResults)"
-	@echo "  LOGGER     - Logger format (default: console;verbosity=normal)"
-	@echo ""
-	@echo "$(YELLOW)💡 Examples:$(NC)"
-	@echo "  make test-advanced FILTER=\"Category=Unit\" VERBOSITY=\"detailed\""
-	@echo "  make test-advanced FILTER=\"MultiplayerDetectionTests\" LOGGER=\"html;LogFileName=report.html\""
-	@echo ""
-	@if [ -z "$(FILTER)" ]; then \
-		echo "$(RED)❌ Error: FILTER parameter is required for advanced runner$(NC)"; \
-		exit 1; \
-	fi
-	@VERBOSITY_OPT=$${VERBOSITY:-normal}; \
-	RESULTS_OPT=$${RESULTS:-./TestResults}; \
-	LOGGER_OPT=$${LOGGER:-console;verbosity=$$VERBOSITY_OPT}; \
-	echo "$(CYAN)🎯 Running advanced tests...$(NC)"; \
-	echo "  Filter: $(FILTER)"; \
-	echo "  Verbosity: $$VERBOSITY_OPT"; \
-	echo "  Results: $$RESULTS_OPT"; \
-	echo "  Logger: $$LOGGER_OPT"; \
-	docker-compose run test bash -c "cd /app/Tests && dotnet test --filter \"$(FILTER)\" --logger \"$$LOGGER_OPT\" --results-directory \"$$RESULTS_OPT\""
-	@echo "$(GREEN)✅ Advanced tests completed!$(NC)"
+
+
+
+
 
 ## 🎯 Universal test runner - one command for everything
 test-run:
