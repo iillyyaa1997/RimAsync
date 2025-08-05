@@ -13,6 +13,9 @@ namespace RimAsync.Core
         // Performance Settings
         public bool enableAsyncPathfinding = true;
         public bool enableBackgroundJobs = true;
+        public bool enableAsyncJobExecution = true;
+        public bool enableAsyncAI = true;
+        public bool enableAsyncBuilding = true;
         public bool enableSmartCaching = true;
         public bool enableMemoryOptimization = true;
 
@@ -37,6 +40,9 @@ namespace RimAsync.Core
             // Performance Settings
             Scribe_Values.Look(ref enableAsyncPathfinding, "enableAsyncPathfinding", true);
             Scribe_Values.Look(ref enableBackgroundJobs, "enableBackgroundJobs", true);
+            Scribe_Values.Look(ref enableAsyncJobExecution, "enableAsyncJobExecution", true);
+            Scribe_Values.Look(ref enableAsyncAI, "enableAsyncAI", true);
+            Scribe_Values.Look(ref enableAsyncBuilding, "enableAsyncBuilding", true);
             Scribe_Values.Look(ref enableSmartCaching, "enableSmartCaching", true);
             Scribe_Values.Look(ref enableMemoryOptimization, "enableMemoryOptimization", true);
 
@@ -74,6 +80,12 @@ namespace RimAsync.Core
                 "Allows pawns to find paths in background without blocking gameplay");
             listing.CheckboxLabeled("Enable Background Jobs", ref enableBackgroundJobs,
                 "Processes work tasks in background for smoother performance");
+            listing.CheckboxLabeled("Enable Async Job Execution", ref enableAsyncJobExecution,
+                "Executes pawn jobs asynchronously for better responsiveness");
+            listing.CheckboxLabeled("Enable Async AI Processing", ref enableAsyncAI,
+                "Processes AI thinking and decisions in background");
+            listing.CheckboxLabeled("Enable Async Building Updates", ref enableAsyncBuilding,
+                "Handles building construction and updates asynchronously");
             listing.CheckboxLabeled("Enable Smart Caching", ref enableSmartCaching,
                 "Intelligently caches frequent calculations");
             listing.CheckboxLabeled("Enable Memory Optimization", ref enableMemoryOptimization,

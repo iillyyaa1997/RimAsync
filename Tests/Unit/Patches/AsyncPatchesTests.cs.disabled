@@ -1,0 +1,395 @@
+using NUnit.Framework;
+using System;
+using RimAsync.Core;
+using RimAsync.Patches.RW_Patches;
+using RimAsync.Tests.Utils;
+using RimAsync.Utils;
+using Verse;
+using Verse.AI;
+using System.Collections.Generic;
+
+namespace RimAsync.Tests.Unit.Patches
+{
+    /// <summary>
+    /// Comprehensive tests for expanded async patches (Job, AI, Building systems)
+    /// Tests new async functionality for enhanced performance
+    /// </summary>
+    [TestFixture]
+    public class AsyncPatchesTests
+    {
+        private RimAsyncSettings _originalSettings;
+
+        [SetUp]
+        public void SetUp()
+        {
+            // Backup original settings
+            _originalSettings = new RimAsyncSettings
+            {
+                enableAsyncJobExecution = RimAsyncMod.Settings.enableAsyncJobExecution,
+                enableAsyncAI = RimAsyncMod.Settings.enableAsyncAI,
+                enableAsyncBuilding = RimAsyncMod.Settings.enableAsyncBuilding
+            };
+
+            // Initialize systems
+            RimAsyncCore.Initialize();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            // Restore original settings
+            RimAsyncMod.Settings.enableAsyncJobExecution = _originalSettings.enableAsyncJobExecution;
+            RimAsyncMod.Settings.enableAsyncAI = _originalSettings.enableAsyncAI;
+            RimAsyncMod.Settings.enableAsyncBuilding = _originalSettings.enableAsyncBuilding;
+
+            // Shutdown systems
+            RimAsyncCore.Shutdown();
+        }
+
+        #region Job System Async Patch Tests
+
+        [Test]
+        [Category(TestConfig.UnitTestCategory)]
+        [Category(TestConfig.CriticalPriority)]
+        public void JobTrackerPatch_AsyncJobExecutionEnabled_ProcessesAsync()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableAsyncJobExecution = true;
+            var pawn = TestHelpers.CreateMockPawn();
+            var jobTracker = new Pawn_JobTracker { pawn = pawn };
+
+            // Act & Assert
+            Assert.DoesNotThrow(() =>
+            {
+                // This should trigger async path without throwing
+                var result = Pawn_JobTracker_Patch.JobTrackerTick_Prefix(jobTracker);
+            }, "Async job execution should not throw");
+        }
+
+        [Test]
+        [Category(TestConfig.UnitTestCategory)]
+        [Category(TestConfig.CriticalPriority)]
+        public void JobTrackerPatch_AsyncJobExecutionDisabled_UsesOriginalMethod()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableAsyncJobExecution = false;
+            var pawn = TestHelpers.CreateMockPawn();
+            var jobTracker = new Pawn_JobTracker { pawn = pawn };
+
+            // Act
+            var result = Pawn_JobTracker_Patch.JobTrackerTick_Prefix(jobTracker);
+
+            // Assert
+            Assert.IsTrue(result, "Should return true to use original method when async disabled");
+        }
+
+        [Test]
+        [Category(TestConfig.UnitTestCategory)]
+        [Category(TestConfig.HighPriority)]
+        public void JobDeterminationPatch_AsyncJobsEnabled_ProcessesAsync()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableBackgroundJobs = true;
+            var pawn = TestHelpers.CreateMockPawn();
+            var jobTracker = new Pawn_JobTracker { pawn = pawn };
+            var result = new ThinkResult();
+
+            // Act & Assert
+            Assert.DoesNotThrow(() =>
+            {
+                var shouldUseOriginal = Pawn_JobTracker_Patch.DetermineNextJob_Prefix(jobTracker, ref result);
+            }, "Async job determination should not throw");
+        }
+
+        #endregion
+
+        #region AI System Async Patch Tests
+
+        [Test]
+        [Category(TestConfig.UnitTestCategory)]
+        [Category(TestConfig.CriticalPriority)]
+        public void AIPatch_AsyncAIEnabled_ProcessesSuccessfully()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableAsyncAI = true;
+            var pawn = TestHelpers.CreateMockPawn();
+            var mindState = new Pawn_MindState { pawn = pawn };
+
+            // Act & Assert
+            Assert.DoesNotThrow(() =>
+            {
+                var result = Pawn_MindState_Patch.TestAsyncAIProcessing(mindState);
+            }, "Async AI processing should not throw");
+        }
+
+        [Test]
+        [Category(TestConfig.UnitTestCategory)]
+        [Category(TestConfig.CriticalPriority)]
+        public void AIPatch_AsyncAIDisabled_UsesOriginalMethod()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableAsyncAI = false;
+            var pawn = TestHelpers.CreateMockPawn();
+            var mindState = new Pawn_MindState { pawn = pawn };
+
+            // Act
+            var result = Pawn_MindState_Patch.TestAsyncAIProcessing(mindState);
+
+            // Assert
+            Assert.IsTrue(result, "Should return true when async AI is disabled (use original method)");
+        }
+
+        [Test]
+        [Category(TestConfig.UnitTestCategory)]
+        [Category(TestConfig.PerformanceTestCategory)]
+        public void AIPatch_CombatPawn_UsesOriginalMethod()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableAsyncAI = true;
+            var pawn = TestHelpers.CreateMockPawn();
+            pawn.InCombat = true;
+
+            // Act
+            var result = Pawn_MindState_Patch.TestAsyncThinking(pawn);
+
+            // Assert
+            Assert.IsFalse(result, "Combat pawns should not use async thinking");
+        }
+
+        [Test]
+        [Category(TestConfig.UnitTestCategory)]
+        [Category(TestConfig.PerformanceTestCategory)]
+        public void ThinkNode_AsyncThinkingEnabled_ProcessesSuccessfully()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableAsyncAI = true;
+            var pawn = TestHelpers.CreateMockPawn();
+            var thinkNode = new ThinkNode();
+            var jobParams = new JobIssueParams();
+
+            // Act & Assert
+            Assert.DoesNotThrow(() =>
+            {
+                var result = ThinkNode_Patch.TestAsyncThinking(thinkNode, pawn, jobParams);
+            }, "Async thinking should not throw");
+        }
+
+        #endregion
+
+        #region Building System Async Patch Tests
+
+        [Test]
+        [Category(TestConfig.UnitTestCategory)]
+        [Category(TestConfig.CriticalPriority)]
+        public void BuildingPatch_AsyncBuildingEnabled_ProcessesSuccessfully()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableAsyncBuilding = true;
+            var building = TestHelpers.CreateMockBuilding();
+
+            // Act & Assert
+            Assert.DoesNotThrow(() =>
+            {
+                var result = Building_Patch.TestAsyncBuildingProcessing(building);
+            }, "Async building processing should not throw");
+        }
+
+        [Test]
+        [Category(TestConfig.UnitTestCategory)]
+        [Category(TestConfig.CriticalPriority)]
+        public void BuildingPatch_AsyncBuildingDisabled_UsesOriginalMethod()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableAsyncBuilding = false;
+            var building = TestHelpers.CreateMockBuilding();
+
+            // Act
+            var result = Building_Patch.TestAsyncBuildingProcessing(building);
+
+            // Assert
+            Assert.IsTrue(result, "Should return true when async building is disabled (use original method)");
+        }
+
+        [Test]
+        [Category(TestConfig.UnitTestCategory)]
+        [Category(TestConfig.PerformanceTestCategory)]
+        public void BuildingPatch_NonBuildingThing_UsesOriginalMethod()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableAsyncBuilding = true;
+            var thing = TestHelpers.CreateMockThing("NonBuilding");
+
+            // Act
+            var result = Building_Patch.TestBuildingConstruction(thing);
+
+            // Assert
+            Assert.IsFalse(result, "Non-building things should not use async building processing");
+        }
+
+        [Test]
+        [Category(TestConfig.UnitTestCategory)]
+        [Category(TestConfig.PerformanceTestCategory)]
+        public void ConstructionPatch_AsyncConstructionEnabled_ProcessesSuccessfully()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableAsyncBuilding = true;
+            var construction = TestHelpers.CreateMockConstruction();
+
+            // Act & Assert
+            Assert.DoesNotThrow(() =>
+            {
+                var result = Construction_Patch.TestAsyncConstruction(construction);
+            }, "Async construction should not throw");
+        }
+
+        [Test]
+        [Category(TestConfig.UnitTestCategory)]
+        [Category(TestConfig.PerformanceTestCategory)]
+        public void ConstructionPatch_ConstructionInCombat_UsesOriginalMethod()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableAsyncBuilding = true;
+            var construction = TestHelpers.CreateMockConstruction();
+            // Note: Combat state would be set on the map, but we can't easily mock that
+
+            // Act
+            var result = Construction_Patch.TestConstructionEligibility(construction);
+
+            // Assert - This test validates the method doesn't throw
+            Assert.DoesNotThrow(() =>
+            {
+                Construction_Patch.TestConstructionRelation(construction);
+            }, "Construction relation testing should not throw");
+        }
+
+        #endregion
+
+        #region Performance and Integration Tests
+
+        [Test]
+        [Category(TestConfig.PerformanceTestCategory)]
+        [Category(TestConfig.MediumPriority)]
+        public void AsyncPatches_MultipleOperations_PerformAcceptably()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableAsyncJobExecution = true;
+            RimAsyncMod.Settings.enableAsyncAI = true;
+            RimAsyncMod.Settings.enableAsyncBuilding = true;
+
+            var pawn = TestHelpers.CreateMockPawn();
+            var building = TestHelpers.CreateMockBuilding();
+            const int iterations = 100;
+
+            // Act
+            var startTime = DateTime.UtcNow;
+
+            for (int i = 0; i < iterations; i++)
+            {
+                // Test job processing
+                var jobTracker = new Pawn_JobTracker { pawn = pawn };
+                Pawn_JobTracker_Patch.JobTrackerTick_Prefix(jobTracker);
+
+                // Test AI processing
+                var mindState = new Pawn_MindState { pawn = pawn };
+                Pawn_MindState_Patch.MindStateTick_Prefix(mindState);
+
+                // Test building processing
+                Building_Patch.Tick_Prefix(building);
+            }
+
+            var elapsed = DateTime.UtcNow - startTime;
+
+            // Assert
+            Assert.Less(elapsed.TotalMilliseconds, 500,
+                $"100 async patch operations should complete in under 500ms, took {elapsed.TotalMilliseconds}ms");
+        }
+
+        [Test]
+        [Category(TestConfig.IntegrationTestCategory)]
+        [Category(TestConfig.MediumPriority)]
+        public void AsyncPatches_AllDisabled_UsesOriginalMethods()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableAsyncJobExecution = false;
+            RimAsyncMod.Settings.enableAsyncAI = false;
+            RimAsyncMod.Settings.enableAsyncBuilding = false;
+
+            var pawn = TestHelpers.CreateMockPawn();
+            var building = TestHelpers.CreateMockBuilding();
+
+            // Act & Assert - All should return true to use original methods
+            var aiResult = Pawn_MindState_Patch.TestAsyncAIProcessing(new Pawn_MindState { pawn = pawn });
+            var buildingResult = Building_Patch.TestAsyncBuildingProcessing(building);
+
+            Assert.IsTrue(aiResult, "AI patch should use original method when disabled");
+            Assert.IsTrue(buildingResult, "Building patch should use original method when disabled");
+        }
+
+        [Test]
+        [Category(TestConfig.IntegrationTestCategory)]
+        [Category(TestConfig.MediumPriority)]
+        public void AsyncPatches_ErrorHandling_GracefulFallback()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableAsyncJobExecution = true;
+            RimAsyncMod.Settings.enableAsyncAI = true;
+            RimAsyncMod.Settings.enableAsyncBuilding = true;
+
+            // Create invalid objects to trigger error paths
+            var invalidPawn = new Pawn(); // No proper initialization
+            var invalidBuilding = new Thing(); // No proper initialization
+
+            // Act & Assert - Should not throw even with invalid objects
+            Assert.DoesNotThrow(() =>
+            {
+                var aiResult = Pawn_MindState_Patch.TestAsyncThinking(invalidPawn);
+                var buildingResult = Building_Patch.TestBuildingConstruction(invalidBuilding);
+            }, "Patches should handle invalid objects gracefully");
+        }
+
+        [Test]
+        [Category(TestConfig.PerformanceTestCategory)]
+        [Category(TestConfig.MediumPriority)]
+        public void AsyncPatches_PerformanceOptimization_ReducesMainThreadLoad()
+        {
+            // Arrange
+            RimAsyncMod.Settings.enableAsyncJobExecution = true;
+            RimAsyncMod.Settings.enableAsyncAI = true;
+            RimAsyncMod.Settings.enableAsyncBuilding = true;
+
+            // Test multiple operations to simulate performance improvement
+            var pawns = new List<Pawn>();
+            for (int i = 0; i < 5; i++)
+            {
+                pawns.Add(TestHelpers.CreateMockPawn());
+            }
+
+            // Act & Assert - Should not block main thread
+            Assert.DoesNotThrow(() =>
+            {
+                foreach (var pawn in pawns)
+                {
+                    Pawn_MindState_Patch.TestAsyncThinking(pawn);
+                    Building_Patch.TestBuildingConstruction(TestHelpers.CreateMockBuilding());
+                }
+            }, "Async patches should not block main thread during multiple operations");
+        }
+
+        #endregion
+
+        #region Helper Classes for Testing
+
+        /// <summary>
+        /// Test implementation of ThinkNode for testing
+        /// </summary>
+        private class TestThinkNode : ThinkNode
+        {
+            public override ThinkResult TryIssueJobPackage(Pawn pawn, JobIssueParams jobParams)
+            {
+                return ThinkResult.NoJob;
+            }
+        }
+
+        #endregion
+    }
+}

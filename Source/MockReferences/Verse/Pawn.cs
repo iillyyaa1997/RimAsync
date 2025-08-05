@@ -70,28 +70,57 @@ namespace Verse
 
         public string ToStringShort()
         {
-            // Mock implementation - return simple name
-            return ToStringFull ?? "Unknown";
+            return ToStringFull?.Split(' ')[0] ?? "Unknown";
         }
     }
 
-    // Add missing tracker classes
     public class Pawn_HealthTracker
     {
-        public bool Dead { get; set; } = false;
         public float summaryHealth { get; set; } = 1.0f;
-        public HediffSet hediffSet { get; set; } = new HediffSet();
-    }
 
-    public class HediffSet
-    {
-        public float PainTotal { get; set; } = 0f;
+        public bool HasHediffs { get; set; } = false;
+        public bool InPain { get; set; } = false;
+        public bool Dead { get; set; } = false;
     }
 
     public class Pawn_NeedsTracker
     {
-        public float mood { get; set; } = 0.5f;
-        public float food { get; set; } = 0.8f;
-        public float rest { get; set; } = 0.8f;
+        public Need_Food food { get; set; } = new Need_Food();
+        public Need_Rest rest { get; set; } = new Need_Rest();
+        public Need_Mood mood { get; set; } = new Need_Mood();
+    }
+
+    public abstract class Need
+    {
+        public float CurLevel { get; set; } = 0.5f;
+        public float MaxLevel { get; set; } = 1.0f;
+        public string def { get; set; } = "MockNeed";
+    }
+
+    public class Need_Food : Need
+    {
+        public Need_Food()
+        {
+            CurLevel = 0.8f;
+            def = "Food";
+        }
+    }
+
+    public class Need_Rest : Need
+    {
+        public Need_Rest()
+        {
+            CurLevel = 0.7f;
+            def = "Rest";
+        }
+    }
+
+    public class Need_Mood : Need
+    {
+        public Need_Mood()
+        {
+            CurLevel = 0.6f;
+            def = "Mood";
+        }
     }
 }

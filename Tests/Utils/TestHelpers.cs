@@ -4,6 +4,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Collections.Generic;
+using NUnit.Framework;
+using RimAsync.Core;
+using RimAsync.Utils;
+using Verse;
 
 namespace RimAsync.Tests.Utils
 {
@@ -15,7 +19,7 @@ namespace RimAsync.Tests.Utils
         private static readonly object _mockLock = new object();
         private static bool _rimWorldMocked = false;
         private static bool _multiplayerMocked = false;
-        
+
         /// <summary>
         /// Mock RimWorld environment for testing
         /// </summary>
@@ -24,13 +28,13 @@ namespace RimAsync.Tests.Utils
             lock (_mockLock)
             {
                 if (_rimWorldMocked) return;
-                
+
                 // Mock basic RimWorld game state
                 // This would be implemented with actual RimWorld mocking
                 _rimWorldMocked = true;
             }
         }
-        
+
         /// <summary>
         /// Mock multiplayer state with AsyncTime setting
         /// </summary>
@@ -39,13 +43,13 @@ namespace RimAsync.Tests.Utils
             lock (_mockLock)
             {
                 if (_multiplayerMocked) return;
-                
+
                 // Mock multiplayer mod detection and AsyncTime state
                 // This would integrate with actual multiplayer mod mocking
                 _multiplayerMocked = true;
             }
         }
-        
+
         /// <summary>
         /// Reset all mocks to clean state
         /// </summary>
@@ -57,7 +61,7 @@ namespace RimAsync.Tests.Utils
                 _multiplayerMocked = false;
             }
         }
-        
+
         /// <summary>
         /// Validate no new desync files were created during test
         /// </summary>
@@ -65,13 +69,13 @@ namespace RimAsync.Tests.Utils
         {
             if (!Directory.Exists(TestConfig.MpDesyncPath))
                 return true; // No desyncs folder means no desyncs
-                
+
             var files = Directory.GetFiles(TestConfig.MpDesyncPath, "*", SearchOption.TopDirectoryOnly);
-            
+
             // In real implementation, would check file timestamps against test start time
             return files.Length == 0;
         }
-        
+
         /// <summary>
         /// Measure performance of an action with detailed metrics
         /// </summary>
@@ -79,70 +83,70 @@ namespace RimAsync.Tests.Utils
         {
             var metrics = new PerformanceMetrics();
             var stopwatch = new Stopwatch();
-            
+
             // Warm up
             action();
-            
+
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
-            
+
             var startMemory = GC.GetTotalMemory(false);
-            
+
             stopwatch.Start();
             for (int i = 0; i < iterations; i++)
             {
                 action();
             }
             stopwatch.Stop();
-            
+
             var endMemory = GC.GetTotalMemory(false);
-            
+
             metrics.ElapsedMilliseconds = stopwatch.ElapsedMilliseconds;
             metrics.MemoryUsed = endMemory - startMemory;
             metrics.Iterations = iterations;
             metrics.AverageTimePerIteration = (double)stopwatch.ElapsedMilliseconds / iterations;
-            
+
             return metrics;
         }
-        
+
         /// <summary>
         /// Measure async performance with cancellation support
         /// </summary>
         public static async Task<PerformanceMetrics> MeasurePerformanceAsync(
-            Func<CancellationToken, Task> action, 
-            int iterations = 1, 
+            Func<CancellationToken, Task> action,
+            int iterations = 1,
             CancellationToken cancellationToken = default)
         {
             var metrics = new PerformanceMetrics();
             var stopwatch = new Stopwatch();
-            
+
             // Warm up
             await action(cancellationToken);
-            
+
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
-            
+
             var startMemory = GC.GetTotalMemory(false);
-            
+
             stopwatch.Start();
             for (int i = 0; i < iterations; i++)
             {
                 await action(cancellationToken);
             }
             stopwatch.Stop();
-            
+
             var endMemory = GC.GetTotalMemory(false);
-            
+
             metrics.ElapsedMilliseconds = stopwatch.ElapsedMilliseconds;
             metrics.MemoryUsed = endMemory - startMemory;
             metrics.Iterations = iterations;
             metrics.AverageTimePerIteration = (double)stopwatch.ElapsedMilliseconds / iterations;
-            
+
             return metrics;
         }
-        
+
         /// <summary>
         /// Create temporary test file
         /// </summary>
@@ -153,7 +157,7 @@ namespace RimAsync.Tests.Utils
             File.WriteAllText(tempPath, content);
             return tempPath;
         }
-        
+
         /// <summary>
         /// Clean up temporary test files
         /// </summary>
@@ -174,18 +178,18 @@ namespace RimAsync.Tests.Utils
                 }
             }
         }
-        
+
         /// <summary>
         /// Assert that performance improvement meets target
         /// </summary>
         public static void AssertPerformanceImprovement(
-            double baselineMs, 
-            double optimizedMs, 
+            double baselineMs,
+            double optimizedMs,
             float expectedImprovement,
             string context = "")
         {
             var actualImprovement = (baselineMs - optimizedMs) / baselineMs;
-            
+
             if (actualImprovement < expectedImprovement)
             {
                 throw new AssertionException(
@@ -193,7 +197,7 @@ namespace RimAsync.Tests.Utils
                     (string.IsNullOrEmpty(context) ? "" : $" for {context}"));
             }
         }
-        
+
         /// <summary>
         /// Assert thread safety by running action concurrently
         /// </summary>
@@ -201,7 +205,7 @@ namespace RimAsync.Tests.Utils
         {
             var tasks = new List<Task>();
             var exceptions = new List<Exception>();
-            
+
             for (int i = 0; i < concurrency; i++)
             {
                 tasks.Add(Task.Run(async () =>
@@ -219,15 +223,15 @@ namespace RimAsync.Tests.Utils
                     }
                 }));
             }
-            
+
             await Task.WhenAll(tasks);
-            
+
             if (exceptions.Count > 0)
             {
                 throw new AggregateException("Thread safety test failed", exceptions);
             }
         }
-        
+
         /// <summary>
         /// Create a cancellation token that times out after specified milliseconds
         /// </summary>
@@ -235,8 +239,93 @@ namespace RimAsync.Tests.Utils
         {
             return new CancellationTokenSource(timeoutMs).Token;
         }
+
+        /// <summary>
+        /// Create a mock Pawn for testing
+        /// </summary>
+        public static Verse.Pawn CreateMockPawn()
+        {
+            var pawn = new Verse.Pawn
+            {
+                Spawned = true,
+                Dead = false,
+                InCombat = false,
+                Map = CreateMockMap()
+            };
+
+            // Initialize required components
+            pawn.pather = new Verse.Pawn_PathFollower { pawn = pawn };
+            pawn.jobs = new Verse.Pawn_JobTracker { pawn = pawn };
+            pawn.mindState = new Verse.Pawn_MindState { pawn = pawn, Active = true };
+            pawn.kindDef = new Verse.PawnKindDef { defName = "TestPawn", label = "Test Pawn" };
+            pawn.Name = new Verse.Name { ToStringFull = "Test Pawn" };
+
+            // Initialize health and needs
+            pawn.health = new Verse.Pawn_HealthTracker { summaryHealth = 1.0f };
+            pawn.needs = new Verse.Pawn_NeedsTracker();
+
+            return pawn;
+        }
+
+        /// <summary>
+        /// Create a mock Building for testing
+        /// </summary>
+        public static Thing CreateMockBuilding()
+        {
+            var building = new Thing
+            {
+                def = new ThingDef { defName = "Wall", label = "Wall" },
+                Spawned = true,
+                Map = CreateMockMap()
+            };
+
+            return building;
+        }
+
+        /// <summary>
+        /// Create a mock Construction for testing
+        /// </summary>
+        public static Thing CreateMockConstruction()
+        {
+            var construction = new Thing
+            {
+                def = new ThingDef { defName = "Frame_Wall", label = "Wall Frame" },
+                Spawned = true,
+                Map = CreateMockMap()
+            };
+
+            return construction;
+        }
+
+        /// <summary>
+        /// Create a mock Thing with specific defName for testing
+        /// </summary>
+        public static Thing CreateMockThing(string defName)
+        {
+            var thing = new Thing
+            {
+                def = new ThingDef { defName = defName, label = defName },
+                Spawned = true,
+                Map = CreateMockMap()
+            };
+
+            return thing;
+        }
+
+        /// <summary>
+        /// Create a mock Map for testing
+        /// </summary>
+        public static Verse.Map CreateMockMap()
+        {
+            var map = new Verse.Map
+            {
+                Index = 0
+            };
+
+            return map;
+        }
     }
-    
+
     /// <summary>
     /// Performance measurement results
     /// </summary>
@@ -246,14 +335,14 @@ namespace RimAsync.Tests.Utils
         public long MemoryUsed { get; set; }
         public int Iterations { get; set; }
         public double AverageTimePerIteration { get; set; }
-        
+
         public override string ToString()
         {
             return $"Elapsed: {ElapsedMilliseconds}ms, Memory: {MemoryUsed} bytes, " +
                    $"Avg per iteration: {AverageTimePerIteration:F2}ms";
         }
     }
-    
+
     /// <summary>
     /// Custom assertion exception for test failures
     /// </summary>
@@ -262,4 +351,4 @@ namespace RimAsync.Tests.Utils
         public AssertionException(string message) : base(message) { }
         public AssertionException(string message, Exception innerException) : base(message, innerException) { }
     }
-} 
+}
