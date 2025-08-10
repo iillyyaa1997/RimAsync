@@ -43,10 +43,14 @@ help:
 	@echo "  $(YELLOW)make test-find-coverage NAME=\"SearchTerm\"$(NC) - Smart search with coverage"
 	@echo "  $(YELLOW)make t-coverage$(NC) - Super quick test with coverage"
 	@echo ""
-	@echo "$(GREEN)📈 Coverage Analysis Commands:$(NC)"
-	@echo "  $(YELLOW)make coverage$(NC) - Generate code coverage report"
-	@echo "  $(YELLOW)make coverage-html$(NC) - Generate HTML coverage report"
-	@echo "  $(YELLOW)make coverage-quick$(NC) - Quick coverage (unit tests only)"
+	@echo "$(GREEN)📊 Coverage Commands:$(NC)"
+	@echo "  $(YELLOW)make coverage-skip$(NC)   - Run tests without coverage (FASTEST)"
+	@echo "  $(YELLOW)make coverage-basic$(NC)  - Unit test coverage only (FAST & RELIABLE)"
+	@echo "  $(YELLOW)make coverage-quick$(NC)  - Quick coverage for unit tests only (legacy)"
+	@echo "  $(YELLOW)make coverage$(NC)        - Full coverage report (SLOW, may hang)"
+	@echo "  $(YELLOW)make coverage-html$(NC)   - Generate HTML coverage report"
+	@echo "    - Env: COVERAGE_TIMEOUT (sec, default 900) — container timeout"
+	@echo "    - Env: TEST_TIMEOUT (sec, default 60) — inner \"dotnet test\" timeout"
 	@echo ""
 	@echo "$(GREEN)🚀 Development Commands:$(NC)"
 	@echo "  $(YELLOW)make dev$(NC)          - Start development environment"
@@ -345,10 +349,23 @@ test-quick-coverage:
 		*) echo "$(RED)❌ Invalid choice$(NC)";; \
 	esac
 
-## 📊 Generate code coverage report
+## 📊 Generate code coverage report (unit tests only - fast)
+coverage-basic:
+	@echo "$(CYAN)📊 Generating basic coverage for unit tests only...$(NC)"
+	@docker-compose run --rm test bash -lc "cd /app && dotnet test Tests/ --filter Category=Unit --collect:'XPlat Code Coverage' --results-directory ./Tests/TestResults/Coverage/ --logger 'console;verbosity=minimal' --no-restore"
+	@echo "$(GREEN)✅ Unit test coverage generated in ./Tests/TestResults/Coverage/$(NC)"
+
+## 🚫 Skip coverage entirely (fastest)
+coverage-skip:
+	@echo "$(CYAN)🚫 Skipping coverage collection for speed...$(NC)"
+	@docker-compose run --rm test bash -lc "cd /app && dotnet test Tests/ --logger 'console;verbosity=normal' --no-restore"
+	@echo "$(GREEN)✅ Tests completed without coverage collection$(NC)"
+
+## 📊 Generate code coverage report (legacy - may hang)
 coverage:
 	@echo "$(CYAN)📊 Generating code coverage report...$(NC)"
-	@docker-compose run test bash -lc "/app/Tests/run_coverage.sh"
+	@echo "$(YELLOW)⚠️  Warning: This command may hang. Use 'make coverage-basic' for reliable coverage or 'make coverage-skip' for fastest testing.$(NC)"
+	@docker-compose run --rm test bash -lc "BLAME=$${COVERAGE_BLAME:-0} VERB=$${COVERAGE_VERBOSITY:-normal} SIMPLE=$${COVERAGE_SIMPLE:-0} DIAG=$${COVERAGE_DIAG:-0} timeout --preserve-status --signal=TERM --kill-after=20s $${COVERAGE_TIMEOUT:-900} bash -lc 'export COVERAGE_ENABLE_BLAME='\\''$$BLAME'\\''; export COVERAGE_VERBOSITY='\\''$$VERB'\\''; export COVERAGE_SIMPLE='\\''$$SIMPLE'\\''; export COVERAGE_DIAG='\\''$$DIAG'\\''; bash /app/Tests/run_coverage.sh'"
 	@echo "$(GREEN)✅ Coverage report generated in ./Tests/TestResults/Coverage/$(NC)"
 	@echo "$(YELLOW)💡 Find coverage.cobertura.xml in ./Tests/TestResults/Coverage/$(NC)"
 	@echo "$(YELLOW)📋 Use 'make coverage-html' for human-readable HTML report$(NC)"

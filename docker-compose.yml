@@ -40,9 +40,12 @@ services:
       - ./.cursor:/app/.cursor
       - ./README.md:/app/README.md:ro
       - ./CURSOR_COMMANDS.md:/app/CURSOR_COMMANDS.md:ro
+      - dotnet-packages:/root/.nuget
     environment:
       - DOTNET_CLI_TELEMETRY_OPTOUT=1
       - DOTNET_NOLOGO=1
+      - DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
+      - NUGET_XMLDOC_MODE=skip
       - RIMASYNC_SKIP_HARMONY=1
     command: >
       bash -lc '
@@ -59,7 +62,7 @@ services:
         [ -e "$$TARGET_DIR/README.md" ] || ln -s /app/README.md "$$TARGET_DIR/README.md";
         [ -e "$$TARGET_DIR/CURSOR_COMMANDS.md" ] || ln -s /app/CURSOR_COMMANDS.md "$$TARGET_DIR/CURSOR_COMMANDS.md";
         dotnet test Tests/ --no-build --configuration Release --logger "trx;LogFileName=TestResults.trx" --results-directory /app/TestResults;
-        echo Tests completed!
+        echo Tests completed!;
       '
 
   # Development environment with file watching
