@@ -1,5 +1,5 @@
 <Project>
-  
+
   <!-- Global project settings -->
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
@@ -33,34 +33,30 @@
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 
-  <!-- Global analyzer configuration -->
-  <ItemGroup>
-    <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory).editorconfig" />
-  </ItemGroup>
 
   <!-- Suppress specific analyzers for RimWorld mod development -->
   <PropertyGroup>
     <!-- Disable documentation requirements for public APIs (mod development) -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
-    
+
     <!-- Disable CA1303 (literal strings) for RimWorld mod strings -->
     <NoWarn>$(NoWarn);CA1303</NoWarn>
-    
+
     <!-- Disable CA1304 (specify IFormatProvider) for RimWorld compatibility -->
     <NoWarn>$(NoWarn);CA1304</NoWarn>
-    
+
     <!-- Disable CA1305 (specify IFormatProvider) for RimWorld compatibility -->
     <NoWarn>$(NoWarn);CA1305</NoWarn>
-    
+
     <!-- Disable CA1307 (StringComparison for clarity) for RimWorld compatibility -->
     <NoWarn>$(NoWarn);CA1307</NoWarn>
-    
+
     <!-- Disable CA1310 (StringComparison for correctness) for RimWorld compatibility -->
     <NoWarn>$(NoWarn);CA1310</NoWarn>
-    
+
     <!-- Disable CA1826 (Use property instead of Enumerable method) for performance in hot paths -->
     <NoWarn>$(NoWarn);CA1826</NoWarn>
-    
+
     <!-- Disable CA2007 (consider ConfigureAwait) for RimWorld main thread -->
     <NoWarn>$(NoWarn);CA2007</NoWarn>
   </PropertyGroup>
@@ -107,4 +103,4 @@
     <InformationalVersion>1.0.0-dev</InformationalVersion>
   </PropertyGroup>
 
-</Project> 
+</Project>

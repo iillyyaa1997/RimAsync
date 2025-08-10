@@ -348,9 +348,9 @@ test-quick-coverage:
 ## 📊 Generate code coverage report
 coverage:
 	@echo "$(CYAN)📊 Generating code coverage report...$(NC)"
-	@docker-compose run test bash -c "cd /app/Tests && dotnet test --collect:\"XPlat Code Coverage\" --results-directory ./TestResults/Coverage/ --logger \"console;verbosity=normal\""
-	@echo "$(GREEN)✅ Coverage report generated in ./TestResults/Coverage/$(NC)"
-	@echo "$(YELLOW)💡 Find coverage.cobertura.xml in ./TestResults/Coverage/$(NC)"
+	@docker-compose run test bash -lc "/app/Tests/run_coverage.sh"
+	@echo "$(GREEN)✅ Coverage report generated in ./Tests/TestResults/Coverage/$(NC)"
+	@echo "$(YELLOW)💡 Find coverage.cobertura.xml in ./Tests/TestResults/Coverage/$(NC)"
 	@echo "$(YELLOW)📋 Use 'make coverage-html' for human-readable HTML report$(NC)"
 
 ## 🌐 Generate HTML coverage report
