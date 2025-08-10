@@ -314,7 +314,7 @@ namespace RimAsync.Utils
                     break;
 
                 default:
-                    if (Core.RimAsyncMod.Settings?.enableDebugLogging == true)
+                    if (RimAsyncMod.Settings?.enableDebugLogging == true)
                     {
                         Verse.Log.Warning($"[RimAsync] Unknown async message type: {message.Type}");
                     }

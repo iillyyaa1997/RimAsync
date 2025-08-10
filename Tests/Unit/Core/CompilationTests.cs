@@ -28,7 +28,7 @@ namespace RimAsync.Tests.Unit.Core
         {
             // Arrange & Act
             Assembly assembly = null;
-            
+
             Assert.DoesNotThrow(() =>
             {
                 assembly = Assembly.LoadFrom("RimAsync.dll");
@@ -49,7 +49,22 @@ namespace RimAsync.Tests.Unit.Core
             // Act & Assert
             Assert.DoesNotThrow(() =>
             {
-                var type = Type.GetType(expectedClassName);
+                var type = Type.GetType(expectedClassName)
+                           ?? AppDomain.CurrentDomain
+                               .GetAssemblies()
+                               .Select(a => a.GetType(expectedClassName))
+                               .FirstOrDefault();
+
+                if (type == null)
+                {
+                    // Force-load RimAsync assembly if not loaded yet
+                    var asm = AppDomain.CurrentDomain
+                        .GetAssemblies()
+                        .FirstOrDefault(a => a.GetName().Name == "RimAsync")
+                        ?? Assembly.Load("RimAsync");
+                    type = asm?.GetType(expectedClassName);
+                }
+
                 Assert.IsNotNull(type, $"Type {expectedClassName} should exist");
                 Assert.IsTrue(type.IsClass, "RimAsyncMod should be a class");
             });
@@ -65,7 +80,21 @@ namespace RimAsync.Tests.Unit.Core
             // Act & Assert
             Assert.DoesNotThrow(() =>
             {
-                var type = Type.GetType(expectedClassName);
+                var type = Type.GetType(expectedClassName)
+                           ?? AppDomain.CurrentDomain
+                               .GetAssemblies()
+                               .Select(a => a.GetType(expectedClassName))
+                               .FirstOrDefault();
+
+                if (type == null)
+                {
+                    var asm = AppDomain.CurrentDomain
+                        .GetAssemblies()
+                        .FirstOrDefault(a => a.GetName().Name == "RimAsync")
+                        ?? Assembly.Load("RimAsync");
+                    type = asm?.GetType(expectedClassName);
+                }
+
                 Assert.IsNotNull(type, $"Type {expectedClassName} should exist");
                 Assert.IsTrue(type.IsClass, "RimAsyncCore should be a class");
             });
@@ -81,7 +110,21 @@ namespace RimAsync.Tests.Unit.Core
             // Act & Assert
             Assert.DoesNotThrow(() =>
             {
-                var type = Type.GetType(expectedClassName);
+                var type = Type.GetType(expectedClassName)
+                           ?? AppDomain.CurrentDomain
+                               .GetAssemblies()
+                               .Select(a => a.GetType(expectedClassName))
+                               .FirstOrDefault();
+
+                if (type == null)
+                {
+                    var asm = AppDomain.CurrentDomain
+                        .GetAssemblies()
+                        .FirstOrDefault(a => a.GetName().Name == "RimAsync")
+                        ?? Assembly.Load("RimAsync");
+                    type = asm?.GetType(expectedClassName);
+                }
+
                 Assert.IsNotNull(type, $"Type {expectedClassName} should exist");
                 Assert.IsTrue(type.IsClass, "AsyncManager should be a class");
             });
@@ -95,7 +138,7 @@ namespace RimAsync.Tests.Unit.Core
             var expectedNamespaces = new[]
             {
                 "RimAsync",
-                "RimAsync.Core", 
+                "RimAsync.Core",
                 "RimAsync.Threading",
                 "RimAsync.Utils",
                 "RimAsync.Settings",
@@ -111,7 +154,7 @@ namespace RimAsync.Tests.Unit.Core
                         .GetTypes()
                         .Where(t => t.Namespace == ns)
                         .ToArray();
-                        
+
                     // Note: In actual implementation, we'd check the RimAsync assembly
                     // For now, just verify the namespace structure is planned
                 }, $"Namespace {ns} should be properly defined");
@@ -136,7 +179,7 @@ namespace RimAsync.Tests.Unit.Core
             foreach (var file in sourceFiles)
             {
                 Assert.IsTrue(File.Exists(file), $"Source file {file} should exist");
-                
+
                 var content = File.ReadAllText(file);
                 Assert.IsTrue(content.Length > 100, $"Source file {file} should not be empty");
                 Assert.IsTrue(content.Contains("namespace"), $"Source file {file} should contain namespace declaration");
@@ -156,7 +199,7 @@ namespace RimAsync.Tests.Unit.Core
             foreach (var patchFile in patchFiles)
             {
                 var content = File.ReadAllText(patchFile);
-                
+
                 // Basic structure checks
                 Assert.IsTrue(content.Contains("using HarmonyLib"), $"Patch file {patchFile} should import HarmonyLib");
                 Assert.IsTrue(content.Contains("[HarmonyPatch"), $"Patch file {patchFile} should contain HarmonyPatch attribute");
@@ -172,7 +215,7 @@ namespace RimAsync.Tests.Unit.Core
             {
                 "Source/RimAsync",
                 "Source/RimAsync/Core",
-                "Source/RimAsync/Threading", 
+                "Source/RimAsync/Threading",
                 "Source/RimAsync/Utils",
                 "Source/RimAsync/Settings",
                 "Source/RimAsync/Patches",
@@ -199,7 +242,7 @@ namespace RimAsync.Tests.Unit.Core
 
             // Act
             Assert.IsTrue(File.Exists(aboutXmlPath), "About.xml should exist");
-            
+
             var content = File.ReadAllText(aboutXmlPath);
 
             // Assert
@@ -208,4 +251,4 @@ namespace RimAsync.Tests.Unit.Core
             Assert.IsTrue(content.Contains("1.5"), "About.xml should target RimWorld 1.5");
         }
     }
-} 
+}

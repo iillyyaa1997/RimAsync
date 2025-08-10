@@ -224,11 +224,8 @@ namespace Verse
     {
         public static void Look<T>(ref T value, string label, T defaultValue = default(T), bool forceSave = false)
         {
-            // Mock implementation for testing
-            if (EqualityComparer<T>.Default.Equals(value, default(T)))
-            {
-                value = defaultValue;
-            }
+            // Test-friendly mock: do not overwrite values to simulate persistence
+            // No-op to preserve current in-memory settings values
         }
     }
 

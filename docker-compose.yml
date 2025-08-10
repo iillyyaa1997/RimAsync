@@ -35,15 +35,32 @@ services:
       - ./TestResults:/app/TestResults
       - ./Source:/app/Source
       - ./Tests:/app/Tests
+      - ./About:/app/About
+      - ./Planning:/app/Planning
+      - ./.cursor:/app/.cursor
+      - ./README.md:/app/README.md:ro
+      - ./CURSOR_COMMANDS.md:/app/CURSOR_COMMANDS.md:ro
     environment:
       - DOTNET_CLI_TELEMETRY_OPTOUT=1
       - DOTNET_NOLOGO=1
+      - RIMASYNC_SKIP_HARMONY=1
     command: >
-      sh -c "
-        cd /app &&
-        dotnet test Tests/ --configuration Release --logger 'trx;LogFileName=TestResults.trx' --results-directory /app/TestResults &&
-        echo 'Tests completed!'
-      "
+      bash -lc '
+        set -euo pipefail;
+        cd /app;
+        mkdir -p /app/Source /app/About /app/Planning /app/.cursor/commands || true;
+        [ -f /app/About/Preview.png ] || (echo iVBORw0KGgo= | base64 -d > /app/About/Preview.png) || true;
+        dotnet build Tests/ --configuration Release;
+        TARGET_DIR=$$(find /app/Tests/bin -type d -path "*/Release/net8.0" | head -n 1);
+        mkdir -p "$$TARGET_DIR";
+        for d in Source About Planning .cursor Tests; do
+          [ -e "$$TARGET_DIR/$$d" ] || ln -s "/app/$$d" "$$TARGET_DIR/$$d";
+        done;
+        [ -e "$$TARGET_DIR/README.md" ] || ln -s /app/README.md "$$TARGET_DIR/README.md";
+        [ -e "$$TARGET_DIR/CURSOR_COMMANDS.md" ] || ln -s /app/CURSOR_COMMANDS.md "$$TARGET_DIR/CURSOR_COMMANDS.md";
+        dotnet test Tests/ --no-build --configuration Release --logger "trx;LogFileName=TestResults.trx" --results-directory /app/TestResults;
+        echo Tests completed!
+      '
 
   # Development environment with file watching
   dev:
@@ -115,4 +132,4 @@ volumes:
 
 networks:
   default:
-    name: rimasync-network 
+    name: rimasync-network

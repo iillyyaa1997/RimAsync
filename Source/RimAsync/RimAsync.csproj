@@ -72,7 +72,7 @@
   <!-- Source Files - based on actual file structure -->
   <ItemGroup>
     <Compile Include="Core/RimAsyncCore.cs" />
-    <Compile Include="Core/RimAsyncMod.cs" />
+    <Compile Include="RimAsyncMod.cs" />
     <Compile Include="Threading/AsyncManager.cs" />
     <Compile Include="Patches/RW_Patches/Pawn_PathFollower_Patch.cs" />
     <Compile Include="Patches/RW_Patches/Game_Patch.cs" />
