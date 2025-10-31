@@ -50,36 +50,32 @@ namespace RimAsync.Components
 
         public override void GameComponentOnGUI()
         {
-            // Optional: Draw performance overlay if debug is enabled
-            if (RimAsyncMod.Settings?.enableDebugLogging == true && RimAsyncMod.Settings?.enablePerformanceMonitoring == true)
-            {
-                DrawDebugOverlay();
-            }
+            // Draw debug overlay if enabled
+            // TODO: Re-enable after fixing DebugOverlay compilation
+            // RimAsync.Utils.DebugOverlay.OnGUI();
+        }
+
+        public override void GameComponentUpdate()
+        {
+            // Handle debug overlay toggle (F11)
+            // TODO: Re-enable after fixing DebugOverlay compilation
+            // if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.F11))
+            // {
+            //     RimAsync.Utils.DebugOverlay.Toggle();
+            // }
         }
 
         private void LogDebugStatus()
         {
+            // Use DebugOverlay for status logging
+            // TODO: Re-enable after fixing DebugOverlay compilation
+            // RimAsync.Utils.DebugOverlay.LogStatus();
+
             var performanceStatus = PerformanceMonitor.GetPerformanceSummary();
             var asyncStatus = AsyncManager.GetStatus();
             var multiplayerStatus = MultiplayerCompat.GetMultiplayerStatus();
 
             Log.Message($"[RimAsync] Status - {performanceStatus} | {asyncStatus} | {multiplayerStatus}");
-        }
-
-        private void DrawDebugOverlay()
-        {
-            // Simple performance display in top-left corner
-            var rect = new UnityEngine.Rect(10, 10, 300, 100);
-
-            UnityEngine.GUI.Box(rect, "");
-            UnityEngine.GUILayout.BeginArea(rect);
-
-            UnityEngine.GUILayout.Label($"RimAsync Debug");
-            UnityEngine.GUILayout.Label($"TPS: {PerformanceMonitor.CurrentTPS:F1}");
-            UnityEngine.GUILayout.Label($"Mode: {RimAsyncCore.GetExecutionMode()}");
-            UnityEngine.GUILayout.Label($"Async Available: {AsyncManager.CanExecuteAsync()}");
-
-            UnityEngine.GUILayout.EndArea();
         }
     }
 }

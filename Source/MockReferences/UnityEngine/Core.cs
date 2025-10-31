@@ -78,6 +78,44 @@ namespace UnityEngine
         public static float deltaTime { get; set; } = 0.016f; // 60 FPS
         public static float unscaledTime { get; set; }
         public static float unscaledDeltaTime { get; set; } = 0.016f;
+        public static float realtimeSinceStartup { get; set; } = 0f;
+    }
+
+    public enum KeyCode
+    {
+        None = 0,
+        F11 = 302,
+        F12 = 303,
+        Space = 32,
+        Return = 13,
+        Escape = 27
+    }
+
+    public static class Input
+    {
+        public static bool GetKeyDown(KeyCode key)
+        {
+            // Mock implementation - always return false
+            return false;
+        }
+
+        public static bool GetKey(KeyCode key)
+        {
+            // Mock implementation - always return false
+            return false;
+        }
+
+        public static bool GetKeyUp(KeyCode key)
+        {
+            // Mock implementation - always return false
+            return false;
+        }
+    }
+
+    public static class Screen
+    {
+        public static int width => 1920;
+        public static int height => 1080;
     }
 
     public static class GUI
