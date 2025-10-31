@@ -17,8 +17,14 @@ namespace RimAsync.Utils
         private static readonly object _cleanupLock = new object();
         private static int _lastCleanupTick = 0;
 
+        // Statistics tracking
+        private static long _cacheHits = 0;
+        private static long _cacheMisses = 0;
+        private static long _evictions = 0;
+
         private const int CLEANUP_INTERVAL = 3600; // Clean up every minute (60 ticks/second * 60 seconds)
         private const int DEFAULT_TTL_TICKS = 600; // Default 10 second TTL
+        private const int MAX_CACHE_SIZE = 10000; // Maximum number of cache entries
 
         /// <summary>
         /// Get or compute a cached value
@@ -42,31 +48,48 @@ namespace RimAsync.Utils
                     // Cache hit and still valid
                     try
                     {
+                        // Update access time for LRU
+                        entry.LastAccessTick = currentTick;
+                        entry.AccessCount++;
+
+                        Interlocked.Increment(ref _cacheHits);
                         return (T)entry.Value;
                     }
                     catch (InvalidCastException ex)
                     {
                         Log.Warning($"[RimAsync] Cache type mismatch for key {key}: {ex.Message}");
                         _cache.TryRemove(key, out _);
+                        Interlocked.Increment(ref _evictions);
                     }
                 }
                 else
                 {
                     // Cache expired
                     _cache.TryRemove(key, out _);
+                    Interlocked.Increment(ref _evictions);
                 }
             }
 
             // Cache miss or expired, compute new value
+            Interlocked.Increment(ref _cacheMisses);
+
             using (PerformanceMonitor.StartMeasuring($"Cache.Compute.{key}"))
             {
                 var value = computeFunc();
+
+                // Check if we need to evict entries before adding
+                if (_cache.Count >= MAX_CACHE_SIZE)
+                {
+                    EvictLRUEntries();
+                }
 
                 // Store in cache
                 var newEntry = new CacheEntry
                 {
                     Value = value,
-                    CreatedTick = currentTick
+                    CreatedTick = currentTick,
+                    LastAccessTick = currentTick,
+                    AccessCount = 1
                 };
 
                 _cache.TryAdd(key, newEntry);
@@ -144,8 +167,67 @@ namespace RimAsync.Utils
             {
                 TotalEntries = _cache.Count,
                 ValidEntries = validEntries,
-                ExpiredEntries = expiredEntries
+                ExpiredEntries = expiredEntries,
+                CacheHits = _cacheHits,
+                CacheMisses = _cacheMisses,
+                Evictions = _evictions
             };
+        }
+
+        /// <summary>
+        /// Reset cache statistics
+        /// </summary>
+        public static void ResetStats()
+        {
+            Interlocked.Exchange(ref _cacheHits, 0);
+            Interlocked.Exchange(ref _cacheMisses, 0);
+            Interlocked.Exchange(ref _evictions, 0);
+        }
+
+        /// <summary>
+        /// Evict least recently used entries when cache is full
+        /// </summary>
+        private static void EvictLRUEntries()
+        {
+            if (!Monitor.TryEnter(_cleanupLock, 0))
+            {
+                return; // Another thread is already cleaning up
+            }
+
+            try
+            {
+                // Remove 10% of entries (LRU policy)
+                int targetRemovalCount = Math.Max(100, _cache.Count / 10);
+
+                // Sort by last access time (oldest first)
+                var entriesToRemove = new List<KeyValuePair<string, int>>();
+
+                foreach (var kvp in _cache)
+                {
+                    entriesToRemove.Add(new KeyValuePair<string, int>(kvp.Key, kvp.Value.LastAccessTick));
+                }
+
+                entriesToRemove.Sort((a, b) => a.Value.CompareTo(b.Value));
+
+                int removedCount = 0;
+                for (int i = 0; i < Math.Min(targetRemovalCount, entriesToRemove.Count); i++)
+                {
+                    if (_cache.TryRemove(entriesToRemove[i].Key, out _))
+                    {
+                        removedCount++;
+                        Interlocked.Increment(ref _evictions);
+                    }
+                }
+
+                if (removedCount > 0 && RimAsyncMod.Settings?.enableDebugLogging == true)
+                {
+                    Log.Message($"[RimAsync] LRU evicted {removedCount} cache entries");
+                }
+            }
+            finally
+            {
+                Monitor.Exit(_cleanupLock);
+            }
         }
 
         /// <summary>
@@ -193,12 +275,14 @@ namespace RimAsync.Utils
         }
 
         /// <summary>
-        /// Cache entry with creation time
+        /// Cache entry with creation time and LRU tracking
         /// </summary>
         private class CacheEntry
         {
             public object Value { get; set; }
             public int CreatedTick { get; set; }
+            public int LastAccessTick { get; set; }
+            public long AccessCount { get; set; }
         }
     }
 
@@ -210,12 +294,23 @@ namespace RimAsync.Utils
         public int TotalEntries { get; set; }
         public int ValidEntries { get; set; }
         public int ExpiredEntries { get; set; }
+        public long CacheHits { get; set; }
+        public long CacheMisses { get; set; }
+        public long Evictions { get; set; }
 
-        public float HitRatio => TotalEntries > 0 ? (float)ValidEntries / TotalEntries : 0f;
+        public float HitRatio => (CacheHits + CacheMisses) > 0
+            ? (float)CacheHits / (CacheHits + CacheMisses)
+            : 0f;
+
+        public float MissRatio => (CacheHits + CacheMisses) > 0
+            ? (float)CacheMisses / (CacheHits + CacheMisses)
+            : 0f;
 
         public override string ToString()
         {
-            return $"Cache: {ValidEntries}/{TotalEntries} valid ({HitRatio:P1}), {ExpiredEntries} expired";
+            return $"Cache: {ValidEntries}/{TotalEntries} entries, " +
+                   $"Hits: {CacheHits}, Misses: {CacheMisses} ({HitRatio:P1}), " +
+                   $"Evictions: {Evictions}";
         }
     }
 

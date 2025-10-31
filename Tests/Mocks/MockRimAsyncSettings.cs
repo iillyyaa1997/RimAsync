@@ -126,7 +126,7 @@ namespace RimAsync.Tests.Mocks
         public void ResetToDefaults()
         {
             var defaults = new MockRimAsyncSettings();
-            
+
             enableAsyncPathfinding = defaults.enableAsyncPathfinding;
             enableBackgroundJobs = defaults.enableBackgroundJobs;
             enableAsyncJobExecution = defaults.enableAsyncJobExecution;
@@ -145,4 +145,3 @@ namespace RimAsync.Tests.Mocks
         }
     }
 }
-
