@@ -231,6 +231,236 @@ namespace RimAsync.Utils
 
             public bool IsEmpty => _currentSize == 0;
         }
+
+        /// <summary>
+        /// Priority queue with thread-safe operations
+        /// Items with lower priority value are dequeued first
+        /// </summary>
+        public class PriorityQueue<T>
+        {
+            private readonly object _lock = new object();
+            private readonly List<(T Item, int Priority)> _items = new List<(T, int)>();
+
+            public void Enqueue(T item, int priority)
+            {
+                lock (_lock)
+                {
+                    _items.Add((item, priority));
+                    // Keep sorted by priority (lower priority = higher urgency)
+                    _items.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+                }
+            }
+
+            public bool TryDequeue(out T item)
+            {
+                lock (_lock)
+                {
+                    if (_items.Count > 0)
+                    {
+                        item = _items[0].Item;
+                        _items.RemoveAt(0);
+                        return true;
+                    }
+                    item = default(T);
+                    return false;
+                }
+            }
+
+            public bool TryPeek(out T item, out int priority)
+            {
+                lock (_lock)
+                {
+                    if (_items.Count > 0)
+                    {
+                        item = _items[0].Item;
+                        priority = _items[0].Priority;
+                        return true;
+                    }
+                    item = default(T);
+                    priority = 0;
+                    return false;
+                }
+            }
+
+            public int Count
+            {
+                get
+                {
+                    lock (_lock)
+                    {
+                        return _items.Count;
+                    }
+                }
+            }
+
+            public bool IsEmpty
+            {
+                get
+                {
+                    lock (_lock)
+                    {
+                        return _items.Count == 0;
+                    }
+                }
+            }
+
+            public void Clear()
+            {
+                lock (_lock)
+                {
+                    _items.Clear();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Versioned dictionary for tracking changes
+        /// Useful for multiplayer synchronization
+        /// </summary>
+        public class VersionedDictionary<TKey, TValue>
+        {
+            private readonly ConcurrentDictionary<TKey, (TValue Value, long Version)> _dict =
+                new ConcurrentDictionary<TKey, (TValue, long)>();
+            private long _globalVersion = 0;
+
+            public bool TryAdd(TKey key, TValue value)
+            {
+                var version = System.Threading.Interlocked.Increment(ref _globalVersion);
+                return _dict.TryAdd(key, (value, version));
+            }
+
+            public bool TryUpdate(TKey key, TValue value)
+            {
+                var version = System.Threading.Interlocked.Increment(ref _globalVersion);
+                if (_dict.TryGetValue(key, out var current))
+                {
+                    return _dict.TryUpdate(key, (value, version), current);
+                }
+                return false;
+            }
+
+            public bool TryGetValue(TKey key, out TValue value, out long version)
+            {
+                if (_dict.TryGetValue(key, out var entry))
+                {
+                    value = entry.Value;
+                    version = entry.Version;
+                    return true;
+                }
+                value = default(TValue);
+                version = 0;
+                return false;
+            }
+
+            public bool TryRemove(TKey key, out TValue value)
+            {
+                if (_dict.TryRemove(key, out var entry))
+                {
+                    value = entry.Value;
+                    return true;
+                }
+                value = default(TValue);
+                return false;
+            }
+
+            public long CurrentVersion => System.Threading.Interlocked.Read(ref _globalVersion);
+
+            public int Count => _dict.Count;
+
+            public void Clear()
+            {
+                _dict.Clear();
+                System.Threading.Interlocked.Exchange(ref _globalVersion, 0);
+            }
+
+            public IEnumerable<TKey> Keys => _dict.Keys;
+
+            public IEnumerable<(TKey Key, TValue Value, long Version)> GetAll()
+            {
+                foreach (var kvp in _dict)
+                {
+                    yield return (kvp.Key, kvp.Value.Value, kvp.Value.Version);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Thread-safe set with bulk operations
+        /// </summary>
+        public class ConcurrentSet<T>
+        {
+            private readonly ConcurrentDictionary<T, byte> _set = new ConcurrentDictionary<T, byte>();
+
+            public bool Add(T item)
+            {
+                return _set.TryAdd(item, 0);
+            }
+
+            public bool AddRange(IEnumerable<T> items)
+            {
+                bool anyAdded = false;
+                foreach (var item in items)
+                {
+                    if (_set.TryAdd(item, 0))
+                    {
+                        anyAdded = true;
+                    }
+                }
+                return anyAdded;
+            }
+
+            public bool Remove(T item)
+            {
+                return _set.TryRemove(item, out _);
+            }
+
+            public int RemoveWhere(System.Func<T, bool> predicate)
+            {
+                int removed = 0;
+                var toRemove = _set.Keys.Where(predicate).ToList();
+                foreach (var item in toRemove)
+                {
+                    if (_set.TryRemove(item, out _))
+                    {
+                        removed++;
+                    }
+                }
+                return removed;
+            }
+
+            public bool Contains(T item)
+            {
+                return _set.ContainsKey(item);
+            }
+
+            public bool IsSubsetOf(IEnumerable<T> other)
+            {
+                var otherSet = new HashSet<T>(other);
+                return _set.Keys.All(item => otherSet.Contains(item));
+            }
+
+            public bool IsSupersetOf(IEnumerable<T> other)
+            {
+                return other.All(item => _set.ContainsKey(item));
+            }
+
+            public void Clear()
+            {
+                _set.Clear();
+            }
+
+            public int Count => _set.Count;
+
+            public T[] ToArray()
+            {
+                return _set.Keys.ToArray();
+            }
+
+            public HashSet<T> ToHashSet()
+            {
+                return new HashSet<T>(_set.Keys);
+            }
+        }
     }
 
     /// <summary>
