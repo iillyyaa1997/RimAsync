@@ -201,6 +201,8 @@ namespace RimAsync.Utils
         /// </summary>
         private static void AutoAdjustOptimizations()
         {
+            // Check if Settings is available (may be null in tests)
+            if (RimAsyncMod.Settings == null) return;
             if (!RimAsyncMod.Settings.enablePerformanceMonitoring) return;
 
             var settings = RimAsyncMod.Settings;
@@ -210,14 +212,14 @@ namespace RimAsync.Utils
             // to reduce overhead until performance improves
             if (avgTps < 30.0f)
             {
-                if (RimAsyncMod.Settings?.enableDebugLogging == true)
+                if (settings.enableDebugLogging)
                 {
                     Log.Warning($"[RimAsync] Low TPS detected ({avgTps:F1}), performance monitoring active");
                 }
             }
             else if (avgTps > 55.0f)
             {
-                if (RimAsyncMod.Settings?.enableDebugLogging == true)
+                if (settings.enableDebugLogging)
                 {
                     Log.Message($"[RimAsync] Good TPS performance ({avgTps:F1})");
                 }

@@ -13,7 +13,7 @@ namespace RimAsync
     public class RimAsyncMod : Mod
     {
         public static RimAsyncMod Instance { get; private set; }
-        public static RimAsync.Core.RimAsyncSettings Settings => Instance.GetSettings<RimAsync.Core.RimAsyncSettings>();
+        public static RimAsync.Core.RimAsyncSettings Settings => Instance?.GetSettings<RimAsync.Core.RimAsyncSettings>();
 
         private static Harmony _harmonyInstance;
         public static Harmony HarmonyInstance => _harmonyInstance;

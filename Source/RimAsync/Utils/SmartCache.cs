@@ -25,7 +25,8 @@ namespace RimAsync.Utils
         /// </summary>
         public static T GetOrCompute<T>(string key, Func<T> computeFunc, int ttlTicks = DEFAULT_TTL_TICKS)
         {
-            if (!RimAsyncMod.Settings.enableSmartCaching)
+            // Check if Settings is available (may be null in tests)
+            if (RimAsyncMod.Settings != null && !RimAsyncMod.Settings.enableSmartCaching)
             {
                 // Caching disabled, compute directly
                 return computeFunc();
