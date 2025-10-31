@@ -47,7 +47,7 @@ namespace RimAsync.Patches.RW_Patches
                     // Add our component
                     var component = new RimAsyncGameComponent(game);
                     game.components.Add(component);
-                    
+
                     Log.Message("[RimAsync] Added RimAsyncGameComponent to game");
                 }
             }
@@ -68,7 +68,7 @@ namespace RimAsync.Patches.RW_Patches
             {
                 // Clear smart cache when maps are removed
                 Utils.SmartCache.ClearAll();
-                
+
                 if (RimAsyncMod.Settings?.enableDebugLogging == true)
                 {
                     Log.Message("[RimAsync] Cleaned up cache on map removal");
@@ -98,7 +98,7 @@ namespace RimAsync.Patches.RW_Patches
             {
                 // Clear any stale cache entries when world initializes
                 Utils.SmartCache.ClearAll();
-                
+
                 if (RimAsyncMod.Settings?.enableDebugLogging == true)
                 {
                     Log.Message("[RimAsync] Cleared cache on world init");
@@ -110,4 +110,4 @@ namespace RimAsync.Patches.RW_Patches
             }
         }
     }
-} 
+}

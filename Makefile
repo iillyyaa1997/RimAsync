@@ -352,7 +352,7 @@ test-quick-coverage:
 ## 📊 Generate code coverage report (unit tests only - fast)
 coverage-basic:
 	@echo "$(CYAN)📊 Generating basic coverage for unit tests only...$(NC)"
-	@docker-compose run --rm test bash -lc "cd /app && dotnet test Tests/ --filter Category=Unit --collect:'XPlat Code Coverage' --results-directory ./Tests/TestResults/Coverage/ --logger 'console;verbosity=minimal' --no-restore"
+	@docker-compose run --rm test bash -lc "cd /app/Tests && dotnet restore && dotnet test --filter Category=Unit --collect:'XPlat Code Coverage' --results-directory ./TestResults/Coverage/ --logger 'console;verbosity=minimal'"
 	@echo "$(GREEN)✅ Unit test coverage generated in ./Tests/TestResults/Coverage/$(NC)"
 
 ## 🚫 Skip coverage entirely (fastest)
@@ -432,13 +432,14 @@ lint:
 ## 🧹 Format code and fix style issues automatically
 format-fix:
 	@echo "$(CYAN)🧹 Auto-fixing code style issues...$(NC)"
-	docker-compose exec dev dotnet format Source/RimAsync/RimAsync.csproj --fix-style --fix-analyzers --verbosity normal
+	# Run whitespace-only formatting to avoid SDK analyzer crashes
+	docker-compose exec dev sh -lc "dotnet format whitespace Source/RimAsync/RimAsync.csproj --verbosity normal"
 	@echo "$(GREEN)✅ Auto-fix completed!$(NC)"
 
-## 🔎 Check code style without fixing
+## 🔎 Check code style without fixing (whitespace only)
 format-check:
 	@echo "$(CYAN)🔎 Checking code style...$(NC)"
-	docker-compose exec dev dotnet format Source/RimAsync/RimAsync.csproj --verify-no-changes --verbosity normal
+	docker-compose exec dev sh -lc "dotnet format whitespace Source/RimAsync/RimAsync.csproj --verify-no-changes --verbosity normal"
 	@echo "$(GREEN)✅ Code style check completed!$(NC)"
 
 ## 📊 Run detailed code analysis report

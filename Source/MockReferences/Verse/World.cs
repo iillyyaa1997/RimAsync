@@ -11,13 +11,13 @@ namespace Verse
         public WorldObjectsHolder worldObjects;
         public Game game;
         public List<Map> maps = new List<Map>();
-        
+
         public World()
         {
             grid = new WorldGrid();
             worldObjects = new WorldObjectsHolder();
         }
-        
+
         public virtual void WorldUpdate() { }
         public virtual void ExposeData() { }
     }
@@ -25,25 +25,25 @@ namespace Verse
     public class WorldGrid
     {
         public int TilesCount { get; set; } = 10000;
-        
-        public virtual int[] GetTileIDToNeighborsOffsets(int tileID) 
-        { 
-            return new int[0]; 
+
+        public virtual int[] GetTileIDToNeighborsOffsets(int tileID)
+        {
+            return new int[0];
         }
     }
 
     public class WorldObjectsHolder
     {
         public List<WorldObject> AllWorldObjects = new List<WorldObject>();
-        
-        public virtual void Add(WorldObject o) 
-        { 
-            AllWorldObjects.Add(o); 
+
+        public virtual void Add(WorldObject o)
+        {
+            AllWorldObjects.Add(o);
         }
-        
-        public virtual void Remove(WorldObject o) 
-        { 
-            AllWorldObjects.Remove(o); 
+
+        public virtual void Remove(WorldObject o)
+        {
+            AllWorldObjects.Remove(o);
         }
     }
 
@@ -52,9 +52,9 @@ namespace Verse
         public int ID;
         public int Tile;
         public World world;
-        
+
         public virtual void SpawnSetup() { }
         public virtual void PostRemove() { }
         public virtual void ExposeData() { }
     }
-} 
+}

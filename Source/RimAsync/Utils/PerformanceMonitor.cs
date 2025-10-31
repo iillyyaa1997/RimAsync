@@ -16,11 +16,11 @@ namespace RimAsync.Utils
         private static readonly Queue<float> _tpsHistory = new Queue<float>();
         private static readonly Stopwatch _frameTimer = new Stopwatch();
         private static readonly Dictionary<string, PerformanceMetric> _metrics = new Dictionary<string, PerformanceMetric>();
-        
+
         private static float _lastTps = 60.0f;
         private static int _frameCount = 0;
         private static float _totalFrameTime = 0.0f;
-        
+
         private const int TPS_HISTORY_SIZE = 300; // 5 seconds at 60 TPS
         private const float TPS_UPDATE_INTERVAL = 1.0f; // Update TPS every second
 
@@ -37,7 +37,7 @@ namespace RimAsync.Utils
             get
             {
                 if (_tpsHistory.Count == 0) return 60.0f;
-                
+
                 float sum = 0;
                 foreach (var tps in _tpsHistory)
                 {
@@ -129,7 +129,7 @@ namespace RimAsync.Utils
                 if (_totalFrameTime >= TPS_UPDATE_INTERVAL)
                 {
                     _lastTps = _frameCount / _totalFrameTime;
-                    
+
                     // Add to history
                     _tpsHistory.Enqueue(_lastTps);
                     while (_tpsHistory.Count > TPS_HISTORY_SIZE)
@@ -242,7 +242,7 @@ namespace RimAsync.Utils
     {
         public string Name { get; }
         public string Unit { get; }
-        
+
         private readonly Queue<float> _values = new Queue<float>();
         private const int MAX_VALUES = 100;
 
@@ -331,4 +331,4 @@ namespace RimAsync.Utils
             PerformanceMonitor.RecordMetric(_operationName, (float)_stopwatch.Elapsed.TotalMilliseconds);
         }
     }
-} 
+}
