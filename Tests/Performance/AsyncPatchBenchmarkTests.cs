@@ -58,15 +58,15 @@ namespace RimAsync.Tests.Performance
                 // Simulate pathfinding calculation
                 var start = new IntVec3(0, 0, 0);
                 var end = new IntVec3(10, 0, 10);
-                
+
                 // This would call actual pathfinding in real scenario
                 Thread.SpinWait(100); // Simulate pathfinding work
             }, pathfindingIterations);
 
             // Assert
-            Assert.That(metrics.AverageTimePerIteration, Is.LessThan(10.0), 
+            Assert.That(metrics.AverageTimePerIteration, Is.LessThan(10.0),
                 "Pathfinding should complete in less than 10ms on average");
-            
+
             TestContext.WriteLine($"Pathfinding Performance:");
             TestContext.WriteLine($"  Average: {metrics.AverageTimePerIteration:F2}ms");
             TestContext.WriteLine($"  Total: {metrics.ElapsedMilliseconds}ms for {pathfindingIterations} iterations");
@@ -97,9 +97,9 @@ namespace RimAsync.Tests.Performance
 
             // Assert
             var avgPerPawn = metrics.AverageTimePerIteration / pawnCount;
-            Assert.That(avgPerPawn, Is.LessThan(15.0), 
+            Assert.That(avgPerPawn, Is.LessThan(15.0),
                 "Per-pawn pathfinding overhead should be less than 15ms");
-            
+
             TestContext.WriteLine($"Multi-Pawn Pathfinding Performance:");
             TestContext.WriteLine($"  {pawnCount} pawns average: {metrics.AverageTimePerIteration:F2}ms");
             TestContext.WriteLine($"  Per pawn: {avgPerPawn:F2}ms");
@@ -128,7 +128,7 @@ namespace RimAsync.Tests.Performance
             }, iterations);
 
             // Assert
-            var improvement = (syncMetrics.AverageTimePerIteration - asyncMetrics.AverageTimePerIteration) 
+            var improvement = (syncMetrics.AverageTimePerIteration - asyncMetrics.AverageTimePerIteration)
                 / syncMetrics.AverageTimePerIteration;
 
             TestContext.WriteLine($"Pathfinding Async vs Sync:");
@@ -161,9 +161,9 @@ namespace RimAsync.Tests.Performance
             }, thinkIterations);
 
             // Assert
-            Assert.That(metrics.AverageTimePerIteration, Is.LessThan(5.0), 
+            Assert.That(metrics.AverageTimePerIteration, Is.LessThan(5.0),
                 "AI job thinking should complete in less than 5ms on average");
-            
+
             TestContext.WriteLine($"AI Job Thinking Performance:");
             TestContext.WriteLine($"  Average: {metrics.AverageTimePerIteration:F2}ms");
             TestContext.WriteLine($"  Memory: {metrics.MemoryUsed / 1024.0:F2}KB");
@@ -193,9 +193,9 @@ namespace RimAsync.Tests.Performance
 
             // Assert
             var avgPerColonist = metrics.AverageTimePerIteration / colonistCount;
-            Assert.That(avgPerColonist, Is.LessThan(2.0), 
+            Assert.That(avgPerColonist, Is.LessThan(2.0),
                 "Per-colonist AI processing should be less than 2ms");
-            
+
             TestContext.WriteLine($"Multi-Colonist AI Performance:");
             TestContext.WriteLine($"  {colonistCount} colonists total: {metrics.AverageTimePerIteration:F2}ms");
             TestContext.WriteLine($"  Per colonist: {avgPerColonist:F2}ms");
@@ -221,9 +221,9 @@ namespace RimAsync.Tests.Performance
             }, updateIterations);
 
             // Assert
-            Assert.That(metrics.AverageTimePerIteration, Is.LessThan(3.0), 
+            Assert.That(metrics.AverageTimePerIteration, Is.LessThan(3.0),
                 "Building updates should complete in less than 3ms on average");
-            
+
             TestContext.WriteLine($"Building Update Performance:");
             TestContext.WriteLine($"  Average: {metrics.AverageTimePerIteration:F2}ms");
         }
@@ -253,10 +253,10 @@ namespace RimAsync.Tests.Performance
             // Assert
             var totalTickTime = metrics.AverageTimePerIteration;
             var perBuildingTime = totalTickTime / buildingCount;
-            
-            Assert.That(totalTickTime, Is.LessThan(100.0), 
+
+            Assert.That(totalTickTime, Is.LessThan(100.0),
                 "200 buildings should tick in less than 100ms total");
-            
+
             TestContext.WriteLine($"Large Base Building Performance:");
             TestContext.WriteLine($"  {buildingCount} buildings total: {totalTickTime:F2}ms");
             TestContext.WriteLine($"  Per building: {perBuildingTime:F4}ms");
@@ -282,9 +282,9 @@ namespace RimAsync.Tests.Performance
             }, workIterations);
 
             // Assert
-            Assert.That(metrics.AverageTimePerIteration, Is.LessThan(5.0), 
+            Assert.That(metrics.AverageTimePerIteration, Is.LessThan(5.0),
                 "Construction work calculation should complete in less than 5ms");
-            
+
             TestContext.WriteLine($"Construction Work Performance:");
             TestContext.WriteLine($"  Average: {metrics.AverageTimePerIteration:F2}ms");
         }
@@ -330,14 +330,14 @@ namespace RimAsync.Tests.Performance
                         Thread.SpinWait(10); // Building tick
                     }
                 }
-                
+
                 PerformanceMonitor.UpdateMetrics();
             }, simulatedTicks);
 
             // Assert
             var avgTickTime = metrics.AverageTimePerIteration;
             var targetTickTime = 1000.0 / 60.0; // 60 TPS target = ~16.67ms per tick
-            
+
             TestContext.WriteLine($"End-to-End Tick Performance:");
             TestContext.WriteLine($"  Average tick time: {avgTickTime:F2}ms");
             TestContext.WriteLine($"  Target tick time (60 TPS): {targetTickTime:F2}ms");
@@ -357,7 +357,7 @@ namespace RimAsync.Tests.Performance
         {
             // Arrange
             const int concurrentOperations = 10;
-            
+
             // Act - Run multiple async operations concurrently
             var metrics = await TestHelpers.MeasurePerformanceAsync(async (ct) =>
             {
@@ -370,14 +370,14 @@ namespace RimAsync.Tests.Performance
                         Thread.SpinWait(100);
                     }, ct);
                 }
-                
+
                 await Task.WhenAll(tasks);
             }, iterations: 20);
 
             // Assert
             TestContext.WriteLine($"Concurrent Operations Performance:");
             TestContext.WriteLine($"  {concurrentOperations} operations average: {metrics.AverageTimePerIteration:F2}ms");
-            
+
             // With proper async, concurrent operations should complete faster than sequential
             var sequentialEstimate = concurrentOperations * 2.0; // Rough estimate
             Assert.That(metrics.AverageTimePerIteration, Is.LessThan(sequentialEstimate),
@@ -403,7 +403,7 @@ namespace RimAsync.Tests.Performance
                 {
                     SmartCache.GetOrCompute($"perf_test_key_{i}", () => i * 2, ttlTicks: 600);
                 }
-                
+
                 // Additional reads
                 for (int i = 0; i < 100; i++)
                 {
@@ -413,14 +413,14 @@ namespace RimAsync.Tests.Performance
 
             // Assert
             var memoryPerOperation = (float)metrics.MemoryUsed / cacheOperations;
-            
+
             TestContext.WriteLine($"SmartCache Memory Performance:");
             TestContext.WriteLine($"  Total memory: {metrics.MemoryUsed / 1024.0:F2}KB");
             TestContext.WriteLine($"  Per operation: {memoryPerOperation:F2} bytes");
             TestContext.WriteLine($"  Average time: {metrics.AverageTimePerIteration:F2}ms per 200 operations");
 
             // Memory overhead should be reasonable
-            Assert.That(metrics.MemoryUsed, Is.LessThan(1024 * 1024), 
+            Assert.That(metrics.MemoryUsed, Is.LessThan(1024 * 1024),
                 "SmartCache memory overhead should be less than 1MB for test workload");
         }
 
@@ -444,14 +444,14 @@ namespace RimAsync.Tests.Performance
                         Interlocked.Increment(ref completedTasks);
                     });
                 }
-                
+
                 Task.WaitAll(tasks);
             }, iterations: 1);
 
             // Assert
-            Assert.That(completedTasks, Is.EqualTo(taskCount), 
+            Assert.That(completedTasks, Is.EqualTo(taskCount),
                 "All tasks should complete");
-            
+
             TestContext.WriteLine($"Thread Pool Performance:");
             TestContext.WriteLine($"  {taskCount} tasks completed in: {metrics.ElapsedMilliseconds}ms");
             TestContext.WriteLine($"  Average per task: {metrics.ElapsedMilliseconds / (double)taskCount:F2}ms");
@@ -481,7 +481,7 @@ namespace RimAsync.Tests.Performance
             // Assert
             Assert.That(metrics.AverageTimePerIteration, Is.LessThan(acceptableBaseline),
                 $"Pathfinding performance should not exceed baseline of {acceptableBaseline}ms");
-            
+
             TestContext.WriteLine($"Regression Test - Pathfinding:");
             TestContext.WriteLine($"  Current: {metrics.AverageTimePerIteration:F2}ms");
             TestContext.WriteLine($"  Baseline: {acceptableBaseline:F2}ms");
@@ -491,4 +491,3 @@ namespace RimAsync.Tests.Performance
         #endregion
     }
 }
-

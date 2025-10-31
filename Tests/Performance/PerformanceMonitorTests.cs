@@ -38,7 +38,7 @@ namespace RimAsync.Tests.Performance
             PerformanceMonitor.Initialize();
 
             // Assert
-            Assert.That(PerformanceMonitor.CurrentTPS, Is.GreaterThan(0.0f), 
+            Assert.That(PerformanceMonitor.CurrentTPS, Is.GreaterThan(0.0f),
                 "TPS should be initialized to a positive value");
         }
 
@@ -227,9 +227,9 @@ namespace RimAsync.Tests.Performance
             }, iterations);
 
             // Assert
-            Assert.That(metrics.AverageTimePerIteration, Is.LessThan(1.0), 
+            Assert.That(metrics.AverageTimePerIteration, Is.LessThan(1.0),
                 "Performance monitoring overhead should be less than 1ms per operation");
-            
+
             TestContext.WriteLine($"Performance monitoring overhead: {metrics.AverageTimePerIteration:F4}ms per operation");
         }
 
@@ -247,13 +247,13 @@ namespace RimAsync.Tests.Performance
             }, tickCount);
 
             // Assert
-            Assert.That(metrics.AverageTimePerIteration, Is.LessThan(0.5), 
+            Assert.That(metrics.AverageTimePerIteration, Is.LessThan(0.5),
                 "TPS recording should be very fast (< 0.5ms per tick)");
-            
+
             var avgTps = PerformanceMonitor.AverageTPS;
-            Assert.That(avgTps, Is.GreaterThan(0.0f), 
+            Assert.That(avgTps, Is.GreaterThan(0.0f),
                 "Average TPS should be positive");
-            
+
             TestContext.WriteLine($"TPS recording performance: {metrics.AverageTimePerIteration:F4}ms per tick");
             TestContext.WriteLine($"Calculated average TPS: {avgTps:F2}");
         }
@@ -278,7 +278,7 @@ namespace RimAsync.Tests.Performance
             Assert.That(metric, Is.Not.Null, "Metric should exist");
             Assert.That(metric.Minimum, Is.EqualTo(10.0f), "Min should be 10.0");
             Assert.That(metric.Maximum, Is.EqualTo(30.0f), "Max should be 30.0");
-            Assert.That(metric.Average, Is.GreaterThan(15.0f).And.LessThan(25.0f), 
+            Assert.That(metric.Average, Is.GreaterThan(15.0f).And.LessThan(25.0f),
                 "Average should be around 20.0");
         }
 
@@ -294,9 +294,8 @@ namespace RimAsync.Tests.Performance
             PerformanceMonitor.Shutdown();
 
             // Assert - Should not throw on re-initialization
-            Assert.DoesNotThrow(() => PerformanceMonitor.Initialize(), 
+            Assert.DoesNotThrow(() => PerformanceMonitor.Initialize(),
                 "Should be able to re-initialize after shutdown");
         }
     }
 }
-
