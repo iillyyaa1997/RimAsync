@@ -25,6 +25,7 @@ namespace RimAsync.Core
 
         // Advanced Settings
         public int maxAsyncThreads = 2;
+        public bool enableAutoThreadLimits = true; // New: auto calculate thread limits
         public float asyncTimeoutSeconds = 5.0f;
         public bool enableDebugLogging = false;
 
@@ -52,6 +53,7 @@ namespace RimAsync.Core
 
             // Advanced Settings
             Scribe_Values.Look(ref maxAsyncThreads, "maxAsyncThreads", 2);
+            Scribe_Values.Look(ref enableAutoThreadLimits, "enableAutoThreadLimits", true);
             Scribe_Values.Look(ref asyncTimeoutSeconds, "asyncTimeoutSeconds", 5.0f);
             Scribe_Values.Look(ref enableDebugLogging, "enableDebugLogging", false);
 
@@ -114,8 +116,22 @@ namespace RimAsync.Core
             // Advanced Section
             listing.Label("Advanced Settings:");
 
-            listing.Label($"Max Async Threads: {maxAsyncThreads}");
-            maxAsyncThreads = (int)listing.Slider(maxAsyncThreads, 1, 8);
+            // Auto thread limits checkbox
+            listing.CheckboxLabeled("Auto Thread Limits", ref enableAutoThreadLimits,
+                "Automatically determine optimal thread count based on system capabilities");
+
+            // Show thread limit slider (disabled if auto is on)
+            if (enableAutoThreadLimits)
+            {
+                var optimal = RimAsync.Utils.ThreadLimitCalculator.CalculateOptimalThreadLimit();
+                listing.Label($"Auto Thread Count: {optimal} (based on {RimAsync.Utils.ThreadLimitCalculator.ProcessorCount} CPU cores)");
+                listing.Label(RimAsync.Utils.ThreadLimitCalculator.GetRecommendationText());
+            }
+            else
+            {
+                listing.Label($"Manual Thread Count: {maxAsyncThreads}");
+                maxAsyncThreads = (int)listing.Slider(maxAsyncThreads, 1, 8);
+            }
 
             listing.Label($"Async Timeout: {asyncTimeoutSeconds:F1}s");
             asyncTimeoutSeconds = listing.Slider(asyncTimeoutSeconds, 1.0f, 30.0f);

@@ -33,7 +33,21 @@ namespace RimAsync.Threading
             {
                 Log.Message("[RimAsync] Initializing async manager...");
 
-                var maxThreads = RimAsyncMod.Settings?.maxAsyncThreads ?? 2;
+                // Get thread limit: auto-calculated or manual
+                var settings = RimAsyncMod.Settings;
+                int maxThreads;
+                
+                if (settings != null && settings.enableAutoThreadLimits)
+                {
+                    maxThreads = RimAsync.Utils.ThreadLimitCalculator.CalculateOptimalThreadLimit();
+                    Log.Message($"[RimAsync] Using auto thread limit: {maxThreads}");
+                }
+                else
+                {
+                    maxThreads = settings?.maxAsyncThreads ?? 2;
+                    Log.Message($"[RimAsync] Using manual thread limit: {maxThreads}");
+                }
+
                 _asyncSemaphore = new SemaphoreSlim(maxThreads, maxThreads);
                 _cancellationTokenSource = new CancellationTokenSource();
 
@@ -73,7 +87,19 @@ namespace RimAsync.Threading
 
             try
             {
-                var newMaxThreads = RimAsyncMod.Settings?.maxAsyncThreads ?? 2;
+                var settings = RimAsyncMod.Settings;
+                int newMaxThreads;
+                
+                if (settings != null && settings.enableAutoThreadLimits)
+                {
+                    newMaxThreads = RimAsync.Utils.ThreadLimitCalculator.CalculateOptimalThreadLimit();
+                    Log.Message($"[RimAsync] Auto-calculating thread limit: {newMaxThreads}");
+                }
+                else
+                {
+                    newMaxThreads = settings?.maxAsyncThreads ?? 2;
+                    Log.Message($"[RimAsync] Using manual thread limit: {newMaxThreads}");
+                }
 
                 // Recreate semaphore with new limit
                 _asyncSemaphore?.Dispose();

@@ -87,6 +87,7 @@
     <Compile Include="Utils/AsyncSafeCollections.cs" />
     <Compile Include="Utils/RimAsyncLogger.cs" />
     <Compile Include="Utils/DebugOverlay.cs" />
+    <Compile Include="Utils/ThreadLimitCalculator.cs" />
   </ItemGroup>
 
 </Project>
