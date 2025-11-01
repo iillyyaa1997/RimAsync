@@ -86,6 +86,7 @@
     <Compile Include="Utils/SmartCache.cs" />
     <Compile Include="Utils/AsyncSafeCollections.cs" />
     <Compile Include="Utils/RimAsyncLogger.cs" />
+    <Compile Include="Utils/DebugOverlay.cs" />
   </ItemGroup>
 
 </Project>

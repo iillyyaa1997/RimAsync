@@ -51,31 +51,22 @@ namespace RimAsync.Components
         public override void GameComponentOnGUI()
         {
             // Draw debug overlay if enabled
-            // TODO: Re-enable after fixing DebugOverlay compilation
-            // RimAsync.Utils.DebugOverlay.OnGUI();
+            RimAsync.Utils.DebugOverlay.OnGUI();
         }
 
         public override void GameComponentUpdate()
         {
             // Handle debug overlay toggle (F11)
-            // TODO: Re-enable after fixing DebugOverlay compilation
-            // if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.F11))
-            // {
-            //     RimAsync.Utils.DebugOverlay.Toggle();
-            // }
+            if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.F11))
+            {
+                RimAsync.Utils.DebugOverlay.Toggle();
+            }
         }
 
         private void LogDebugStatus()
         {
             // Use DebugOverlay for status logging
-            // TODO: Re-enable after fixing DebugOverlay compilation
-            // RimAsync.Utils.DebugOverlay.LogStatus();
-
-            var performanceStatus = PerformanceMonitor.GetPerformanceSummary();
-            var asyncStatus = AsyncManager.GetStatus();
-            var multiplayerStatus = MultiplayerCompat.GetMultiplayerStatus();
-
-            Log.Message($"[RimAsync] Status - {performanceStatus} | {asyncStatus} | {multiplayerStatus}");
+            RimAsync.Utils.DebugOverlay.LogStatus();
         }
     }
 }
