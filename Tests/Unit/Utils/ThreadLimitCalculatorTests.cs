@@ -332,7 +332,7 @@ namespace RimAsync.Tests.Unit.Utils
             Assert.LessOrEqual(optimal, 8);
             Assert.IsNotEmpty(systemInfo);
             Assert.IsNotEmpty(recommendation);
-            
+
             // Verify logical consistency
             Assert.That(systemInfo.Contains(processorCount.ToString()),
                 "System info should contain processor count");
@@ -408,4 +408,3 @@ namespace RimAsync.Tests.Unit.Utils
         #endregion
     }
 }
-

@@ -36,7 +36,7 @@ namespace RimAsync.Threading
                 // Get thread limit: auto-calculated or manual
                 var settings = RimAsyncMod.Settings;
                 int maxThreads;
-                
+
                 if (settings != null && settings.enableAutoThreadLimits)
                 {
                     maxThreads = RimAsync.Utils.ThreadLimitCalculator.CalculateOptimalThreadLimit();
@@ -89,7 +89,7 @@ namespace RimAsync.Threading
             {
                 var settings = RimAsyncMod.Settings;
                 int newMaxThreads;
-                
+
                 if (settings != null && settings.enableAutoThreadLimits)
                 {
                     newMaxThreads = RimAsync.Utils.ThreadLimitCalculator.CalculateOptimalThreadLimit();

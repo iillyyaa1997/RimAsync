@@ -198,4 +198,3 @@ namespace RimAsync.Utils
         VeryHigh    // 9+ cores
     }
 }
-
