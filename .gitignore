@@ -118,6 +118,3 @@ TestResults/
 
 # Private planning documents (not committed to repository)
 Planning/
-
-# External git repository (should be handled as submodule if needed)
-RimThreaded/

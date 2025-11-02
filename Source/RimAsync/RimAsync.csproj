@@ -84,7 +84,7 @@
     <!-- EXCLUDED: Pawn_PathFollower_Patch.cs (RimWorld 1.6 API incompatible - pawn property inaccessible, PathFinder.FindPath removed) -->
     <Compile Include="Patches/RW_Patches/Game_Patch.cs" />
     <Compile Include="Patches/Performance_Patches/TickManager_Patch.cs" />
-    <Compile Include="Patches/Multiplayer_Patches/MultiplayerCompat_Patch.cs" />
+    <!-- EXCLUDED: MultiplayerCompat_Patch.cs (RimWorld 1.6 API incompatible - Verse.Log.Message ambiguous match) -->
     <Compile Include="Components/RimAsyncGameComponent.cs" />
     <Compile Include="Settings/RimAsyncSettings.cs" />
     <Compile Include="Utils/MultiplayerCompat.cs" />
