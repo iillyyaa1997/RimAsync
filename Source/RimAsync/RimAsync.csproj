@@ -79,7 +79,7 @@
     <Compile Include="Core/RimAsyncCore.cs" />
     <Compile Include="RimAsyncMod.cs" />
     <Compile Include="Threading/AsyncManager.cs" />
-    <!-- EXCLUDED: Building_Patch.cs (RimWorld 1.6 API incompatible) -->
+    <Compile Include="Patches/RW_Patches/Building_Patch.cs" />
     <!-- EXCLUDED: Pawn_PathFollower_Patch.cs (unsafe threading violations) -->
     <!-- EXCLUDED: Pawn_AI_Patch.cs (unsafe threading violations) -->
     <Compile Include="Patches/RW_Patches/Game_Patch.cs" />

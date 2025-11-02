@@ -125,38 +125,38 @@ namespace RimAsync.Patches.RW_Patches
 
         /// <summary>
         /// Schedule background building optimization
+        /// RimWorld 1.6: SAFE main-thread scheduling (no Task.Run)
         /// </summary>
         private static void ScheduleBuildingOptimization(Thing building)
         {
             if (!RimAsyncCore.CanUseAsync()) return;
 
-            Task.Run(async () =>
-            {
-                try
+            // SAFE: Use AsyncManager.ExecuteAdaptive which handles thread safety internally
+            // NO Task.Run() - all Unity/RimWorld objects MUST be accessed from main thread
+            AsyncManager.ExecuteAdaptive(
+                async (cancellationToken) =>
                 {
-                    await AsyncManager.ExecuteAdaptive(
-                        async (cancellationToken) =>
-                        {
-                            // Simulate building optimization work
-                            await Task.Delay(4, cancellationToken);
+                    try
+                    {
+                        // Simulate building optimization work
+                        await Task.Delay(4, cancellationToken);
 
-                            // Record the optimization
-                            PerformanceMonitor.RecordMetric("BuildingOptimization", 4.0f);
+                        // Record the optimization
+                        PerformanceMonitor.RecordMetric("BuildingOptimization", 4.0f);
 
-                            RimAsyncLogger.Debug($"Building optimization completed for {building.def?.defName}", "BuildingSystem");
-                        },
-                        () =>
-                        {
-                            // Sync fallback - minimal building processing
-                            PerformanceMonitor.RecordMetric("BuildingOptimization", 1.0f);
-                        },
-                        "BuildingOptimization");
-                }
-                catch (Exception ex)
+                        RimAsyncLogger.Debug($"Building optimization completed for {building.def?.defName}", "BuildingSystem");
+                    }
+                    catch (Exception ex)
+                    {
+                        RimAsyncLogger.Error($"Error in building optimization", ex, "BuildingSystem");
+                    }
+                },
+                () =>
                 {
-                    RimAsyncLogger.Error($"Error in building optimization", ex, "BuildingSystem");
-                }
-            });
+                    // Sync fallback - minimal building processing
+                    PerformanceMonitor.RecordMetric("BuildingOptimization", 1.0f);
+                },
+                "BuildingOptimization");
         }
 
         /// <summary>
