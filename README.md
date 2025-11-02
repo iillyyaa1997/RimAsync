@@ -2,7 +2,7 @@
 
 **Performance optimization mod with full multiplayer support**
 
-[![RimWorld Version](https://img.shields.io/badge/RimWorld-1.5+-blue.svg)](https://rimworldgame.com/)
+[![RimWorld Version](https://img.shields.io/badge/RimWorld-1.5%20|%201.6-blue.svg)](https://rimworldgame.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Multiplayer Compatible](https://img.shields.io/badge/Multiplayer-Compatible-brightgreen.svg)](https://github.com/rwmt/Multiplayer)
 
@@ -64,9 +64,25 @@ make dev
 # Quick development build
 make quick-build
 
+# Install/update mod in RimWorld
+make install
+
 # Show all available commands
 make help
 ```
+
+### 🎮 Installing to RimWorld
+
+To install the mod directly to your RimWorld mods directory:
+
+1. Copy `.env.example` to `.env`
+2. Configure `RIMWORLD_MODS_PATH` in `.env` if needed
+3. Run `make install`
+
+The command will automatically:
+- Build the mod
+- Create a distribution package
+- Install or update the mod in your RimWorld directory
 
 ### 🔧 Alternative (Raw Docker)
 ```bash
