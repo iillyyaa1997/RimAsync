@@ -123,11 +123,16 @@ services:
     container_name: rimasync-release
     volumes:
       - ./Release:/mod/output
+      - ./About:/app/About
     environment:
       - DOTNET_CLI_TELEMETRY_OPTOUT=1
     command: >
       sh -c "
-        cp -r /mod/* /mod/output/ &&
+        rm -rf /mod/output/About /mod/output/Assemblies &&
+        mkdir -p /mod/output/About /mod/output/Assemblies &&
+        cp -r /mod/About/* /mod/output/About/ 2>/dev/null || true &&
+        cp -r /mod/Assemblies/* /mod/output/Assemblies/ 2>/dev/null || true &&
+        cp -r /app/About/* /mod/output/About/ &&
         echo 'Release build copied to ./Release directory' &&
         echo 'Ready for Steam Workshop upload!'
       "
