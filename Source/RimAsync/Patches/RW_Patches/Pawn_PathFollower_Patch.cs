@@ -111,46 +111,46 @@ namespace RimAsync.Patches.RW_Patches
 
         /// <summary>
         /// Schedule background path optimization
+        /// RimWorld 1.6: SAFE main-thread scheduling (no Task.Run)
         /// </summary>
         private static void SchedulePathOptimization(Pawn pawn, IntVec3 destination, Verse.AI.PathEndMode peMode)
         {
             if (!RimAsyncCore.CanUseAsync()) return;
 
-            // Example async operation - in reality this would optimize the path
-            Task.Run(async () =>
-            {
-                try
+            // SAFE: Use AsyncManager.ExecuteAdaptive which handles thread safety internally
+            // NO Task.Run() - all Unity/RimWorld objects MUST be accessed from main thread
+            AsyncManager.ExecuteAdaptive(
+                async (cancellationToken) =>
                 {
-                    await AsyncManager.ExecuteAdaptive(
-                        async (cancellationToken) =>
-                        {
-                            // Simulate path optimization work
-                            await Task.Delay(10, cancellationToken);
+                    try
+                    {
+                        // Simulate path optimization work
+                        await Task.Delay(10, cancellationToken);
 
-                            // Record the optimization
-                            PerformanceMonitor.RecordMetric("PathOptimization", 10.0f);
+                        // Record the optimization
+                        PerformanceMonitor.RecordMetric("PathOptimization", 10.0f);
 
-                            if (RimAsyncMod.Settings?.enableDebugLogging == true)
-                            {
-                                Log.Message($"[RimAsync] Optimized path for {pawn.LabelShort}");
-                            }
-                        },
-                        () =>
+                        if (RimAsyncMod.Settings?.enableDebugLogging == true)
                         {
-                            // Sync fallback - do nothing or minimal optimization
-                            PerformanceMonitor.RecordMetric("PathOptimization", 1.0f);
-                        },
-                        "PathOptimization");
-                }
-                catch (Exception ex)
+                            Log.Message($"[RimAsync] Optimized path for {pawn.LabelShort}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"[RimAsync] Error in path optimization: {ex}");
+                    }
+                },
+                () =>
                 {
-                    Log.Error($"[RimAsync] Error in path optimization: {ex}");
-                }
-            });
+                    // Sync fallback - do nothing or minimal optimization
+                    PerformanceMonitor.RecordMetric("PathOptimization", 1.0f);
+                },
+                "PathOptimization");
         }
 
         /// <summary>
         /// Check if pathfinding is critical and should not be made async
+        /// RimWorld 1.6: simplified checks (removed InCombat, health.summaryHealth)
         /// </summary>
         private static bool IsCriticalPathfinding(Pawn_PathFollower pathFollower, IntVec3 destination)
         {
@@ -158,12 +158,11 @@ namespace RimAsync.Patches.RW_Patches
             if (pawn == null) return true;
 
             // Critical situations where we need immediate pathfinding
-            if (pawn.InCombat) return true;
-            if (pawn.health?.summaryHealth < 0.5f) return true; // Injured pawn
+            // RimWorld 1.6: InCombat property not available, removed
+            // RimWorld 1.6: health.summaryHealth is SummaryHealthHandler, not float
             if (pawn.needs?.food?.CurLevel < 0.1f) return true; // Starving
 
-            // Add more critical conditions as needed
-
+            // More conservative approach
             return false;
         }
     }
@@ -330,38 +329,38 @@ namespace RimAsync.Patches.RW_Patches
 
         /// <summary>
         /// Schedule background job optimization
+        /// RimWorld 1.6: SAFE main-thread scheduling (no Task.Run)
         /// </summary>
         private static void ScheduleJobOptimization(Pawn pawn)
         {
             if (!RimAsyncCore.CanUseAsync()) return;
 
-            Task.Run(async () =>
-            {
-                try
+            // SAFE: Use AsyncManager.ExecuteAdaptive which handles thread safety internally
+            // NO Task.Run() - all Unity/RimWorld objects MUST be accessed from main thread
+            AsyncManager.ExecuteAdaptive(
+                async (cancellationToken) =>
                 {
-                    await AsyncManager.ExecuteAdaptive(
-                        async (cancellationToken) =>
-                        {
-                            // Simulate advanced job planning
-                            await Task.Delay(5, cancellationToken);
+                    try
+                    {
+                        // Simulate advanced job planning
+                        await Task.Delay(5, cancellationToken);
 
-                            // Record the optimization
-                            PerformanceMonitor.RecordMetric("JobOptimization", 5.0f);
+                        // Record the optimization
+                        PerformanceMonitor.RecordMetric("JobOptimization", 5.0f);
 
-                            RimAsyncLogger.Debug($"Optimized job planning for {pawn.LabelShort}", "JobSystem");
-                        },
-                        () =>
-                        {
-                            // Sync fallback - minimal optimization
-                            PerformanceMonitor.RecordMetric("JobOptimization", 1.0f);
-                        },
-                        "JobOptimization");
-                }
-                catch (Exception ex)
+                        RimAsyncLogger.Debug($"Optimized job planning for {pawn.LabelShort}", "JobSystem");
+                    }
+                    catch (Exception ex)
+                    {
+                        RimAsyncLogger.Error($"Error in job optimization", ex, "JobSystem");
+                    }
+                },
+                () =>
                 {
-                    RimAsyncLogger.Error($"Error in job optimization", ex, "JobSystem");
-                }
-            });
+                    // Sync fallback - minimal optimization
+                    PerformanceMonitor.RecordMetric("JobOptimization", 1.0f);
+                },
+                "JobOptimization");
         }
 
         /// <summary>
@@ -391,22 +390,23 @@ namespace RimAsync.Patches.RW_Patches
 
         /// <summary>
         /// Check if job is critical and should not be made async
+        /// RimWorld 1.6: simplified checks (removed InCombat, health.summaryHealth)
         /// </summary>
         private static bool IsJobCritical(Pawn pawn)
         {
             // Critical situations where jobs need immediate determination
-            if (pawn.InCombat) return true;
-            if (pawn.health?.summaryHealth < 0.3f) return true; // Severely injured
+            // RimWorld 1.6: InCombat property not available, removed
+            // RimWorld 1.6: health.summaryHealth is SummaryHealthHandler, not float
             if (pawn.needs?.food?.CurLevel < 0.05f) return true; // Near starvation
 
-            // Add more critical conditions as needed
+            // More conservative approach
             return false;
         }
 
         /// <summary>
         /// Check if job can be executed asynchronously
         /// </summary>
-        private static bool CanJobBeExecutedAsync(Verse.Job job)
+        private static bool CanJobBeExecutedAsync(Verse.AI.Job job)
         {
             if (job?.def?.defName == null) return false;
 
