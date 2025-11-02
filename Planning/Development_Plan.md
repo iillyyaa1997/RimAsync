@@ -133,7 +133,7 @@
 
 ### 🔴 Этап 4: Совместимость и стабильность
 **Сроки:** 29 июля - 5 августа 2025
-**Статус:** 🔄 В процессе (25% завершено)
+**Статус:** 🔄 В процессе (60% завершено)
 
 #### Задачи:
 - ✅ Создание системы тестирования совместимости модов
@@ -142,6 +142,18 @@
   - Система generation compatibility reports
   - Load order validation
   - COMPATIBILITY.md документация создана
+- ✅ Создание stress testing infrastructure
+  - StressTests.cs с 9 комплексными тестами
+  - Memory leak detection (3 теста)
+  - Large colony simulation (3 теста, 100+ pawns)
+  - Long-running tests (2 теста, включая 10-hour simulation)
+  - Performance regression tests (2 теста)
+- ✅ Исправление flaky тестов
+  - SmartCache concurrent test исправлен
+  - Все 255 тестов проходят (100% ✅)
+- ✅ Создание testing documentation
+  - TESTING.md - comprehensive testing guide
+  - RELEASE_CHECKLIST.md - полный release checklist
 - ⏳ Тестирование с популярными модами (реальное)
   - ⏳ Combat Extended (in-game testing)
   - ⏳ Vanilla Expanded series (in-game testing)
@@ -150,17 +162,13 @@
   - ⏳ AsyncTime stress testing
   - ⏳ Desync detection и prevention
   - ⏳ Multi-player performance benchmarks
-- ⏳ Stress testing производительности
-  - ⏳ 10+ часов continuous gameplay
-  - ⏳ Large colony testing (100+ pawns)
-  - ⏳ Memory leak detection
-- ⏳ Исправление багов и оптимизация
 - ⏳ Beta тестирование с сообществом
 
 #### Прогресс:
-- **Коммиты:** 2 новых (chore: formatting, feat: mod-compatibility-system)
-- **Тесты:** 246/246 проходят (100% ✅) - 20 новых compatibility тестов
-- **Новый код:** ~700 строк (ModCompatibilityTests + COMPATIBILITY.md)
+- **Коммиты:** 4 новых (formatting, mod-compatibility, stress-tests, fix-flaky-tests)
+- **Тесты:** 255/255 проходят (100% ✅) - 29 новых тестов
+- **Новый код:** ~2000 строк (tests + documentation)
+- **Документация:** 3 новых файла (COMPATIBILITY.md, TESTING.md, RELEASE_CHECKLIST.md)
 
 ### 🟢 Этап 5: Релиз и поддержка
 **Сроки:** 6-15 августа 2025
@@ -240,19 +248,19 @@
 ## 📝 Следующие шаги
 
 1. **Немедленно:**
-   - ⏳ Stress testing производительности (Этап 4 - 25% выполнено)
-   - ⏳ Реальное тестирование с популярными модами
-   - ⏳ Memory leak testing и large colony testing
+   - ⏳ Real in-game testing (Этап 4 - 60% выполнено)
+   - ⏳ Multiplayer stress testing с AsyncTime
+   - ⏳ Community beta testing подготовка
 
 2. **На этой неделе:**
-   - ⏳ Multiplayer stress testing с AsyncTime
    - ⏳ In-game testing с Combat Extended и Vanilla Expanded
-   - ⏳ Community beta testing подготовка
+   - ⏳ Multiplayer session testing (1+ hour)
+   - ⏳ Performance measurement в реальной игре
 
 3. **Следующая неделя:**
    - Финальная полировка Этапа 4
    - Начало Этапа 5 (релиз и поддержка)
-   - Steam Workshop публикация подготовка
+   - Alpha release preparation
 
 ---
 

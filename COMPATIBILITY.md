@@ -1,6 +1,6 @@
 # RimAsync - Mod Compatibility Guide
 
-**Last Updated:** November 2, 2025  
+**Last Updated:** November 2, 2025
 **Version:** 0.1.0 (Development)
 
 ## Overview
@@ -161,7 +161,7 @@ Combat Extended is one of the most popular overhaul mods. Here's how to use it w
 ### Load Order
 ```
 1. Harmony
-2. HugsLib  
+2. HugsLib
 3. RimAsync
 4. Combat Extended
 5. Combat Extended patches
@@ -220,4 +220,3 @@ Help improve compatibility documentation:
 ---
 
 **Note:** This is a living document. Compatibility may change with updates to RimWorld, RimAsync, or other mods.
-
