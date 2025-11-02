@@ -59,7 +59,7 @@ System.Threading.ExecutionContext:Run (System.Threading.ExecutionContext,System.
 System.Threading.ExecutionContext:Run (System.Threading.ExecutionContext,System.Threading.ContextCallback,object)
 System.Threading.ThreadHelper:ThreadStart ()
 
-[RimAsync] Failed to apply patches: HarmonyLib.HarmonyException: Patching exception in method null ---> System.ArgumentException: Undefined target method for patch method static System.Boolean RimAsync.Patches.RW_Patches.Building_Patch::Tick_Prefix(Verse.Thing __instance)
+[RimAsync] Failed to apply patches: HarmonyLib.HarmonyException: Patching exception in method null ---> System.ArgumentException: Undefined target method for patch method static System.Boolean RimAsync.Patches.RW_Patches.Pawn_MindState_Patch::MindStateTick_Prefix(Verse.AI.Pawn_MindState __instance)
 [Ref 6CDD5CBC]
   at HarmonyLib.PatchClassProcessor.PatchWithAttributes (System.Reflection.MethodBase& lastOriginal, System.Boolean unpatch) [0x00047] in <e53399289d9b419d83f9f5b02c5cf609>:0
   at HarmonyLib.PatchClassProcessor.Patch () [0x00064] in <e53399289d9b419d83f9f5b02c5cf609>:0
@@ -424,7 +424,7 @@ Verse.LongEventHandler:LongEventsUpdate (bool&)
 (wrapper dynamic-method) MonoMod.Utils.DynamicMethodDefinition:Verse.Root.Update_Patch1 (Verse.Root)
 Verse.Root_Entry:Update ()
 
-[LunarFramework v1.1.16] Processed 9 Harmony patches in 523 ms.
+[LunarFramework v1.1.16] Processed 9 Harmony patches in 479 ms.
 UnityEngine.StackTraceUtility:ExtractStackTrace ()
 Verse.Log:Message (string)
 LunarFramework.Logging.IngameLogContext:Log (LunarFramework.Logging.LogContext/LogLevel,string,System.Exception)
