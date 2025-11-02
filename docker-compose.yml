@@ -10,6 +10,8 @@ services:
       - ./Build:/app/Build
       - ./Source:/app/Source
       - ./Tests:/app/Tests
+      - ./1.5:/app/1.5
+      - ./1.6:/app/1.6
     environment:
       - DOTNET_CLI_TELEMETRY_OPTOUT=1
       - DOTNET_NOLOGO=1
@@ -19,7 +21,10 @@ services:
         dotnet restore &&
         dotnet build --configuration Release --output /app/Build/Assemblies &&
         cp -r /app/About/* /app/Build/About/ &&
-        echo 'Build completed successfully!'
+        mkdir -p /app/1.5/Assemblies /app/1.6/Assemblies &&
+        cp /app/Build/Assemblies/RimAsync.dll /app/1.5/Assemblies/ &&
+        cp /app/Build/Assemblies/RimAsync.dll /app/1.6/Assemblies/ &&
+        echo 'Build completed successfully! DLL copied to 1.5 and 1.6 folders.'
       "
 
   # Run tests
