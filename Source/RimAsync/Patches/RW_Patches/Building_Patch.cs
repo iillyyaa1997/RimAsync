@@ -156,28 +156,30 @@ namespace RimAsync.Patches.RW_Patches
         /// <summary>
         /// Check if this thing is building-like and should be processed async
         /// </summary>
-        private static bool IsBuildingLike(Thing thing)
+        public static bool IsBuildingLike(Thing thing)
         {
             if (thing?.def?.defName == null) return false;
 
             // Building types that can benefit from async processing
             var asyncBuildings = new[]
             {
-                "Wall", "Door", "Bed", "Table", "Chair", "Workbench",
-                "Plant", "Tree", "Rock", "Building", "Structure",
-                "Power", "Battery", "Generator", "Solar", "Wind"
+                "wall", "door", "bed", "table", "chair", "workbench",
+                "plant", "tree", "rock", "building", "structure",
+                "power", "battery", "generator", "solar", "wind"
             };
 
+            var defNameLower = thing.def.defName.ToLowerInvariant();
+            
             foreach (var buildingType in asyncBuildings)
             {
-                if (thing.def.defName.Contains(buildingType, StringComparison.OrdinalIgnoreCase))
+                if (defNameLower.Contains(buildingType))
                 {
                     return true;
                 }
             }
 
             // Check by thing class
-            return thing.def.thingClass?.Name?.Contains("Building") == true;
+            return thing.def.thingClass?.Name?.ToLowerInvariant().Contains("building") == true;
         }
 
         /// <summary>

@@ -75,6 +75,8 @@
     <Compile Include="RimAsyncMod.cs" />
     <Compile Include="Threading/AsyncManager.cs" />
     <Compile Include="Patches/RW_Patches/Pawn_PathFollower_Patch.cs" />
+    <Compile Include="Patches/RW_Patches/Pawn_AI_Patch.cs" />
+    <Compile Include="Patches/RW_Patches/Building_Patch.cs" />
     <Compile Include="Patches/RW_Patches/Game_Patch.cs" />
     <Compile Include="Patches/Performance_Patches/TickManager_Patch.cs" />
     <Compile Include="Patches/Multiplayer_Patches/MultiplayerCompat_Patch.cs" />

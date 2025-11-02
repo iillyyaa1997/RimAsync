@@ -60,6 +60,15 @@ namespace RimAsync.Patches.RW_Patches
         }
 
         /// <summary>
+        /// Public wrapper for testing async pathfinding
+        /// </summary>
+        public static bool TestAsyncPathfinding(Pawn_PathFollower pathFollower)
+        {
+            PawnPath result = null;
+            return GeneratePatherPath_Prefix(pathFollower, IntVec3.Zero, Verse.AI.PathEndMode.OnCell, ref result);
+        }
+
+        /// <summary>
         /// Attempt asynchronous pathfinding
         /// </summary>
         private static PawnPath TryAsyncPathfinding(Pawn_PathFollower pathFollower, IntVec3 destination, Verse.AI.PathEndMode peMode)
@@ -241,6 +250,32 @@ namespace RimAsync.Patches.RW_Patches
 
             // Fallback to original method
             return true;
+        }
+
+        /// <summary>
+        /// Public wrapper for testing async job processing
+        /// </summary>
+        public static bool TestAsyncJobProcessing(Pawn_JobTracker jobTracker)
+        {
+            return JobTrackerTick_Prefix(jobTracker);
+        }
+
+        /// <summary>
+        /// Get async job stats for monitoring
+        /// </summary>
+        public static string GetJobAsyncStats()
+        {
+            try
+            {
+                var cacheStats = SmartCache.GetStats();
+                var asyncEnabled = AsyncManager.CanExecuteAsync();
+
+                return $"Job Async: {(asyncEnabled ? "Enabled" : "Disabled")}, Cache Hits: {cacheStats.CacheHits}";
+            }
+            catch
+            {
+                return "Job Async: Stats unavailable";
+            }
         }
 
         /// <summary>

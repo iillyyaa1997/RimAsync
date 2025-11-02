@@ -25,6 +25,16 @@ namespace Verse.AI
         {
             targetA = new LocalTargetInfo();
         }
+
+        public Job(JobDef jobDef) : this()
+        {
+            def = jobDef;
+        }
+
+        public Job(JobDef jobDef, LocalTargetInfo target) : this(jobDef)
+        {
+            targetA = target;
+        }
     }
 
     public class SourceJobDef

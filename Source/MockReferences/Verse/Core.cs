@@ -40,6 +40,30 @@ namespace Verse
         }
 
         public static IntVec3 Zero => new IntVec3(0, 0, 0);
+
+        public static bool operator ==(IntVec3 a, IntVec3 b)
+        {
+            return a.x == b.x && a.y == b.y && a.z == b.z;
+        }
+
+        public static bool operator !=(IntVec3 a, IntVec3 b)
+        {
+            return !(a == b);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is IntVec3 other)
+            {
+                return this == other;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return (x, y, z).GetHashCode();
+        }
     }
 
     public struct LocalTargetInfo

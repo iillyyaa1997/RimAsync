@@ -235,9 +235,9 @@ namespace RimAsync.Patches.RW_Patches
             {
                 // Quick thinking for immediate response
                 var quickThought = GetQuickThought(pawn);
-                if (quickThought != null)
+                if (quickThought.HasValue)
                 {
-                    RimAsyncLogger.Debug($"Quick thought for {pawn.LabelShort}: {quickThought.Job?.def?.defName}", "AISystem");
+                    RimAsyncLogger.Debug($"Quick thought for {pawn.LabelShort}: {quickThought.Value.Job?.def?.defName}", "AISystem");
 
                     // Schedule background deep thinking
                     ScheduleDeepThinking(pawn, jobParams);
