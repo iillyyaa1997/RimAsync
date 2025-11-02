@@ -159,8 +159,8 @@ namespace Tests.Unit.Patches
         {
             // Arrange
             mockSettings.enableAsyncJobExecution = true;
-            var jobTracker = new MockJobTracker 
-            { 
+            var jobTracker = new MockJobTracker
+            {
                 pawn = testPawn,
                 curJob = new Verse.AI.Job(new JobDef { defName = "HaulGeneral" })
             };
@@ -193,8 +193,8 @@ namespace Tests.Unit.Patches
         {
             // Arrange
             mockSettings.enableAsyncBuilding = false;
-            var building = new MockThing 
-            { 
+            var building = new MockThing
+            {
                 def = new ThingDef { defName = "PowerConduit" },
                 Spawned = true,
                 Map = testMap
@@ -212,8 +212,8 @@ namespace Tests.Unit.Patches
         {
             // Arrange
             mockSettings.enableAsyncBuilding = true;
-            var thing = new MockThing 
-            { 
+            var thing = new MockThing
+            {
                 def = new ThingDef { defName = "Plant_Potato" }, // Not a building
                 Spawned = true,
                 Map = testMap
@@ -231,8 +231,8 @@ namespace Tests.Unit.Patches
         {
             // Arrange
             mockSettings.enableAsyncBuilding = true;
-            var building = new MockThing 
-            { 
+            var building = new MockThing
+            {
                 def = new ThingDef { defName = "PowerConduit" },
                 Spawned = true,
                 Map = testMap,
@@ -365,4 +365,3 @@ namespace Tests.Unit.Patches
         #endregion
     }
 }
-

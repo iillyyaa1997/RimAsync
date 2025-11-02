@@ -169,7 +169,7 @@ namespace RimAsync.Patches.RW_Patches
             };
 
             var defNameLower = thing.def.defName.ToLowerInvariant();
-            
+
             foreach (var buildingType in asyncBuildings)
             {
                 if (defNameLower.Contains(buildingType))
