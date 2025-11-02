@@ -4,17 +4,16 @@
 
 ## ⚡ Быстрый старт (5 минут)
 
-### 1. Компиляция
+### 1. Компиляция и Установка
 ```bash
 cd /Users/ilyavolkov/Workspace/RimAsync
-make build
+make install
 ```
 
-### 2. Установка (Symbolic Link)
-```bash
-ln -s /Users/ilyavolkov/Workspace/RimAsync \
-  ~/Library/Application\ Support/Steam/steamapps/common/RimWorld/Mods/RimAsync
-```
+**Эта команда автоматически:**
+- Компилирует мод в Release конфигурации
+- Создаёт distribution package
+- Устанавливает/обновляет мод в RimWorld
 
 ### 3. Запуск RimWorld
 1. Открыть RimWorld через Steam
