@@ -81,13 +81,15 @@ namespace RimAsync.Patches.Multiplayer_Patches
 
     /// <summary>
     /// Component that monitors multiplayer state changes
+    /// RimWorld 1.6 API: Uses Verse.GameComponent with parameterless constructor
     /// </summary>
-    public class MultiplayerStateMonitor : RimWorld.GameComponent
+    public class MultiplayerStateMonitor : Verse.GameComponent
     {
         private bool _wasInMultiplayer = false;
         private bool _wasAsyncTimeEnabled = false;
 
-        public MultiplayerStateMonitor(Game game) : base(game)
+        // RimWorld 1.6 API Change: GameComponent constructor is parameterless
+        public MultiplayerStateMonitor() : base()
         {
         }
 

@@ -84,7 +84,7 @@
     <!-- EXCLUDED: Pawn_AI_Patch.cs (unsafe threading violations) -->
     <Compile Include="Patches/RW_Patches/Game_Patch.cs" />
     <Compile Include="Patches/Performance_Patches/TickManager_Patch.cs" />
-    <!-- EXCLUDED: MultiplayerCompat_Patch.cs (requires GameComponent) -->
+    <Compile Include="Patches/Multiplayer_Patches/MultiplayerCompat_Patch.cs" />
     <Compile Include="Components/RimAsyncGameComponent.cs" />
     <Compile Include="Settings/RimAsyncSettings.cs" />
     <Compile Include="Utils/MultiplayerCompat.cs" />
