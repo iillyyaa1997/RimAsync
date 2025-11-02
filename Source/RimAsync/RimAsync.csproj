@@ -79,7 +79,7 @@
     <Compile Include="Core/RimAsyncCore.cs" />
     <Compile Include="RimAsyncMod.cs" />
     <Compile Include="Threading/AsyncManager.cs" />
-    <Compile Include="Patches/RW_Patches/Building_Patch.cs" />
+    <!-- EXCLUDED: Building_Patch.cs (RimWorld 1.6 API incompatible - Thing.Tick() undefined target) -->
     <Compile Include="Patches/RW_Patches/Pawn_AI_Patch.cs" />
     <!-- EXCLUDED: Pawn_PathFollower_Patch.cs (RimWorld 1.6 API incompatible - pawn property inaccessible, PathFinder.FindPath removed) -->
     <Compile Include="Patches/RW_Patches/Game_Patch.cs" />
