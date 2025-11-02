@@ -92,8 +92,8 @@ namespace RimAsync.Utils
                 calculatedThreads = Math.Max(2, processorCount / 4);
             }
 
-            // Clamp to reasonable range: 1-8 threads
-            return Math.Clamp(calculatedThreads, 1, 8);
+            // Clamp to reasonable range: 1-8 threads (.NET 4.7.2 compatible)
+            return Math.Max(1, Math.Min(calculatedThreads, 8));
         }
 
         /// <summary>
@@ -110,8 +110,8 @@ namespace RimAsync.Utils
                 return CalculateOptimalThreadLimit();
             }
 
-            // Manual mode: use user preference, clamped to valid range
-            return Math.Clamp(userPreference, 1, 8);
+            // Manual mode: use user preference, clamped to valid range (.NET 4.7.2 compatible)
+            return Math.Max(1, Math.Min(userPreference, 8));
         }
 
         /// <summary>

@@ -1,7 +1,7 @@
 # RimAsync - Real In-Game Testing Guide
 
-**Дата:** 2 ноября 2025  
-**Статус:** ✅ Готов к реальному тестированию  
+**Дата:** 2 ноября 2025
+**Статус:** ✅ Готов к реальному тестированию
 **Версия:** 1.0.0 (supports RimWorld 1.5 & 1.6)
 
 ## 🎯 Цель
@@ -299,9 +299,9 @@ RimWorld Version: [1.5 or 1.6]
 RimAsync Version: 1.0.0
 
 STEPS TO REPRODUCE:
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 EXPECTED BEHAVIOR:
 
@@ -375,7 +375,7 @@ EOF
 - [ ] TPS >= baseline (no performance regression)
 
 **Ideal for "EXCELLENT":**
-- [ ] All above + 
+- [ ] All above +
 - [ ] TPS improvement 15-30%
 - [ ] Multiplayer detection works
 - [ ] 0 desyncs in multiplayer
@@ -431,4 +431,3 @@ echo "✅ Test results collected in ~/Desktop/RimAsync_Test_Results/"
 ---
 
 **Good luck with testing! 🚀**
-

@@ -1,12 +1,17 @@
 # План разработки RimAsync
 
 **Дата создания:** 19 июля 2025
-**Статус:** 📋 Планирование
-**Версия плана:** 1.0
+**Статус:** 🔄 Активная разработка (RimWorld 1.6 Only)
+**Версия плана:** 2.0
+**Целевая версия:** RimWorld 1.6.4630+
+
+> ⚠️ **ВАЖНО:** С 2 ноября 2025 RimAsync разрабатывается **ТОЛЬКО для RimWorld 1.6**. Поддержка RimWorld 1.5 прекращена.
 
 ## 🎯 Цель проекта
 
-Создать первый **асинхронный мод для RimWorld**, который работает с **RimWorld Multiplayer** и поддерживает **AsyncTime** для безопасного async выполнения без десинхронизации.
+Создать первый **асинхронный мод для RimWorld 1.6**, который работает с **RimWorld Multiplayer** и поддерживает **AsyncTime** для безопасного async выполнения без десинхронизации.
+
+> 🎯 **Target:** RimWorld 1.6.4630+ ONLY (RimWorld 1.5 support discontinued)
 
 ## 📈 Этапы разработки
 
@@ -83,7 +88,7 @@
 
 ### 🟡 Этап 3: Расширенная функциональность
 **Сроки:** 22-28 июля 2025
-**Статус:** 🔄 В ПРОЦЕССЕ (75% завершено)
+**Статус:** ✅ ЗАВЕРШЕН (100%)
 
 #### Задачи:
 - ✅ Добавить больше async патчей (Job, AI, Building)
@@ -133,9 +138,51 @@
 
 ### 🔴 Этап 4: Совместимость и стабильность
 **Сроки:** 29 июля - 5 августа 2025
-**Статус:** 🔄 В процессе (60% завершено)
+**Статус:** 🔄 В процессе (70% завершено)
 
-#### Задачи:
+#### 🆕 Этап 4.1: RimWorld 1.6 Compatibility (ДОБАВЛЕНО 2 ноября 2025)
+**Статус:** ✅ ЗАВЕРШЕН - Critical compatibility fixes applied
+
+- ✅ **Систематическая диагностика проблем** (4 шага изоляции: 0→1→2→3)
+  - Step 0: Minimal mod (4 KB) - работает
+  - Step 1: + Harmony init - работает
+  - Step 2: + Simple patch - работает
+  - Step 3: + All safe components - Building_Patch failed
+  - Final: Excluded incompatible patches - РАБОТАЕТ ✅
+- ✅ **Идентифицированы RimWorld 1.6 API changes**:
+  - `RimWorld.GameComponent` не найден (переименован/перемещен)
+  - `Building.Tick()` сигнатура изменилась
+  - `World` class references несовместимы
+- ✅ **Исправлена .NET 4.7.2 совместимость**:
+  - `Math.Clamp` → `Math.Max(min, Math.Min(value, max))`
+  - `String.Contains(StringComparison)` → `IndexOf(...) >= 0`
+- ✅ **Временно отключены несовместимые компоненты**:
+  - Building_Patch.cs (API changed)
+  - Game_Patch.cs (GameComponent not found)
+  - RimAsyncGameComponent.cs (GameComponent not found)
+  - MultiplayerCompat_Patch.cs (requires GameComponent)
+  - Pawn_AI_Patch.cs (unsafe threading - requires rewrite)
+  - Pawn_PathFollower_Patch.cs (unsafe threading - requires rewrite)
+- ✅ **Сохранена core функциональность** (54 KB DLL):
+  - RimAsyncCore + AsyncManager - полностью работают
+  - TickManager_Patch - оптимизация тиков
+  - SmartCache + PerformanceMonitor
+  - DebugOverlay (F11) + ThreadLimitCalculator
+  - Settings UI - полностью функционален
+- ✅ **Исправлен build pipeline**:
+  - `RimAsync.csproj` - только совместимые компоненты
+  - `docker-compose.yml` - монтирует реальные RimWorld libs
+  - `Makefile` - `make deploy` (build + install в одну команду)
+- ✅ **Результат**: 0 ошибок при запуске, игра загружается успешно
+- 📝 **Документация**: RIMWORLD_1.6_COMPATIBILITY_FIX.md создан
+
+#### Прогресс Этапа 4.1:
+- **Коммиты:** 8+ (systematic isolation, compatibility fixes, build pipeline)
+- **Тесты:** Мануальное тестирование - игра запускается без ошибок ✅
+- **DLL размер:** 72 KB → 54 KB (оптимизировано, только совместимые компоненты)
+- **Документация:** 1 новый файл (RIMWORLD_1.6_COMPATIBILITY_FIX.md)
+
+#### Задачи (Этап 4.0 - Legacy):
 - ✅ Создание системы тестирования совместимости модов
   - ModCompatibilityTests.cs с 20 комплексными тестами
   - Автоматическое detection несовместимых модов
@@ -154,21 +201,37 @@
 - ✅ Создание testing documentation
   - TESTING.md - comprehensive testing guide
   - RELEASE_CHECKLIST.md - полный release checklist
-- ⏳ Тестирование с популярными модами (реальное)
+#### Задачи (Этап 4.2 - In Progress):
+- ⏳ **Research RimWorld 1.6 API changes** (КРИТИЧНО)
+  - ⏳ Найти замену `RimWorld.GameComponent` в RimWorld 1.6
+  - ⏳ Определить новую сигнатуру `Building.Tick()`
+  - ⏳ Создать совместимый GameComponent для 1.6
+- ⏳ **Rewrite Pawn patches (main-thread safe)** (КРИТИЧНО)
+  - ⏳ Убрать `Task.Run()` из Pawn patches
+  - ⏳ Использовать main-thread scheduling
+  - ⏳ Переписать Pawn_AI_Patch безопасно
+  - ⏳ Переписать Pawn_PathFollower_Patch безопасно
+- ⏳ **Восстановить Building_Patch** с новым API
+- ⏳ **Тестирование с популярными модами** (реальное)
   - ⏳ Combat Extended (in-game testing)
   - ⏳ Vanilla Expanded series (in-game testing)
   - ⏳ HugsLib integration
-- ⏳ Глубокое тестирование Multiplayer режима
+- ⏳ **Real in-game performance testing**
+  - ⏳ Колония 50+ pawns
+  - ⏳ Измерить TPS improvement (цель: +15-30%)
+  - ⏳ 2+ hours stability test
+- ⏳ **Глубокое тестирование Multiplayer режима**
   - ⏳ AsyncTime stress testing
   - ⏳ Desync detection и prevention
   - ⏳ Multi-player performance benchmarks
-- ⏳ Beta тестирование с сообществом
+- ⏳ **Beta тестирование с сообществом**
 
-#### Прогресс:
-- **Коммиты:** 4 новых (formatting, mod-compatibility, stress-tests, fix-flaky-tests)
-- **Тесты:** 255/255 проходят (100% ✅) - 29 новых тестов
-- **Новый код:** ~2000 строк (tests + documentation)
-- **Документация:** 3 новых файла (COMPATIBILITY.md, TESTING.md, RELEASE_CHECKLIST.md)
+#### Прогресс Этапа 4 (общий):
+- **Коммиты:** 12+ (4 legacy + 8+ compatibility fixes)
+- **Тесты:** 255/255 автотесты ✅ + мануальное in-game тестирование ✅
+- **Новый код:** ~2000 строк (tests + documentation) + compatibility fixes
+- **Документация:** 4 файла (COMPATIBILITY.md, TESTING.md, RELEASE_CHECKLIST.md, RIMWORLD_1.6_COMPATIBILITY_FIX.md)
+- **Build pipeline:** `make deploy` - одна команда для всего ✅
 
 ### 🟢 Этап 5: Релиз и поддержка
 **Сроки:** 6-15 августа 2025
@@ -240,28 +303,55 @@
 - **Инструменты:** Visual Studio/Rider, RimWorld, Git
 
 ### Тестирование:
-- **Тестовая среда:** RimWorld 1.5 + Multiplayer mod
+- **Тестовая среда:** RimWorld 1.6.4630+ + Multiplayer mod
 - **Моды для тестирования:** Combat Extended, Vanilla Expanded, HugsLib
 - **Hardware:** MacBook Pro (Apple Silicon)
 - **📁 Логи дисинхронизации:** `/Users/ilyavolkov/Library/Application Support/RimWorld/MpDesyncs`
 
+> ⚠️ **Note:** RimWorld 1.5 больше не поддерживается. Все тесты проводятся на RimWorld 1.6.4630+
+
 ## 📝 Следующие шаги
 
-1. **Немедленно:**
-   - ⏳ Real in-game testing (Этап 4 - 60% выполнено)
-   - ⏳ Multiplayer stress testing с AsyncTime
-   - ⏳ Community beta testing подготовка
+### 🔴 **КРИТИЧНО - Немедленно:**
+1. **Research RimWorld 1.6 API changes** (2-4 часа)
+   - Найти замену `RimWorld.GameComponent` → `Verse.GameComponent`?
+   - Определить новую сигнатуру `Building.Tick()`
+   - Восстановить GameComponent functionality
 
-2. **На этой неделе:**
-   - ⏳ In-game testing с Combat Extended и Vanilla Expanded
-   - ⏳ Multiplayer session testing (1+ hour)
-   - ⏳ Performance measurement в реальной игре
+2. **Rewrite Pawn patches (main-thread safe)** (4-6 часов)
+   - УДАЛИТЬ все `Task.Run()` из Pawn patches
+   - Использовать main-thread scheduling через TickManager
+   - Переписать Pawn_AI_Patch и Pawn_PathFollower_Patch безопасно
 
-3. **Следующая неделя:**
-   - Финальная полировка Этапа 4
-   - Начало Этапа 5 (релиз и поддержка)
-   - Alpha release preparation
+### 🟠 **ВАЖНО - На этой неделе:**
+3. **Real in-game performance testing** (2-3 часа)
+   - Колония 50+ pawns
+   - TPS measurement (цель: +15-30% improvement)
+   - Stability test 2+ hours
+
+4. **Mod compatibility testing** (3-4 часа)
+   - Combat Extended in-game testing
+   - Vanilla Expanded series testing
+   - Документировать конфликты
+
+5. **Multiplayer + AsyncTime testing** (2-3 часа)
+   - Multiplayer session (1+ hour)
+   - Desync detection
+   - AsyncTime stress test
+
+### 🟡 **СРЕДНЕ - Следующая неделя:**
+6. **Update documentation** (2-3 часа)
+   - README.md - RimWorld 1.6 notes
+   - COMPATIBILITY.md - update
+   - KNOWN_ISSUES.md - create
+
+7. **Alpha release preparation** (2-3 часа)
+   - GitHub release v0.5.0-alpha
+   - Steam Workshop submission prep
+   - Community beta testing setup
+
+8. **Начало Этапа 5** (релиз и поддержка)
 
 ---
 
-**Последнее обновление:** 2 ноября 2025
+**Последнее обновление:** 2 ноября 2025 (RimWorld 1.6 Compatibility - DONE ✅)

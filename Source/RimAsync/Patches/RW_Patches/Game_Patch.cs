@@ -36,16 +36,14 @@ namespace RimAsync.Patches.RW_Patches
         /// </summary>
         private static void EnsureGameComponentExists(Game game)
         {
-            if (!RimAsyncCore.IsInitialized) return;
-
             try
             {
                 // Check if our component already exists
                 var existingComponent = game.GetComponent<RimAsyncGameComponent>();
                 if (existingComponent == null)
                 {
-                    // Add our component
-                    var component = new RimAsyncGameComponent(game);
+                    // RimWorld 1.6 API: GameComponent constructor is parameterless
+                    var component = new RimAsyncGameComponent();
                     game.components.Add(component);
 
                     Log.Message("[RimAsync] Added RimAsyncGameComponent to game");
@@ -77,36 +75,6 @@ namespace RimAsync.Patches.RW_Patches
             catch (System.Exception ex)
             {
                 Log.Error($"[RimAsync] Error during map cleanup: {ex}");
-            }
-        }
-    }
-
-    /// <summary>
-    /// Patches for World lifecycle
-    /// </summary>
-    [HarmonyPatch(typeof(World))]
-    public static class World_Patch
-    {
-        /// <summary>
-        /// Clear cache when world is finalized
-        /// </summary>
-        [HarmonyPatch("FinalizeInit")]
-        [HarmonyPostfix]
-        public static void FinalizeInit_Postfix()
-        {
-            try
-            {
-                // Clear any stale cache entries when world initializes
-                Utils.SmartCache.ClearAll();
-
-                if (RimAsyncMod.Settings?.enableDebugLogging == true)
-                {
-                    Log.Message("[RimAsync] Cleared cache on world init");
-                }
-            }
-            catch (System.Exception ex)
-            {
-                Log.Error($"[RimAsync] Error during world init cleanup: {ex}");
             }
         }
     }

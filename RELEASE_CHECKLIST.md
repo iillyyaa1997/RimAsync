@@ -1,7 +1,7 @@
 # RimAsync - Release Checklist
 
-**Version:** 0.1.0 (Development → Alpha)  
-**Target Date:** TBD  
+**Version:** 0.1.0 (Development → Alpha)
+**Target Date:** TBD
 **Release Type:** Alpha / Beta / Stable
 
 ## Pre-Release Checklist
@@ -12,17 +12,17 @@
   ```bash
   make test
   ```
-  
+
 - [ ] **No linter errors**
   ```bash
   make lint
   ```
-  
+
 - [ ] **Code formatted**
   ```bash
   make format-check
   ```
-  
+
 - [ ] **Coverage requirements met** (>85%)
   ```bash
   make coverage
@@ -34,14 +34,14 @@
   ```bash
   make clean && make build
   ```
-  
+
 - [ ] **Release build successful**
   ```bash
   docker-compose up release
   ```
-  
+
 - [ ] **DLL size reasonable** (< 5MB)
-  
+
 - [ ] **No debug symbols in release** (except .pdb)
 
 ### 📝 Documentation
@@ -186,7 +186,7 @@
    ```bash
    # Check file size
    ls -lh Release/Assemblies/RimAsync.dll
-   
+
    # Verify dependencies
    dotnet --list-deps Release/Assemblies/RimAsync.dll
    ```
@@ -196,9 +196,9 @@
 1. **Create CHANGELOG.md:**
    ```markdown
    # Changelog
-   
+
    ## [0.1.0-alpha] - 2025-11-XX
-   
+
    ### Added
    - Async pathfinding system
    - AsyncTime integration for Multiplayer
@@ -206,7 +206,7 @@
    - Debug overlay (F11)
    - Auto thread limit calculation
    - Smart caching system
-   
+
    ### Performance
    - +15-30% TPS improvement in large colonies
    - <20% memory overhead
@@ -216,19 +216,19 @@
 2. **Create README.txt** (for mod folder):
    ```
    RimAsync v0.1.0-alpha
-   
+
    Performance mod with full multiplayer support.
-   
+
    Features:
    - Async pathfinding
    - Multiplayer compatible (AsyncTime)
    - Auto thread optimization
    - Debug overlay (F11)
-   
+
    Requirements:
-   - RimWorld 1.5+
+   - RimWorld 1.6.4630+
    - Harmony (required)
-   
+
    See full README at: [GitHub URL]
    ```
 
@@ -255,7 +255,7 @@
    ```bash
    # Prepare upload directory
    cp -r Release/ RimAsync_Workshop/
-   
+
    # Use RimWorld Workshop Uploader
    # or SteamCMD
    ```
@@ -278,7 +278,7 @@ The first performance mod with full multiplayer support!
 
 [h2]Requirements[/h2]
 [list]
-[*] RimWorld 1.5+
+[*] RimWorld 1.6.4630+
 [*] Harmony (required)
 [*] RimWorld Multiplayer (optional, for multiplayer)
 [/list]
@@ -442,4 +442,3 @@ If major issues found:
 **Remember:** Quality > Speed. Better to delay than release broken mod.
 
 **Questions?** Review this checklist with the team before each release.
-

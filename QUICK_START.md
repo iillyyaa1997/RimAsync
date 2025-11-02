@@ -41,5 +41,5 @@ make install
 
 ---
 
-**Логи:** `~/Library/Logs/Unity/Player.log`  
+**Логи:** `~/Library/Logs/Unity/Player.log`
 **Desyncs:** `~/Library/Application Support/RimWorld/MpDesyncs/`

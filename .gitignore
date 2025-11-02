@@ -38,6 +38,10 @@ Release/
 docker-volumes/
 *.dockerignore
 .env.docker
+dist/
+
+## Environment variables
+.env
 
 ## Package managers
 packages/

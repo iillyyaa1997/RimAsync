@@ -1,7 +1,7 @@
 # RimAsync Makefile
 # Convenient commands for Docker-based development
 
-.PHONY: help build test test-unit test-integration test-performance test-run test-quick test-find t coverage coverage-html coverage-quick test-unit-coverage test-integration-coverage test-performance-coverage test-run-coverage test-quick-coverage test-find-coverage t-coverage dev quick-build release clean logs shell format lint setup
+.PHONY: help build test test-unit test-integration test-performance test-run test-quick test-find t coverage coverage-html coverage-quick test-unit-coverage test-integration-coverage test-performance-coverage test-run-coverage test-quick-coverage test-find-coverage t-coverage dev quick-build release clean logs shell format lint setup install package deploy-local
 
 # Default target
 .DEFAULT_GOAL := help
@@ -17,6 +17,9 @@ NC=\033[0m # No Color
 help:
 	@echo ""
 	@echo "$(CYAN)RimAsync Development Commands$(NC)"
+	@echo ""
+	@echo "$(GREEN)⚡ Quick Start:$(NC)"
+	@echo "  $(YELLOW)make deploy$(NC)       - Build + Install in one command (recommended)"
 	@echo ""
 	@echo "$(GREEN)🏗️  Build Commands:$(NC)"
 	@echo "  $(YELLOW)make build$(NC)        - Full build in Docker container"
@@ -56,6 +59,7 @@ help:
 	@echo "  $(YELLOW)make dev$(NC)          - Start development environment"
 	@echo "  $(YELLOW)make shell$(NC)        - Enter Docker container shell"
 	@echo "  $(YELLOW)make logs$(NC)         - Show Docker container logs"
+	@echo "  $(YELLOW)make install$(NC)      - Install/Update mod in RimWorld"
 	@echo ""
 	@echo "$(GREEN)🧹 Maintenance Commands:$(NC)"
 	@echo "  $(YELLOW)make clean$(NC)        - Clean Docker images and containers"
@@ -485,26 +489,84 @@ security-scan:
 	docker-compose exec dev dotnet list package --vulnerable --include-transitive
 	@echo "$(GREEN)✅ Security scan completed!$(NC)"
 
-## 📦 Create distribution package
-package: release
+## 📦 Create distribution package (RimWorld 1.6 compatible)
+package: build
 	@echo "$(CYAN)📦 Creating distribution package...$(NC)"
-	@mkdir -p dist/
-	@cp -r Build/ dist/RimAsync/
-	@cp About/ dist/RimAsync/About/
-	@cp README.md LICENSE dist/RimAsync/
-	@echo "$(GREEN)✅ Package created in dist/RimAsync/$(NC)"
-
-## 🚀 Deploy to local RimWorld mods directory (macOS)
-deploy-local: package
-	@echo "$(CYAN)🚀 Deploying to local RimWorld mods...$(NC)"
-	@RIMWORLD_MODS="$(HOME)/Library/Application Support/RimWorld/Mods"; \
-	if [ -d "$$RIMWORLD_MODS" ]; then \
-		cp -r dist/RimAsync/ "$$RIMWORLD_MODS/RimAsync/"; \
-		echo "$(GREEN)✅ Deployed to $$RIMWORLD_MODS/RimAsync/$(NC)"; \
+	@mkdir -p dist/RimAsync/About dist/RimAsync/Assemblies
+	@cp -r About/* dist/RimAsync/About/ 2>/dev/null || echo "$(YELLOW)⚠️  About folder not found$(NC)"
+	@if [ -f 1.6/Assemblies/RimAsync.dll ]; then \
+		cp 1.6/Assemblies/RimAsync.dll dist/RimAsync/Assemblies/; \
+		echo "$(GREEN)✅ Copied RimWorld 1.6 compatible DLL$(NC)"; \
 	else \
-		echo "$(RED)❌ RimWorld mods directory not found: $$RIMWORLD_MODS$(NC)"; \
-		echo "$(YELLOW)💡 Please install RimWorld or create the mods directory manually$(NC)"; \
+		echo "$(RED)❌ 1.6/Assemblies/RimAsync.dll not found, run 'make build' first$(NC)"; \
+		exit 1; \
 	fi
+	@cp README.md LICENSE dist/RimAsync/ 2>/dev/null || echo "$(YELLOW)⚠️  README.md or LICENSE not found$(NC)"
+	@echo "$(GREEN)✅ Package created in dist/RimAsync/ (RimWorld 1.6 compatible)$(NC)"
+
+## 🚀 Install/Update mod in RimWorld mods directory
+install: package
+	@echo "$(CYAN)🚀 Installing/Updating mod in RimWorld...$(NC)"
+	@if [ -f .env ]; then \
+		RIMWORLD_MODS=$$(grep '^RIMWORLD_MODS_PATH=' .env | cut -d '=' -f2- | sed 's/^"//;s/"$$//'); \
+		RIMWORLD_MODS=$${RIMWORLD_MODS:-$(HOME)/Library/Application Support/RimWorld/Mods}; \
+	else \
+		echo "$(YELLOW)⚠️  .env file not found, using default path$(NC)"; \
+		RIMWORLD_MODS="$(HOME)/Library/Application Support/RimWorld/Mods"; \
+	fi; \
+	RIMWORLD_MODS=$$(eval echo "$$RIMWORLD_MODS"); \
+	if [ ! -d "$$RIMWORLD_MODS" ]; then \
+		echo "$(RED)❌ RimWorld mods directory not found: $$RIMWORLD_MODS$(NC)"; \
+		echo "$(YELLOW)💡 Please create .env file with RIMWORLD_MODS_PATH variable$(NC)"; \
+		echo "$(YELLOW)💡 See .env.example for reference$(NC)"; \
+		exit 1; \
+	fi; \
+	if [ -d "$$RIMWORLD_MODS/RimAsync" ]; then \
+		echo "$(YELLOW)📦 Mod found, updating...$(NC)"; \
+		rm -rf "$$RIMWORLD_MODS/RimAsync"; \
+	else \
+		echo "$(YELLOW)📦 Mod not found, installing...$(NC)"; \
+	fi; \
+	cp -r dist/RimAsync/ "$$RIMWORLD_MODS/RimAsync/"; \
+	echo "$(GREEN)✅ Mod installed/updated successfully!$(NC)"; \
+	echo "$(CYAN)📍 Location: $$RIMWORLD_MODS/RimAsync/$(NC)"
+
+## 🚀 Deploy to local RimWorld mods directory (macOS) - DEPRECATED, use 'make deploy'
+deploy-local: deploy
+	@echo "$(YELLOW)⚠️  'deploy-local' is deprecated, use 'make deploy' instead$(NC)"
+
+## ⚡ Quick deploy: Build + Install in one command
+deploy: build
+	@echo "$(CYAN)⚡ Quick Deploy: Building and installing...$(NC)"
+	@$(MAKE) --no-print-directory package-internal
+	@$(MAKE) --no-print-directory install-internal
+	@echo "$(GREEN)🎉 Deploy complete! Mod is ready to use in RimWorld.$(NC)"
+
+# Internal targets (no logging spam)
+package-internal:
+	@mkdir -p dist/RimAsync/About dist/RimAsync/Assemblies
+	@cp -r About/* dist/RimAsync/About/ 2>/dev/null || true
+	@if [ -f 1.6/Assemblies/RimAsync.dll ]; then \
+		cp 1.6/Assemblies/RimAsync.dll dist/RimAsync/Assemblies/; \
+	else \
+		echo "$(RED)❌ Build failed$(NC)"; exit 1; \
+	fi
+	@cp README.md LICENSE dist/RimAsync/ 2>/dev/null || true
+
+install-internal:
+	@if [ -f .env ]; then \
+		RIMWORLD_MODS=$$(grep '^RIMWORLD_MODS_PATH=' .env | cut -d '=' -f2- | sed 's/^"//;s/"$$//'); \
+		RIMWORLD_MODS=$${RIMWORLD_MODS:-$(HOME)/Library/Application Support/RimWorld/Mods}; \
+	else \
+		RIMWORLD_MODS="$(HOME)/Library/Application Support/RimWorld/Mods"; \
+	fi; \
+	RIMWORLD_MODS=$$(eval echo "$$RIMWORLD_MODS"); \
+	if [ ! -d "$$RIMWORLD_MODS" ]; then \
+		echo "$(RED)❌ RimWorld mods directory not found$(NC)"; exit 1; \
+	fi; \
+	rm -rf "$$RIMWORLD_MODS/RimAsync" 2>/dev/null || true; \
+	cp -r dist/RimAsync/ "$$RIMWORLD_MODS/RimAsync/"; \
+	echo "$(GREEN)✅ Installed to: $$RIMWORLD_MODS/RimAsync/$(NC)"
 
 # Development workflow shortcuts
 

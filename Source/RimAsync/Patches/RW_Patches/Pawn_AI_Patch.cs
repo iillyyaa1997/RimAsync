@@ -24,6 +24,12 @@ namespace RimAsync.Patches.RW_Patches
         [HarmonyPrefix]
         public static bool MindStateTick_Prefix(Pawn_MindState __instance)
         {
+            // Safety check: Settings might not be initialized during early game loading
+            if (RimAsyncMod.Settings == null)
+            {
+                return true; // Use original method if settings not ready
+            }
+
             // Only apply async AI if enabled
             if (!RimAsyncMod.Settings.enableAsyncAI)
             {
@@ -174,7 +180,8 @@ namespace RimAsync.Patches.RW_Patches
     public static class ThinkNode_Patch
     {
         /// <summary>
-        /// Async job package issuing for better AI performance
+        /// Async job package issuing for better AI performance - DISABLED
+        /// This patch is disabled because job creation requires properly initialized JobDefs from XML
         /// </summary>
         [HarmonyPatch("TryIssueJobPackage")]
         [HarmonyPrefix]
@@ -184,39 +191,11 @@ namespace RimAsync.Patches.RW_Patches
             JobIssueParams jobParams,
             ref ThinkResult __result)
         {
-            // Only apply async thinking if enabled
-            if (!RimAsyncMod.Settings.enableAsyncAI)
-            {
-                return true; // Use original method
-            }
+            // DISABLED: Job creation requires valid JobDefs from DefDatabase
+            // Creating jobs programmatically causes NullReferenceException
+            // See GetQuickThought for detailed explanation of why this is disabled
 
-            if (pawn == null || pawn.Dead)
-            {
-                return true; // Use original method for invalid pawns
-            }
-
-            // Don't use async for urgent thinking
-            if (IsThinkingUrgent(pawn))
-            {
-                return true; // Use original method
-            }
-
-            try
-            {
-                // Try async thinking
-                var asyncResult = TryAsyncThinking(__instance, pawn, jobParams);
-                if (asyncResult.HasValue)
-                {
-                    __result = asyncResult.Value;
-                    return false; // Skip original method
-                }
-            }
-            catch (Exception ex)
-            {
-                RimAsyncLogger.Error($"Error in async thinking, falling back to sync", ex, "AISystem");
-            }
-
-            // Fallback to original method
+            // Always use original method
             return true;
         }
 
@@ -255,22 +234,13 @@ namespace RimAsync.Patches.RW_Patches
         /// </summary>
         private static ThinkResult? GetQuickThought(Pawn pawn)
         {
-            // Quick priority checks
-            if (pawn.needs?.food?.CurLevel < 0.4f)
-            {
-                // Hungry - think about food
-                var foodJob = new Verse.AI.Job(new JobDef { defName = "Ingest" });
-                return new ThinkResult(foodJob);
-            }
+            // DISABLED: This method was creating new JobDefs which caused NullReferenceException
+            // because JobDefs must be loaded from XML definitions, not created at runtime.
+            //
+            // Quick thoughts are not reliable without proper job definitions.
+            // Better to return null and let the original thinking system handle it.
 
-            if (pawn.needs?.rest?.CurLevel < 0.3f)
-            {
-                // Tired - think about rest
-                var restJob = new Verse.AI.Job(new JobDef { defName = "LayDown" });
-                return new ThinkResult(restJob);
-            }
-
-            // No immediate priority thought
+            // No immediate priority thought - use original thinking
             return null;
         }
 

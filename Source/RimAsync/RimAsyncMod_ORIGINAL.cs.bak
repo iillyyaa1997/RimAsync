@@ -1,0 +1,121 @@
+using System;
+using HarmonyLib;
+using RimWorld;
+using UnityEngine;
+using Verse;
+using RimAsync.Utils;
+
+namespace RimAsync
+{
+    /// <summary>
+    /// Main mod class for RimAsync - handles initialization and lifecycle
+    /// </summary>
+    public class RimAsyncMod : Mod
+    {
+        public static RimAsyncMod Instance { get; private set; }
+        public static RimAsync.Core.RimAsyncSettings Settings => Instance?.GetSettings<RimAsync.Core.RimAsyncSettings>();
+
+        private static Harmony _harmonyInstance;
+        public static Harmony HarmonyInstance => _harmonyInstance;
+
+        public RimAsyncMod(ModContentPack content) : base(content)
+        {
+            Instance = this;
+
+            // Configure logging system first
+            RimAsyncLogger.Configure(enableDebug: false, RimAsyncLogger.LogLevel.Info);
+            RimAsyncLogger.InitStep("RimAsyncMod", "Starting mod initialization");
+            // Unconditional early marker to verify mod constructor runs
+            Log.Message("[RimAsync] Mod constructor entered");
+
+            // Normal safe initialization continues below
+
+            try
+            {
+                // Initialize Harmony patching
+                RimAsyncLogger.Debug("Creating Harmony instance", "Mod");
+                _harmonyInstance = new Harmony("rimasync.mod");
+
+                // CRITICAL: Do NOT initialize core systems here!
+                // RimAsyncCore.Initialize() calls MultiplayerCompat.Initialize()
+                // which enumerates ALL assemblies via AppDomain.GetAssemblies()
+                // This can trigger premature loading of other mods' assemblies
+                // causing texture loading failures!
+                //
+                // Core systems will be initialized later via GameComponent
+                RimAsyncLogger.Debug("Core systems initialization deferred to GameComponent", "Mod");
+
+                // Apply patches immediately - BEFORE Def loading
+                // This is safer than StaticConstructorOnStartup which runs DURING Def PostLoad
+                var skipHarmonyEnv = System.Environment.GetEnvironmentVariable("RIMASYNC_SKIP_HARMONY");
+                var skipHarmony = string.Equals(skipHarmonyEnv, "1", StringComparison.OrdinalIgnoreCase)
+                                   || string.Equals(skipHarmonyEnv, "true", StringComparison.OrdinalIgnoreCase);
+
+                if (skipHarmony)
+                {
+                    RimAsyncLogger.Info("Skipping Harmony patching (RIMASYNC_SKIP_HARMONY set)", "Mod");
+                }
+                else
+                {
+                    // Defer patch application until long events (defs loading) are finished
+                    // to avoid interfering with PostLoad steps of other mods
+                    RimAsyncLogger.Info("Deferring Harmony patching until after long events", "Mod");
+                    try
+                    {
+                        Verse.LongEventHandler.ExecuteWhenFinished(() =>
+                        {
+                            Log.Message("[RimAsync] ExecuteWhenFinished: applying Harmony patches");
+                            try
+                            {
+                                RimAsyncLogger.Info("Applying Harmony patches (post-long-events)", "Mod");
+                                _harmonyInstance.PatchAll();
+                                RimAsyncLogger.Info("Harmony patches applied successfully", "Mod");
+                            }
+                            catch (Exception innerPatchEx)
+                            {
+                                RimAsyncLogger.Error("Failed to apply Harmony patches (post-long-events)", innerPatchEx, "Mod");
+                            }
+                        });
+                    }
+                    catch (Exception scheduleEx)
+                    {
+                        // Fallback: apply immediately if scheduling fails
+                        RimAsyncLogger.Warning("Could not schedule deferred patching, applying immediately", "Mod");
+                        try
+                        {
+                            _harmonyInstance.PatchAll();
+                            RimAsyncLogger.Info("Harmony patches applied successfully (fallback)", "Mod");
+                        }
+                        catch (Exception patchEx)
+                        {
+                            RimAsyncLogger.Error("Failed to apply Harmony patches (fallback)", patchEx, "Mod");
+                        }
+                    }
+                }
+
+                RimAsyncLogger.InitStep("RimAsyncMod", "Successfully initialized with Harmony ID: rimasync.mod", true);
+            }
+            catch (Exception ex)
+            {
+                RimAsyncLogger.Error("Critical error during initialization", ex, "Mod");
+                // Do not rethrow to keep tests and non-game environments resilient
+            }
+        }
+
+        public override void DoSettingsWindowContents(Rect inRect)
+        {
+            Settings.DoWindowContents(inRect);
+        }
+
+        public override string SettingsCategory()
+        {
+            return "RimAsync";
+        }
+
+        public override void WriteSettings()
+        {
+            base.WriteSettings();
+            RimAsync.Core.RimAsyncCore.OnSettingsChanged();
+        }
+    }
+}

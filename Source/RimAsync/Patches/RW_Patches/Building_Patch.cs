@@ -23,6 +23,12 @@ namespace RimAsync.Patches.RW_Patches
         [HarmonyPrefix]
         public static bool Tick_Prefix(Thing __instance)
         {
+            // Safety check: Settings might not be initialized during early game loading
+            if (RimAsyncMod.Settings == null)
+            {
+                return true; // Use original method if settings not ready
+            }
+
             // Only apply async building if enabled and this is a building-like thing
             if (!RimAsyncMod.Settings.enableAsyncBuilding || !IsBuildingLike(__instance))
             {
@@ -198,7 +204,8 @@ namespace RimAsync.Patches.RW_Patches
 
             foreach (var criticalType in criticalBuildings)
             {
-                if (building.def.defName.Contains(criticalType, StringComparison.OrdinalIgnoreCase))
+                // .NET 4.7.2 compatible: IndexOf instead of Contains with StringComparison
+                if (building.def.defName.IndexOf(criticalType, StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     return true;
                 }
@@ -209,211 +216,21 @@ namespace RimAsync.Patches.RW_Patches
     }
 
     /// <summary>
-    /// Patches for async construction and deconstruction
+    /// Patches for async construction and deconstruction - DISABLED
+    /// These patches were causing critical issues by intercepting Thing.SpawnSetup/DeSpawn
+    /// which broke texture loading, mod initialization, and game state management.
+    ///
+    /// TODO: Reimplement using Postfix patches that don't skip original methods.
     /// </summary>
+    /*
     [HarmonyPatch]
     public static class Construction_Patch
     {
-        /// <summary>
-        /// Async construction processing
-        /// </summary>
-        [HarmonyPatch(typeof(Thing), "SpawnSetup")]
-        [HarmonyPrefix]
-        public static bool SpawnSetup_Prefix(Thing __instance, Map map, bool respawningAfterLoad)
-        {
-            // Only apply async construction if enabled and this is a building
-            if (!RimAsyncMod.Settings.enableAsyncBuilding || !IsBuildingLike(__instance))
-            {
-                return true; // Use original method
-            }
-
-            if (map == null)
-            {
-                return true; // Use original method for invalid map
-            }
-
-            try
-            {
-                // Try async construction setup
-                if (TryAsyncConstructionSetup(__instance, map, respawningAfterLoad))
-                {
-                    return false; // Skip original method
-                }
-            }
-            catch (Exception ex)
-            {
-                RimAsyncLogger.Error($"Error in async construction setup, falling back to sync", ex, "ConstructionSystem");
-            }
-
-            // Fallback to original method
-            return true;
-        }
-
-        /// <summary>
-        /// Async deconstruction processing
-        /// </summary>
-        [HarmonyPatch(typeof(Thing), "DeSpawn")]
-        [HarmonyPrefix]
-        public static bool DeSpawn_Prefix(Thing __instance, DestroyMode mode)
-        {
-            // Only apply async deconstruction if enabled and this is a building
-            if (!RimAsyncMod.Settings.enableAsyncBuilding || !IsBuildingLike(__instance))
-            {
-                return true; // Use original method
-            }
-
-            // Don't use async for violent destruction
-            if (mode == DestroyMode.KillFinalize || mode == DestroyMode.FailConstruction)
-            {
-                return true; // Use original method for violent destruction
-            }
-
-            try
-            {
-                // Try async deconstruction
-                if (TryAsyncDeconstruction(__instance, mode))
-                {
-                    return false; // Skip original method
-                }
-            }
-            catch (Exception ex)
-            {
-                RimAsyncLogger.Error($"Error in async deconstruction, falling back to sync", ex, "ConstructionSystem");
-            }
-
-            // Fallback to original method
-            return true;
-        }
-
-        /// <summary>
-        /// Attempt asynchronous construction setup
-        /// </summary>
-        private static bool TryAsyncConstructionSetup(Thing building, Map map, bool respawningAfterLoad)
-        {
-            // Check if we can use async operations
-            if (!AsyncManager.CanExecuteAsync() || !RimAsyncCore.CanUseAsync())
-            {
-                return false; // Fallback to sync
-            }
-
-            using (PerformanceMonitor.StartMeasuring("AsyncConstructionSetup"))
-            {
-                // Quick setup for immediate response
-                building.Map = map;
-                building.Spawned = true;
-
-                RimAsyncLogger.Debug($"Quick construction setup for {building.def?.defName}", "ConstructionSystem");
-
-                // Schedule background construction finalization
-                ScheduleConstructionFinalization(building, respawningAfterLoad);
-
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// Attempt asynchronous deconstruction
-        /// </summary>
-        private static bool TryAsyncDeconstruction(Thing building, DestroyMode mode)
-        {
-            // Check if we can use async operations
-            if (!AsyncManager.CanExecuteAsync() || !RimAsyncCore.CanUseAsync())
-            {
-                return false; // Fallback to sync
-            }
-
-            using (PerformanceMonitor.StartMeasuring("AsyncDeconstruction"))
-            {
-                // Quick deconstruction for immediate response
-                building.Spawned = false;
-
-                RimAsyncLogger.Debug($"Quick deconstruction for {building.def?.defName}", "ConstructionSystem");
-
-                // Schedule background deconstruction cleanup
-                ScheduleDeconstructionCleanup(building, mode);
-
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// Schedule background construction finalization
-        /// </summary>
-        private static void ScheduleConstructionFinalization(Thing building, bool respawningAfterLoad)
-        {
-            if (!RimAsyncCore.CanUseAsync()) return;
-
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await AsyncManager.ExecuteAdaptive(
-                        async (cancellationToken) =>
-                        {
-                            // Simulate construction finalization
-                            await Task.Delay(6, cancellationToken);
-
-                            // Record the construction
-                            PerformanceMonitor.RecordMetric("ConstructionFinalization", 6.0f);
-
-                            RimAsyncLogger.Debug($"Construction finalized for {building.def?.defName}", "ConstructionSystem");
-                        },
-                        () =>
-                        {
-                            // Sync fallback - minimal construction finalization
-                            PerformanceMonitor.RecordMetric("ConstructionFinalization", 1.0f);
-                        },
-                        "ConstructionFinalization");
-                }
-                catch (Exception ex)
-                {
-                    RimAsyncLogger.Error($"Error in construction finalization", ex, "ConstructionSystem");
-                }
-            });
-        }
-
-        /// <summary>
-        /// Schedule background deconstruction cleanup
-        /// </summary>
-        private static void ScheduleDeconstructionCleanup(Thing building, DestroyMode mode)
-        {
-            if (!RimAsyncCore.CanUseAsync()) return;
-
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await AsyncManager.ExecuteAdaptive(
-                        async (cancellationToken) =>
-                        {
-                            // Simulate deconstruction cleanup
-                            await Task.Delay(4, cancellationToken);
-
-                            // Record the deconstruction
-                            PerformanceMonitor.RecordMetric("DeconstructionCleanup", 4.0f);
-
-                            RimAsyncLogger.Debug($"Deconstruction cleanup completed for {building.def?.defName}", "ConstructionSystem");
-                        },
-                        () =>
-                        {
-                            // Sync fallback - minimal cleanup
-                            PerformanceMonitor.RecordMetric("DeconstructionCleanup", 1.0f);
-                        },
-                        "DeconstructionCleanup");
-                }
-                catch (Exception ex)
-                {
-                    RimAsyncLogger.Error($"Error in deconstruction cleanup", ex, "ConstructionSystem");
-                }
-            });
-        }
-
-        /// <summary>
-        /// Check if this thing is building-like (reuse from Building_Patch)
-        /// </summary>
-        private static bool IsBuildingLike(Thing thing)
-        {
-            return Building_Patch.IsBuildingLike(thing);
-        }
+        // DISABLED: These patches break game initialization by skipping critical setup code
+        // DO NOT RE-ENABLE without fixing the fundamental issue:
+        // - We cannot skip SpawnSetup/DeSpawn original methods
+        // - Manual field assignment (Map, Spawned) is insufficient
+        // - Missing: texture loading, component initialization, region registration, etc.
     }
+    */
 }

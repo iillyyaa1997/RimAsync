@@ -28,6 +28,12 @@ namespace RimAsync.Patches.RW_Patches
             Verse.AI.PathEndMode peMode,
             ref PawnPath __result)
         {
+            // Safety check: Settings might not be initialized during early game loading
+            if (RimAsyncMod.Settings == null)
+            {
+                return true; // Use original method if settings not ready
+            }
+
             // Only apply async pathfinding if enabled and safe
             if (!RimAsyncMod.Settings.enableAsyncPathfinding)
             {
@@ -170,85 +176,33 @@ namespace RimAsync.Patches.RW_Patches
     public static class Pawn_JobTracker_Patch
     {
         /// <summary>
-        /// Async job determination for better AI performance
+        /// Async job determination for better AI performance - DISABLED
+        /// This patch is disabled because job creation requires properly initialized JobDefs from XML
         /// </summary>
         [HarmonyPatch("DetermineNextJob")]
         [HarmonyPrefix]
         public static bool DetermineNextJob_Prefix(Pawn_JobTracker __instance, ref ThinkResult __result)
         {
-            // Only apply async job determination if enabled
-            if (!RimAsyncMod.Settings.enableBackgroundJobs)
-            {
-                return true; // Use original method
-            }
+            // DISABLED: Job determination requires valid JobDefs from DefDatabase
+            // Creating jobs programmatically causes NullReferenceException
+            // See GetQuickJob for detailed explanation of why this is disabled
 
-            var pawn = __instance.pawn;
-            if (pawn == null || pawn.Dead || !pawn.Spawned)
-            {
-                return true; // Use original method for invalid pawns
-            }
-
-            // Don't use async for critical situations
-            if (IsJobCritical(pawn))
-            {
-                return true; // Use original method
-            }
-
-            try
-            {
-                // Try async job determination
-                var asyncResult = TryAsyncJobDetermination(__instance);
-                if (asyncResult.HasValue)
-                {
-                    __result = asyncResult.Value;
-                    return false; // Skip original method
-                }
-            }
-            catch (Exception ex)
-            {
-                RimAsyncLogger.Error($"Error in async job determination, falling back to sync", ex, "JobSystem");
-            }
-
-            // Fallback to original method with performance monitoring
-            using (PerformanceMonitor.StartMeasuring("SyncJobDetermination"))
-            {
-                return true;
-            }
+            // Always use original method
+            return true;
         }
 
         /// <summary>
-        /// Async job execution optimization
+        /// Async job execution optimization - DISABLED
+        /// This patch is disabled because job execution cannot be safely moved to background threads
         /// </summary>
         [HarmonyPatch("JobTrackerTick")]
         [HarmonyPrefix]
         public static bool JobTrackerTick_Prefix(Pawn_JobTracker __instance)
         {
-            // Only optimize if async job execution is enabled
-            if (!RimAsyncMod.Settings.enableAsyncJobExecution)
-            {
-                return true; // Use original method
-            }
+            // DISABLED: Job execution requires main thread access to Unity objects
+            // See ScheduleAsyncJobTick for detailed explanation of why this is disabled
 
-            var pawn = __instance.pawn;
-            if (pawn == null || pawn.Dead)
-            {
-                return true; // Use original method
-            }
-
-            try
-            {
-                // Try async job execution
-                if (TryAsyncJobExecution(__instance))
-                {
-                    return false; // Skip original method
-                }
-            }
-            catch (Exception ex)
-            {
-                RimAsyncLogger.Error($"Error in async job execution, falling back to sync", ex, "JobSystem");
-            }
-
-            // Fallback to original method
+            // Always use original method
             return true;
         }
 
@@ -342,45 +296,36 @@ namespace RimAsync.Patches.RW_Patches
         /// </summary>
         private static Verse.AI.Job GetQuickJob(Pawn pawn)
         {
-            // Priority jobs that can be determined quickly
-            if (pawn.needs?.food?.CurLevel < 0.3f)
-            {
-                // Hungry - need food job
-                return CreateFoodJob(pawn);
-            }
+            // DISABLED: Creating new JobDef instances causes NullReferenceException
+            // because JobDefs must be loaded from XML definitions, not created at runtime.
+            //
+            // Quick jobs are not reliable without proper job definitions from DefDatabase.
+            // The game's job system is complex and requires proper initialization:
+            // - JobDefs must be loaded via XML
+            // - JobDefs need proper database registration
+            // - Job creation requires valid ThinkTree context
+            //
+            // Better to return null and let the original job determination system handle it.
 
-            if (pawn.needs?.rest?.CurLevel < 0.2f)
-            {
-                // Tired - need rest job
-                return CreateRestJob(pawn);
-            }
-
-            // No immediate priority job
             return null;
         }
 
         /// <summary>
-        /// Create a food-seeking job
+        /// Create a food-seeking job - DISABLED
         /// </summary>
         private static Verse.AI.Job CreateFoodJob(Pawn pawn)
         {
-            // Simplified food job creation
-            var foodJobDef = new JobDef { defName = "Ingest" };
-            var job = new Verse.AI.Job();
-            job.def = foodJobDef;
-            return job;
+            // DISABLED: See GetQuickJob comment
+            return null;
         }
 
         /// <summary>
-        /// Create a rest job
+        /// Create a rest job - DISABLED
         /// </summary>
         private static Verse.AI.Job CreateRestJob(Pawn pawn)
         {
-            // Simplified rest job creation
-            var restJobDef = new JobDef { defName = "LayDown" };
-            var job = new Verse.AI.Job();
-            job.def = restJobDef;
-            return job;
+            // DISABLED: See GetQuickJob comment
+            return null;
         }
 
         /// <summary>
@@ -421,41 +366,27 @@ namespace RimAsync.Patches.RW_Patches
 
         /// <summary>
         /// Schedule asynchronous job tick execution
+        /// CRITICAL: DriverTick MUST run on the main thread due to Unity limitations
+        /// This method is DISABLED to prevent threading violations
         /// </summary>
         private static void ScheduleAsyncJobTick(Pawn_JobTracker jobTracker)
         {
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await AsyncManager.ExecuteAdaptive(
-                        async (cancellationToken) =>
-                        {
-                            // Async job driver tick
-                            await Task.Delay(1, cancellationToken);
+            // DISABLED: Calling DriverTick from a background thread causes threading violations
+            // Unity objects (pawns, jobs, maps, etc.) can only be accessed from the main thread.
+            //
+            // Attempting to call DriverTick() from Task.Run causes:
+            // - NullReferenceException when accessing Unity objects
+            // - Race conditions in game state
+            // - Texture loading failures
+            // - Map/Region access violations
+            //
+            // The job system is deeply integrated with Unity's main thread and cannot be
+            // safely made asynchronous without major refactoring.
+            //
+            // Instead, we should use Postfix patches to optimize AFTER jobs complete,
+            // or use caching/predictive algorithms that don't touch Unity objects.
 
-                            if (jobTracker.curDriver != null)
-                            {
-                                jobTracker.curDriver.DriverTick();
-                            }
-
-                            PerformanceMonitor.RecordMetric("AsyncJobTick", 1.0f);
-                        },
-                        () =>
-                        {
-                            // Sync fallback
-                            if (jobTracker.curDriver != null)
-                            {
-                                jobTracker.curDriver.DriverTick();
-                            }
-                        },
-                        "AsyncJobTick");
-                }
-                catch (Exception ex)
-                {
-                    RimAsyncLogger.Error($"Error in async job tick", ex, "JobSystem");
-                }
-            });
+            RimAsyncLogger.Debug("Async job tick requested but disabled due to thread safety", "JobSystem");
         }
 
         /// <summary>

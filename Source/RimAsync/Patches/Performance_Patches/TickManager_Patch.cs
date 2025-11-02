@@ -20,6 +20,12 @@ namespace RimAsync.Patches.Performance_Patches
         [HarmonyPrefix]
         public static bool DoSingleTick_Prefix(TickManager __instance)
         {
+            // Safety check: Settings might not be initialized during early game loading
+            if (RimAsyncMod.Settings == null)
+            {
+                return true; // Use original method if settings not ready
+            }
+
             // Only apply optimizations if enabled
             if (!RimAsyncMod.Settings.enableMemoryOptimization && !RimAsyncMod.Settings.enablePerformanceMonitoring)
             {
@@ -83,6 +89,12 @@ namespace RimAsync.Patches.Performance_Patches
         [HarmonyPrefix]
         public static bool MapPostTick_Prefix(Map __instance)
         {
+            // Safety check: Settings might not be initialized during early game loading
+            if (RimAsyncMod.Settings == null)
+            {
+                return true; // Use original method if settings not ready
+            }
+
             if (!RimAsyncMod.Settings.enablePerformanceMonitoring)
             {
                 return true; // Use original method

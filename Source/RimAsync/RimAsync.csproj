@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <!-- Target the same framework as RimWorld (Unity/Mono) to avoid type identity issues -->
+    <TargetFramework>net472</TargetFramework>
     <AssemblyName>RimAsync</AssemblyName>
     <RootNamespace>RimAsync</RootNamespace>
     <LangVersion>9.0</LangVersion>
@@ -34,10 +35,6 @@
   <!-- RimWorld Reference Assemblies -->
   <ItemGroup Condition="Exists('$(RimWorldInstallDir)')">
     <!-- Local development with RimWorld installed -->
-    <Reference Include="0Harmony">
-      <HintPath>$(RimWorldInstallDir)\RimWorldWin64_Data\Managed\0Harmony.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>$(RimWorldInstallDir)\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
@@ -50,10 +47,6 @@
 
   <!-- Docker build - use copied assemblies -->
   <ItemGroup Condition="!Exists('$(RimWorldInstallDir)') And Exists('/app/RimWorldLibs')">
-    <Reference Include="0Harmony">
-      <HintPath>/app/RimWorldLibs/0Harmony.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>/app/RimWorldLibs/Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
@@ -62,25 +55,36 @@
       <HintPath>/app/RimWorldLibs/UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>/app/RimWorldLibs/UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
 
-  <!-- Mock references for Docker when RimWorld libs not available -->
-  <ItemGroup Condition="!Exists('$(RimWorldInstallDir)') And !Exists('/app/RimWorldLibs')">
+  <!-- Mock references are ONLY for Debug builds without RimWorld libs (never ship in Release) -->
+  <ItemGroup Condition="'$(Configuration)'=='Debug' And !Exists('$(RimWorldInstallDir)') And !Exists('/app/RimWorldLibs')">
     <Compile Include="../MockReferences/**/*.cs" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug' And !Exists('$(RimWorldInstallDir)') And !Exists('/app/RimWorldLibs')">
+    <DefineConstants>$(DefineConstants);USE_MOCK_REFERENCES</DefineConstants>
+  </PropertyGroup>
 
-  <!-- Source Files - based on actual file structure -->
+  <!-- Safety guard: fail Release build if RimWorld libs are missing (prevents shipping mocks) -->
+  <Target Name="FailIfReleaseWithoutLibs" BeforeTargets="Build" Condition="'$(Configuration)'=='Release' And !Exists('$(RimWorldInstallDir)') And !Exists('/app/RimWorldLibs')">
+    <Error Text="RimWorld reference assemblies not found. Do not build Release without libs (would include MockReferences)." />
+  </Target>
+
+  <!-- Source Files - RimWorld 1.6 compatible subset -->
   <ItemGroup>
     <Compile Include="Core/RimAsyncCore.cs" />
     <Compile Include="RimAsyncMod.cs" />
     <Compile Include="Threading/AsyncManager.cs" />
-    <Compile Include="Patches/RW_Patches/Pawn_PathFollower_Patch.cs" />
-    <Compile Include="Patches/RW_Patches/Pawn_AI_Patch.cs" />
-    <Compile Include="Patches/RW_Patches/Building_Patch.cs" />
+    <!-- EXCLUDED: Building_Patch.cs (RimWorld 1.6 API incompatible) -->
+    <!-- EXCLUDED: Pawn_PathFollower_Patch.cs (unsafe threading violations) -->
+    <!-- EXCLUDED: Pawn_AI_Patch.cs (unsafe threading violations) -->
     <Compile Include="Patches/RW_Patches/Game_Patch.cs" />
     <Compile Include="Patches/Performance_Patches/TickManager_Patch.cs" />
-    <Compile Include="Patches/Multiplayer_Patches/MultiplayerCompat_Patch.cs" />
-    <Compile Include="Patches/Mod_Patches/ExampleMod_Patch.cs" />
+    <!-- EXCLUDED: MultiplayerCompat_Patch.cs (requires GameComponent) -->
     <Compile Include="Components/RimAsyncGameComponent.cs" />
     <Compile Include="Settings/RimAsyncSettings.cs" />
     <Compile Include="Utils/MultiplayerCompat.cs" />

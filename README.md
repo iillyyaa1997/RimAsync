@@ -2,13 +2,17 @@
 
 **Performance optimization mod with full multiplayer support**
 
-[![RimWorld Version](https://img.shields.io/badge/RimWorld-1.5%20|%201.6-blue.svg)](https://rimworldgame.com/)
+[![RimWorld Version](https://img.shields.io/badge/RimWorld-1.6-green.svg)](https://rimworldgame.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Multiplayer Compatible](https://img.shields.io/badge/Multiplayer-Compatible-brightgreen.svg)](https://github.com/rwmt/Multiplayer)
 
+> ⚠️ **RimWorld 1.6 ONLY:** This mod is developed exclusively for RimWorld 1.6.4630+. RimWorld 1.5 support has been discontinued as of 2 November 2025.
+
 ## What is RimAsync?
 
-RimAsync brings **asynchronous performance improvements** to RimWorld while maintaining full compatibility with multiplayer. The first performance mod that works seamlessly with [RimWorld Multiplayer](https://github.com/rwmt/Multiplayer).
+RimAsync brings **asynchronous performance improvements** to RimWorld 1.6 while maintaining full compatibility with multiplayer. The first performance mod designed specifically for RimWorld 1.6 that works seamlessly with [RimWorld Multiplayer](https://github.com/rwmt/Multiplayer).
+
+> 🎯 **Exclusively for RimWorld 1.6.4630+** - Not compatible with RimWorld 1.5
 
 ## Key Features
 
@@ -32,9 +36,11 @@ RimAsync brings **asynchronous performance improvements** to RimWorld while main
 ## Installation
 
 ### Requirements
-- **RimWorld 1.5+**
+- **RimWorld 1.6.4630+** (REQUIRED - RimWorld 1.5 NOT SUPPORTED)
 - **[Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077)** (required)
 - **[RimWorld Multiplayer](https://github.com/rwmt/Multiplayer)** (optional, for multiplayer)
+
+> ⚠️ **Important:** This mod ONLY works with RimWorld 1.6. If you're using RimWorld 1.5, you cannot use this mod.
 
 ### Steps
 1. Subscribe on Steam Workshop *(coming soon)*

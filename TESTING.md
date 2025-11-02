@@ -1,13 +1,13 @@
 # RimAsync Testing Guide
 
-**Last Updated:** November 2, 2025  
+**Last Updated:** November 2, 2025
 **Test Coverage:** 255 tests (100% passing ✅)
 
 ## Overview
 
 RimAsync has comprehensive test coverage across multiple categories:
 - **Unit Tests** (~180 tests) - Core functionality
-- **Integration Tests** (~30 tests) - Component interactions  
+- **Integration Tests** (~30 tests) - Component interactions
 - **Performance Tests** (~15 tests) - Benchmarks and regression
 - **Compatibility Tests** (~20 tests) - Mod compatibility
 - **Stress Tests** (~9 tests) - Memory leaks and stability
@@ -123,7 +123,7 @@ public void AsyncTime_Detection_WorksCorrectly()
 
     // Assert
     Assert.AreEqual(ExecutionMode.AsyncWithTime, mode);
-    
+
     // Cleanup
     MultiplayerCompat.DisableTestMode();
 }
@@ -139,7 +139,7 @@ public void AsyncTime_Detection_WorksCorrectly()
 
 **Key Metrics:**
 - **Pathfinding:** < 10ms per operation
-- **Cache operations:** < 0.001ms per operation  
+- **Cache operations:** < 0.001ms per operation
 - **TPS monitoring:** < 1ms overhead
 - **Memory per pawn:** < 100KB
 
@@ -321,10 +321,10 @@ public void MethodName_Scenario_ExpectedBehavior()
 {
     // Arrange - Setup test data and mocks
     var input = CreateTestData();
-    
+
     // Act - Execute the code under test
     var result = MethodUnderTest(input);
-    
+
     // Assert - Verify results
     Assert.AreEqual(expectedValue, result);
 }
@@ -340,7 +340,7 @@ public void MethodName_Scenario_ExpectedBehavior()
    ```csharp
    // Good
    SmartCache_GetOrCompute_ReturnsCachedValue()
-   
+
    // Bad
    Test1()
    ```
@@ -453,10 +453,10 @@ Test data stored in:
 
 ```csharp
 // Simple mock
-var pawn = new MockPawn 
-{ 
-    Dead = false, 
-    Spawned = true 
+var pawn = new MockPawn
+{
+    Dead = false,
+    Spawned = true
 };
 
 // Complex scenario
@@ -491,4 +491,3 @@ var colony = CreateTestColony(size: 100);
 ---
 
 **Questions?** Check the main README.md or open an issue on GitHub.
-

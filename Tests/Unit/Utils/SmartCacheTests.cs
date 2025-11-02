@@ -313,7 +313,7 @@ namespace RimAsync.Tests.Unit.Utils
             // This is acceptable as cache will converge to single value after warmup
             Assert.That(computeCount, Is.LessThanOrEqualTo(10),
                 $"Compute should be called minimal times despite concurrent access. Actual: {computeCount}");
-            
+
             // Log for debugging
             TestContext.WriteLine($"Concurrent cache compute called {computeCount} times for 10 threads");
         }

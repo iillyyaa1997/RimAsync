@@ -4,10 +4,19 @@
     <author>Ilya Volkov</author>
     <packageId>rimasync.mod</packageId>
     <supportedVersions>
-        <li>1.5</li>
         <li>1.6</li>
     </supportedVersions>
-    <description>Performance optimization mod with full RimWorld Multiplayer support. First performance mod that works seamlessly with AsyncTime!</description>
+    <description>Performance optimization mod with full RimWorld Multiplayer support. First performance mod designed specifically for RimWorld 1.6 that works seamlessly with AsyncTime!
+
+⚠️ RimWorld 1.6 ONLY - Not compatible with RimWorld 1.5
+
+Features:
+- Asynchronous task management
+- Performance monitoring
+- Smart caching with LRU eviction
+- Debug overlay (F11)
+- Auto thread limit detection
+- Full multiplayer compatibility</description>
     <modDependencies>
         <li>
             <packageId>brrainz.harmony</packageId>
@@ -18,7 +27,6 @@
     </modDependencies>
     <loadAfter>
         <li>brrainz.harmony</li>
-        <li>rwmt.Multiplayer</li>
     </loadAfter>
     <incompatibleWith>
         <li>majorhoff.rimthreaded</li>
