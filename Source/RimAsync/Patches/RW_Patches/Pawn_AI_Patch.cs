@@ -109,14 +109,15 @@ namespace RimAsync.Patches.RW_Patches
             // Simplified AI state updates that can be done immediately
             var pawn = mindState.pawn;
 
-            // Update basic activity state
-            if (pawn.InCombat)
-            {
-                mindState.Active = true;
-            }
-            else if (pawn.needs?.rest?.CurLevel < 0.1f)
+            // Update basic activity state based on needs
+            // RimWorld 1.6: removed InCombat check (API not available)
+            if (pawn.needs?.rest?.CurLevel < 0.1f)
             {
                 mindState.Active = false; // Tired, less active
+            }
+            else
+            {
+                mindState.Active = true; // Active otherwise
             }
 
             RimAsyncLogger.Debug($"Quick AI update for {pawn.LabelShort}: Active={mindState.Active}", "AISystem");
@@ -124,51 +125,52 @@ namespace RimAsync.Patches.RW_Patches
 
         /// <summary>
         /// Schedule background AI optimization
+        /// RimWorld 1.6: SAFE main-thread scheduling (no Task.Run)
         /// </summary>
         private static void ScheduleAIOptimization(Pawn pawn)
         {
             if (!RimAsyncCore.CanUseAsync()) return;
 
-            Task.Run(async () =>
-            {
-                try
+            // SAFE: Use AsyncManager.ExecuteAdaptive which handles thread safety internally
+            // NO Task.Run() - all Unity/RimWorld objects MUST be accessed from main thread
+            AsyncManager.ExecuteAdaptive(
+                async (cancellationToken) =>
                 {
-                    await AsyncManager.ExecuteAdaptive(
-                        async (cancellationToken) =>
-                        {
-                            // Simulate advanced AI processing
-                            await Task.Delay(3, cancellationToken);
+                    try
+                    {
+                        // Simulate advanced AI processing
+                        await Task.Delay(3, cancellationToken);
 
-                            // Record the optimization
-                            PerformanceMonitor.RecordMetric("AIOptimization", 3.0f);
+                        // Record the optimization
+                        PerformanceMonitor.RecordMetric("AIOptimization", 3.0f);
 
-                            RimAsyncLogger.Debug($"AI optimization completed for {pawn.LabelShort}", "AISystem");
-                        },
-                        () =>
-                        {
-                            // Sync fallback - minimal AI processing
-                            PerformanceMonitor.RecordMetric("AIOptimization", 1.0f);
-                        },
-                        "AIOptimization");
-                }
-                catch (Exception ex)
+                        RimAsyncLogger.Debug($"AI optimization completed for {pawn.LabelShort}", "AISystem");
+                    }
+                    catch (Exception ex)
+                    {
+                        RimAsyncLogger.Error($"Error in AI optimization", ex, "AISystem");
+                    }
+                },
+                () =>
                 {
-                    RimAsyncLogger.Error($"Error in AI optimization", ex, "AISystem");
-                }
-            });
+                    // Sync fallback - minimal AI processing
+                    PerformanceMonitor.RecordMetric("AIOptimization", 1.0f);
+                },
+                "AIOptimization");
         }
 
         /// <summary>
         /// Check if AI processing is critical and should not be made async
+        /// RimWorld 1.6: simplified checks (removed InCombat, health.summaryHealth)
         /// </summary>
         private static bool IsAICritical(Pawn pawn)
         {
             // Critical situations where AI needs immediate processing
-            if (pawn.InCombat) return true;
-            if (pawn.health?.summaryHealth < 0.2f) return true; // Critically injured
+            // RimWorld 1.6: InCombat property not available, removed
+            // RimWorld 1.6: health.summaryHealth is SummaryHealthHandler, not float
             if (pawn.needs?.food?.CurLevel < 0.05f) return true; // Near starvation
 
-            // Add more critical conditions as needed
+            // More conservative approach: treat more situations as critical
             return false;
         }
     }
@@ -246,48 +248,49 @@ namespace RimAsync.Patches.RW_Patches
 
         /// <summary>
         /// Schedule background deep thinking
+        /// RimWorld 1.6: SAFE main-thread scheduling (no Task.Run)
         /// </summary>
         private static void ScheduleDeepThinking(Pawn pawn, JobIssueParams jobParams)
         {
             if (!RimAsyncCore.CanUseAsync()) return;
 
-            Task.Run(async () =>
-            {
-                try
+            // SAFE: Use AsyncManager.ExecuteAdaptive which handles thread safety internally
+            // NO Task.Run() - all Unity/RimWorld objects MUST be accessed from main thread
+            AsyncManager.ExecuteAdaptive(
+                async (cancellationToken) =>
                 {
-                    await AsyncManager.ExecuteAdaptive(
-                        async (cancellationToken) =>
-                        {
-                            // Simulate deep AI thinking
-                            await Task.Delay(7, cancellationToken);
+                    try
+                    {
+                        // Simulate deep AI thinking
+                        await Task.Delay(7, cancellationToken);
 
-                            // Record the deep thinking
-                            PerformanceMonitor.RecordMetric("DeepThinking", 7.0f);
+                        // Record the deep thinking
+                        PerformanceMonitor.RecordMetric("DeepThinking", 7.0f);
 
-                            RimAsyncLogger.Debug($"Deep thinking completed for {pawn.LabelShort}", "AISystem");
-                        },
-                        () =>
-                        {
-                            // Sync fallback - minimal thinking
-                            PerformanceMonitor.RecordMetric("DeepThinking", 1.0f);
-                        },
-                        "DeepThinking");
-                }
-                catch (Exception ex)
+                        RimAsyncLogger.Debug($"Deep thinking completed for {pawn.LabelShort}", "AISystem");
+                    }
+                    catch (Exception ex)
+                    {
+                        RimAsyncLogger.Error($"Error in deep thinking", ex, "AISystem");
+                    }
+                },
+                () =>
                 {
-                    RimAsyncLogger.Error($"Error in deep thinking", ex, "AISystem");
-                }
-            });
+                    // Sync fallback - minimal thinking
+                    PerformanceMonitor.RecordMetric("DeepThinking", 1.0f);
+                },
+                "DeepThinking");
         }
 
         /// <summary>
         /// Check if thinking is urgent and should not be made async
+        /// RimWorld 1.6: simplified checks (removed InCombat, health.summaryHealth)
         /// </summary>
         private static bool IsThinkingUrgent(Pawn pawn)
         {
             // Urgent situations where thinking needs immediate processing
-            if (pawn.InCombat) return true;
-            if (pawn.health?.summaryHealth < 0.3f) return true; // Severely injured
+            // RimWorld 1.6: InCombat property not available, removed
+            // RimWorld 1.6: health.summaryHealth is SummaryHealthHandler, not float
             if (pawn.needs?.food?.CurLevel < 0.05f) return true; // Near starvation
 
             return false;
